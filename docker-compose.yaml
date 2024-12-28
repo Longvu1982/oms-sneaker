@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # app:
+  #   build: .
+  #   container_name: express-prisma-app
+  #   environment:
+  #     - DATABASE_URL=postgresql://user:password@db:5432/mydb?schema=public
+  #     - JWT_SECRET_KEY=your_jwt_secret_key
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     - db
+  #   command: ["npm", "run", "dev"]  # or `ts-node` directly if you prefer
+
+  db:
+    image: postgres:13
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+    driver: local

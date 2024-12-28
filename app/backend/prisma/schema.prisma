@@ -1,0 +1,96 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Author {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  Book      Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Book {
+  id            Int      @id @default(autoincrement())
+  title         String
+  isFiction     Boolean
+  datePublished DateTime
+  author        Author   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @unique
+  fullName  String
+  username  String   @unique
+  password  String
+  email     String
+  role      Role     @default(USER)
+  phone     String?
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Order {
+  id              String        @id @unique
+  orderNumber     String
+  orderDate       DateTime      @default(now())
+  SKU             String
+  size            Float
+  deposit         Int
+  totalPrice      Int
+  deliveryCode    String
+  shippingFee     Int
+  checkBox        Boolean       @default(false)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source          Source        @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  shippingStore   ShippingStore @relation(fields: [shippingStoreId], references: [id], onDelete: Cascade)
+  userId          String
+  sourceId        String
+  shippingStoreId String
+  status          OrderStatus   @default(ONGOING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Source {
+  id        String   @id @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model ShippingStore {
+  id        String   @id @unique
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  USER
+}
+
+enum OrderStatus {
+  ONGOING
+  LANDED
+  SHIPPED
+  CANCELLED
+}
