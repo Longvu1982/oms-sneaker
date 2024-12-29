@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import { Role } from "@/types/enum/app-enum";
 import React, { lazy } from "react";
 
 const Test1 = lazy(() => import("../../pages/private/test1/Test1"));
@@ -13,7 +14,7 @@ export const route1Route = [
       </React.Suspense>
     ),
 
-    roles: [1],
+    roles: [Role.ADMIN],
   },
   {
     path: "/route2",
@@ -23,6 +24,6 @@ export const route1Route = [
       </React.Suspense>
     ),
 
-    roles: [1],
+    roles: [Role.ADMIN],
   },
 ];

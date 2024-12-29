@@ -1,4 +1,4 @@
-import { OrderStatus, Role } from '@prisma/client';
+import { DeliveryCodeStatus, OrderStatus, Role } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { TAuthorWrite, TBookWrite, TUserRegisterWrite } from '../src/types/general';
 import { db } from '../src/utils/db.server';
@@ -64,38 +64,33 @@ function getSources() {
 }
 
 function getOrders(userId: string, sourceId: string, shippingStoreId: string) {
-  return [
-    {
-      orderNumber: 'ORD001',
+  const orders: any[] = [];
+  for (let i = 1; i <= 12; i++) {
+    const order = {
+      orderNumber: `ORD00${i}`,
       orderDate: new Date(),
-      SKU: 'SKU123',
-      size: 10.5,
-      deposit: 200,
-      totalPrice: 1000,
-      deliveryCode: 'DLV001',
-      shippingFee: 50,
-      checkBox: false,
+      SKU: `SKU${Math.floor(Math.random() * 1000)}`,
+      size: Math.floor(Math.random() * 15) + 1, // Random size between 1 and 15
+      deposit: Math.floor(Math.random() * 500) + 50, // Random deposit between 50 and 500
+      totalPrice: Math.floor(Math.random() * 2000) + 500, // Random totalPrice between 500 and 2500
+      deliveryCode: '',
+      deliveryCodeStatus: [DeliveryCodeStatus.PENDING, DeliveryCodeStatus.EXIST, DeliveryCodeStatus.DELIVERD][
+        Math.floor(Math.random() * 3)
+      ],
+      shippingFee: Math.floor(Math.random() * 100) + 10, // Random shippingFee between 10 and 100
+      checkBox: Math.random() > 0.5, // Random true/false
       userId,
       sourceId,
       shippingStoreId,
-      status: OrderStatus.ONGOING,
-    },
-    {
-      orderNumber: 'ORD002',
-      orderDate: new Date(),
-      SKU: 'SKU456',
-      size: 5.0,
-      deposit: 100,
-      totalPrice: 500,
-      deliveryCode: 'DLV002',
-      shippingFee: 25,
-      checkBox: true,
-      userId,
-      sourceId,
-      shippingStoreId,
-      status: OrderStatus.ONGOING,
-    },
-  ];
+      status: [OrderStatus.ONGOING, OrderStatus.LANDED, OrderStatus.SHIPPED, OrderStatus.CANCELLED][
+        Math.floor(Math.random() * 4)
+      ],
+    };
+
+    orders.push(order);
+  }
+
+  return orders;
 }
 
 async function seed() {

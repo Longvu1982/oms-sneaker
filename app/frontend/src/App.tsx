@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { useRouter } from "./router/useRouter";
-import { apiAuthMe } from "./services/main/AuthServices";
+import { apiAuthMe } from "./services/main/authServices";
 import useAuthStore from "./store/auth";
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLoading) return "Loading...";
+  if (isLoading) return "Authenticating...";
 
   return (
     <Suspense

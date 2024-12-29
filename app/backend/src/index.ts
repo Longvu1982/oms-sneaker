@@ -5,6 +5,7 @@ import authorRouter from './routes/author.router';
 import bookRouter from './routes/book.router';
 import authRouter from './routes/auth.router';
 import profileRouter from './routes/profile.router';
+import orderRouter from './routes/order.router';
 import { notFoundHandler } from './middleware/not-found';
 import { errorHandler } from './middleware/error-handler';
 import cookieParser from 'cookie-parser';
@@ -41,6 +42,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/authors', authorRouter);
 app.use('/api/books', bookRouter);
+app.use('/api/orders', orderRouter);
 
 // Not Found Middleware
 app.use(notFoundHandler);

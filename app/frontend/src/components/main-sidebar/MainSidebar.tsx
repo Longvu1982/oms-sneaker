@@ -25,7 +25,7 @@ const MainSidebar = () => {
     <Sidebar>
       <SidebarHeader>OMS Viet Sneaker</SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        <SidebarGroup className="space-y-1">
           {menus.map((menu) => (
             <MenuItem {...menu} key={menu.title} />
           ))}

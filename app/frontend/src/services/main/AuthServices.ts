@@ -14,3 +14,10 @@ export async function apiAuthMe() {
     method: "post",
   });
 }
+
+export async function apiLogout() {
+  return ApiService.fetchData<A>({
+    url: "/auth/logout",
+    method: "post",
+  });
+}

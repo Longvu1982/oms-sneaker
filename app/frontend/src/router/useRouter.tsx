@@ -1,9 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import { route1Route } from "./routes/route1.routes";
 import { Home, Login, ProtectedRoutes } from "./routeLoader";
+import { orderRoutes } from "./routes/order.routes";
+import useAuthStore from "@/store/auth";
 
 export const useRouter = () => {
-  const role = 1;
+  const user = useAuthStore((s) => s.user);
+  const role = user?.role;
 
   const getRoutesByRole = (routes: A[]) =>
     routes.filter(
@@ -22,7 +25,7 @@ export const useRouter = () => {
     },
     {
       element: <ProtectedRoutes />,
-      children: getRoutesByRole([...route1Route]),
+      children: getRoutesByRole([...route1Route, ...orderRoutes]),
     },
   ]);
 

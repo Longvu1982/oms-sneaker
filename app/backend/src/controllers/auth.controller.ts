@@ -10,8 +10,6 @@ export const login = async (request: Request, response: Response, next: NextFunc
     const userRequest: TUserSchema = request.body;
     const user = await UserService.getUserByUsername(userRequest.username);
 
-    console.log(request.cookies);
-
     if (!user) {
       return sendUnauthorizedResponse(response, 'Credentials Error');
     }
@@ -46,6 +44,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
 export const authMe = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const user = request.user;
+    console.log(user);
     return sendSuccessResponse(response, user);
   } catch (error: any) {
     next(error);

@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { apiLogIn } from "@/services/main/AuthServices";
+import { apiLogIn } from "@/services/main/authServices";
 import useAuthStore from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
