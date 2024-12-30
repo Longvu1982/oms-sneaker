@@ -3,6 +3,7 @@ import { route1Route } from "./routes/route1.routes";
 import { Home, Login, ProtectedRoutes } from "./routeLoader";
 import { orderRoutes } from "./routes/order.routes";
 import useAuthStore from "@/store/auth";
+import NotFound from "@/pages/public/not-found/404";
 
 export const useRouter = () => {
   const user = useAuthStore((s) => s.user);
@@ -17,7 +18,7 @@ export const useRouter = () => {
     {
       path: "/",
       element: <Home />,
-      errorElement: <>404</>,
+      errorElement: <NotFound />,
     },
     {
       path: "/login",

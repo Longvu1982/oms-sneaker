@@ -1,9 +1,9 @@
-import HttpStatusCode from '../utils/HttpStatusCode';
-import * as OrderSevice from '../services/order.service';
-import * as AuthorService from '../services/author.service';
 import { NextFunction, Request, Response } from 'express';
-import { bookSchema } from '../types/zod';
-import { TBookWrite } from '../types/general';
+import * as AuthorService from '../services/author.service';
+import * as OrderSevice from '../services/order.service';
+import { TBookWrite, TOrderWrite } from '../types/general';
+import { orderSchema } from '../types/zod';
+import HttpStatusCode from '../utils/HttpStatusCode';
 import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
 
 export const listOrders = async (request: Request, response: Response, next: NextFunction) => {
@@ -26,12 +26,11 @@ export const getBook = async (request: Request, response: Response, next: NextFu
   }
 };
 
-export const createBook = async (request: Request, response: Response, next: NextFunction) => {
+export const createOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const book: TBookWrite = request.body;
-    book.datePublished = new Date(book.datePublished);
-    const newBook = await OrderSevice.createBook(book);
-    return sendSuccessResponse(response, newBook, HttpStatusCode.CREATED);
+    const order: TOrderWrite = request.body;
+    const newOrder = await OrderSevice.createOrder(order);
+    return sendSuccessResponse(response, newOrder, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);
   }
@@ -87,11 +86,10 @@ export const checkExistingBookAuthor = async (request: Request, response: Respon
   }
 };
 
-export const validateBookData = (request: Request, response: Response, next: NextFunction) => {
+export const validateOrderData = (request: Request, response: Response, next: NextFunction) => {
   try {
-    const book = request.body;
-    book.datePublished = new Date(book.datePublished);
-    bookSchema.parse(book);
+    const order = request.body;
+    orderSchema.parse(order);
     next();
   } catch (error) {
     next(error);

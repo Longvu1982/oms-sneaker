@@ -12,7 +12,7 @@ const ProtectedRoutes = () => {
       <MainSidebar />
       <div className="flex-1 overflow-x-hidden">
         <div>
-          <Sticky>
+          <Sticky stickyClassName="z-[2]">
             <div className="h-12 shadow-sm flex items-center justify-between p-2 bg-background">
               <SidebarTrigger />
               <AvatarMenu />

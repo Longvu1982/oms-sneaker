@@ -11,11 +11,25 @@ import {
 import { OrderWithExtra } from "@/services/main/orderServices";
 import { ShippingStore, Source } from "@/types/model/app-model";
 import { MoreHorizontal } from "lucide-react";
-
+import { format } from "date-fns/format";
+import { Badge } from "@/components/ui/badge";
+import {
+  deliveryCodeStatusObject,
+  orderStatusObject,
+} from "./order-list-utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { OrderStatus } from "@/types/enum/app-enum";
 export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
   {
     accessorKey: "orderDate",
     header: "Ngày order",
+    cell: ({ getValue }) => {
+      return (
+        <div className="whitespace-nowrap">
+          {format(getValue() as string, "dd/MM/yyyy")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "SKU",
@@ -31,14 +45,14 @@ export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
   },
   {
     accessorKey: "totalPrice",
-    header: "giá",
+    header: "Giá",
   },
   {
     accessorKey: "user",
     header: "Tên khách",
     cell: ({ row }) => {
       const { user } = row.original;
-      return <div className="min-w-[120px]">{user.fullName}</div>;
+      return <div className="whitespace-nowrap">{user.fullName}</div>;
     },
   },
   {
@@ -51,16 +65,28 @@ export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
     cell: ({ row }) => {
       const order = row.original;
       const { deliveryCodeStatus, deliveryCode } = order;
+
+      const codeText = deliveryCode || "Chưa có MVĐ";
       return (
-        <div>
-          {deliveryCode} : {deliveryCodeStatus}
-        </div>
+        <Badge
+          className="whitespace-nowrap py-1"
+          variant="outline"
+          style={{
+            background: deliveryCodeStatusObject[deliveryCodeStatus]?.color,
+          }}
+        >
+          {codeText} : {deliveryCodeStatusObject[deliveryCodeStatus]?.text}
+        </Badge>
       );
     },
   },
   {
     accessorKey: "checkBox",
     header: "Hộp kiểm",
+    cell: ({ getValue }) => {
+      const isChecked = getValue() as boolean;
+      return isChecked ? <Checkbox checked /> : <></>;
+    },
   },
   {
     accessorKey: "source",
@@ -89,6 +115,21 @@ export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
   {
     accessorKey: "status",
     header: "Trạng thái",
+    cell: ({ getValue }) => {
+      const status = getValue() as OrderStatus;
+      const properties = orderStatusObject[status] ?? {};
+      return (
+        <Badge
+          className="whitespace-nowrap py-1"
+          variant="outline"
+          style={{
+            background: properties.color,
+          }}
+        >
+          {properties.text}
+        </Badge>
+      );
+    },
   },
   // {
   //   accessorKey: "email",

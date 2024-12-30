@@ -1,6 +1,7 @@
 import { db } from '../utils/db.server';
-import { QueryDataModel, TBookID, TBookRead, TBookWrite } from '../types/general';
+import { QueryDataModel, TBookID, TBookRead, TBookWrite, TOrderWrite } from '../types/general';
 import { Order, Prisma } from '@prisma/client';
+import { v4 } from 'uuid';
 export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: number; orders: Order[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
@@ -15,12 +16,20 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
   };
 
   // Filtering
-  if (filter) {
+  if (filter?.length) {
+    const filterArray: any = [];
+    filter.forEach(({ column, value }) => {
+      if (Array.isArray(value) && value.length > 0) {
+        filterArray.push({ [column]: { in: value } });
+      } else if (!Array.isArray(value) && value != null) {
+        filterArray.push({ [column]: value });
+      }
+    });
+
+    console.log(filterArray);
     query.where = {
       ...query.where,
-      AND: filter.map(({ column, value }) => ({
-        [column]: Array.isArray(value) ? { in: value } : value,
-      })),
+      AND: filterArray.length ? filterArray : undefined,
     };
   }
 
@@ -31,12 +40,15 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
       OR: [
         { orderNumber: { contains: searchText, mode: 'insensitive' } },
         { SKU: { contains: searchText, mode: 'insensitive' } },
+        { user: { fullName: { contains: searchText, mode: 'insensitive' } } },
+        { source: { name: { contains: searchText, mode: 'insensitive' } } },
+        { shippingStore: { name: { contains: searchText, mode: 'insensitive' } } },
       ],
     };
   }
 
   // Sorting
-  if (sort) {
+  if (sort?.column) {
     query.orderBy = {
       [sort.column]: sort.type,
     };
@@ -72,29 +84,11 @@ export const getBook = async (id: TBookID): Promise<TBookRead | null> => {
   });
 };
 
-export const createBook = async (book: TBookWrite): Promise<TBookRead> => {
-  const { title, authorId, datePublished, isFiction } = book;
-  const parsedDate: Date = new Date(datePublished);
-
-  return db.book.create({
+export const createOrder = async (order: TOrderWrite): Promise<Order> => {
+  return db.order.create({
     data: {
-      title,
-      authorId,
-      isFiction,
-      datePublished: parsedDate,
-    },
-    select: {
-      id: true,
-      title: true,
-      isFiction: true,
-      datePublished: true,
-      author: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
+      id: v4(),
+      ...order,
     },
   });
 };

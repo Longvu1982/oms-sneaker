@@ -10,14 +10,19 @@ import {
 import useAuthStore from "@/store/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { apiLogout } from "@/services/main/authServices";
+import { useNavigate } from "react-router-dom";
 
 export default function AvatarMenu() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     const { data } = await apiLogout();
-    if (data.success) logout();
+    if (data.success) {
+      logout();
+      navigate("/login");
+    }
   };
 
   return (

@@ -63,7 +63,7 @@ function getSources() {
   ];
 }
 
-function getOrders(userId: string, sourceId: string, shippingStoreId: string) {
+function getOrders(userId: string, sources, shippingStores) {
   const orders: any[] = [];
   for (let i = 1; i <= 12; i++) {
     const order = {
@@ -80,8 +80,8 @@ function getOrders(userId: string, sourceId: string, shippingStoreId: string) {
       shippingFee: Math.floor(Math.random() * 100) + 10, // Random shippingFee between 10 and 100
       checkBox: Math.random() > 0.5, // Random true/false
       userId,
-      sourceId,
-      shippingStoreId,
+      sourceId: sources[i % 5].id,
+      shippingStoreId: shippingStores[i % 5].id,
       status: [OrderStatus.ONGOING, OrderStatus.LANDED, OrderStatus.SHIPPED, OrderStatus.CANCELLED][
         Math.floor(Math.random() * 4)
       ],
@@ -171,26 +171,22 @@ async function seed() {
     })
   );
 
-  const userFromDb = await db.user.findFirst();
-  if (userFromDb) {
-    const orders = getOrders(
-      userFromDb.id,
-      sources[0].id, // Linking to the first source
-      shippingStores[0].id // Linking to the first shipping store
-    );
+  // const userFromDb = await db.user.findFirst();
+  // if (userFromDb) {
+  //   const orders = getOrders(userFromDb.id, sources, shippingStores);
 
-    await Promise.all(
-      orders.map((order) => {
-        console.log(`[*] Seeding Order: ${JSON.stringify(order)}`);
-        return db.order.create({
-          data: {
-            ...order,
-            id: uuidv4(),
-          },
-        });
-      })
-    );
-  }
+  //   await Promise.all(
+  //     orders.map((order) => {
+  //       console.log(`[*] Seeding Order: ${JSON.stringify(order)}`);
+  //       return db.order.create({
+  //         data: {
+  //           ...order,
+  //           id: uuidv4(),
+  //         },
+  //       });
+  //     })
+  //   );
+  // }
 }
 
 seed();

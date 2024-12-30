@@ -1,16 +1,104 @@
 import { DataTable } from "@/components/data-table/DataTable";
-import { apiGetOrderList, OrderWithExtra } from "@/services/main/orderServices";
-import { useEffect, useState } from "react";
-import { columns } from "./order-list-columns";
+import { Option } from "@/components/multi-select/MutipleSelect";
+import { Button } from "@/components/ui/button";
+import {
+  apiCreateOrder,
+  apiGetOrderList,
+  OrderWithExtra,
+} from "@/services/main/orderServices";
+import { apiShippingStoresList } from "@/services/main/shipingStoreServices";
+import { apiSourcesList } from "@/services/main/sourceServices";
+import { apiGetUsersList } from "@/services/main/userServices";
+import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
+import { FilterIcon, PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { columns } from "./order-list-columns";
+import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
+import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { schema } from "./panel/order-panel-schema";
 
 const OrderListPage = () => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
+  const [userList, setUserList] = useState<Option[]>([]);
+  const [sourceList, setSourceList] = useState<Option[]>([]);
+  const [shippingStoreList, setShippingStoreList] = useState<Option[]>([]);
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
+  const [isOpenFilter, setIsOpenFilter] = useState(false);
+  const [orderPanel, setOrderPanel] = useState<{
+    isOpen: boolean;
+    type: "create" | "edit";
+  }>({ isOpen: false, type: "create" });
+
+  const filterForm = useForm<FilterFormValues>({
+    defaultValues: {
+      searchText: "",
+      users: [],
+      sources: [],
+      shippingStores: [],
+    },
+  });
+
+  const orderForm = useForm<OrderFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      SKU: "",
+      size: 10,
+      deposit: 0,
+      totalPrice: 0,
+      deliveryCode: "",
+      deliveryCodeStatus: DeliveryCodeStatus.PENDING,
+      shippingFee: 0,
+      checkBox: false,
+      orderNumber: "",
+      userId: "",
+      sourceId: "",
+      shippingStoreId: "",
+      status: OrderStatus.ONGOING,
+    },
+  });
+
+  const onSubmit = async (data: FilterFormValues) => {
+    const newData = {
+      ...queryParams,
+      pagination: {
+        ...queryParams.pagination,
+        pageIndex: 0,
+      },
+      searchText: data.searchText,
+      filter: [
+        { column: "userId", value: data.users.map((u) => u.value) },
+        { column: "sourceId", value: data.sources.map((s) => s.value) },
+        {
+          column: "shippingStoreId",
+          value: data.shippingStores.map((ss) => ss.value),
+        },
+      ],
+    };
+
+    await getOrderList(newData as QueryDataModel);
+    setIsOpenFilter(false);
+  };
+
+  const onCreateOrder = async (data: OrderFormValues) => {
+    await apiCreateOrder(data);
+    await getOrderList(queryParams);
+  };
+
+  useEffect(() => {
+    if (!isOpenFilter) {
+      setTimeout(() => {
+        document.body.scrollTo(0, 0);
+      }, 500);
+    }
+  }, [isOpenFilter]);
 
   useEffect(() => {
     getOrderList(initQueryParams);
+    Promise.all([getUserList(), getSourceList(), getShippingStoreList()]);
   }, []);
 
   const getOrderList = async (params: QueryDataModel) => {
@@ -25,6 +113,48 @@ const OrderListPage = () => {
     }
   };
 
+  const getUserList = async () => {
+    const { data } = await apiGetUsersList({
+      ...initQueryParams,
+      pagination: { ...initQueryParams.pagination, pageSize: 0 },
+    });
+    if (data.success) {
+      const options = data.data.users.map((user) => ({
+        value: user.id,
+        label: user.fullName,
+      }));
+      setUserList(options);
+    }
+  };
+
+  const getSourceList = async () => {
+    const { data } = await apiSourcesList({
+      ...initQueryParams,
+      pagination: { ...initQueryParams.pagination, pageSize: 0 },
+    });
+    if (data.success) {
+      const options = data.data.sources.map((source) => ({
+        value: source.id,
+        label: source.name,
+      }));
+      setSourceList(options);
+    }
+  };
+
+  const getShippingStoreList = async () => {
+    const { data } = await apiShippingStoresList({
+      ...initQueryParams,
+      pagination: { ...initQueryParams.pagination, pageSize: 0 },
+    });
+    if (data.success) {
+      const options = data.data.shippingStores.map((s) => ({
+        value: s.id,
+        label: s.name,
+      }));
+      setShippingStoreList(options);
+    }
+  };
+
   const onPaginationChange = async (pageIndex: number, pageSize: number) => {
     const newData = {
       ...queryParams,
@@ -34,19 +164,34 @@ const OrderListPage = () => {
         pageSize,
       },
     };
-
     await getOrderList(newData);
   };
 
-  console.log(queryParams);
-
   return (
-    <div>
-      <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-        Danh sách đơn hàng
-      </h3>
+    <>
+      <div className="flex items-center justify-between">
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+          Danh sách đơn hàng
+        </h3>
 
-      <div className="mt-4 overflow-x-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsOpenFilter(true)}
+        >
+          <FilterIcon />
+        </Button>
+      </div>
+
+      <Button
+        size="sm"
+        className="my-4 mb-6"
+        onClick={() => setOrderPanel((prev) => ({ ...prev, isOpen: true }))}
+      >
+        <PlusCircle /> Thêm đơn hàng
+      </Button>
+
+      <div className="overflow-x-auto">
         <DataTable
           columns={columns}
           data={orderList}
@@ -55,7 +200,23 @@ const OrderListPage = () => {
           onPaginationChange={onPaginationChange}
         />
       </div>
-    </div>
+      <FilterPanel
+        isOpenFilter={isOpenFilter}
+        setIsOpenFilter={setIsOpenFilter}
+        onSubmit={onSubmit}
+        form={filterForm}
+        options={{ userList, sourceList, shippingStoreList }}
+      />
+      <OrderPanel
+        isOpen={orderPanel.isOpen}
+        setIsOpen={(value) =>
+          setOrderPanel((prev) => ({ ...prev, isOpen: value }))
+        }
+        onSubmit={onCreateOrder}
+        form={orderForm}
+        options={{ userList, sourceList, shippingStoreList }}
+      />
+    </>
   );
 };
 

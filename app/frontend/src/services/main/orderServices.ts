@@ -23,3 +23,16 @@ export async function apiGetOrderList(data: QueryDataModel) {
     data,
   });
 }
+
+export async function apiCreateOrder(
+  data: Omit<Order, "id" | "createdAt" | "updatedAt">
+) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: Order;
+  }>({
+    url: "/orders/create",
+    method: "post",
+    data,
+  });
+}

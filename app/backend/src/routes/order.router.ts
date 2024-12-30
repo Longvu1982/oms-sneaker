@@ -17,11 +17,11 @@ router.get('/:id', OrderController.checkExistingBook, OrderController.getBook);
 // POST : Create one book
 // Params body : title , authorId , datePublished , isFiction
 router.post(
-  '/',
+  '/create',
   protectAuth,
-  OrderController.validateBookData,
-  OrderController.checkExistingBookAuthor,
-  OrderController.createBook
+  OrderController.validateOrderData,
+  // OrderController.checkExistingBookAuthor,
+  OrderController.createOrder
 );
 
 // Acess : Private
@@ -31,7 +31,7 @@ router.post(
 router.put(
   '/:id',
   protectAuth,
-  OrderController.validateBookData,
+  OrderController.validateOrderData,
   OrderController.checkExistingBook,
   OrderController.checkExistingBookAuthor,
   OrderController.updateBook

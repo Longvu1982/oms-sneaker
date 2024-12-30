@@ -70,4 +70,19 @@ export const initQueryParams: QueryDataModel = {
     pageIndex: 0,
     totalCount: 0,
   },
+  filter: [] as unknown as [{ column: string; value: A | A[] }],
+  sort: {} as unknown as { column: string; type: "asc" | "desc" },
 };
+
+export const deliveryCodeStatusOptions = [
+  { label: "Chưa có MVĐ - chờ tạo", value: DeliveryCodeStatus.PENDING },
+  { label: "Đã có MVĐ - chờ nhận", value: DeliveryCodeStatus.EXIST },
+  { label: "Đã nhận", value: DeliveryCodeStatus.DELIVERD },
+];
+
+export const orderStatusOptions = [
+  { label: "Đang giao", value: OrderStatus.ONGOING },
+  { label: "Đã đến kho", value: OrderStatus.LANDED },
+  { label: "Đã giao", value: OrderStatus.SHIPPED },
+  { label: "Đã huỷ", value: OrderStatus.CANCELLED },
+];
