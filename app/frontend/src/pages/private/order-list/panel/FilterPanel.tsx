@@ -11,6 +11,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { OrderStatus } from "@/types/enum/app-enum";
 import { orderStatusOptions } from "@/types/model/app-model";
 import { FC } from "react";
 import { DateRange } from "react-day-picker";
@@ -36,6 +37,7 @@ interface FilterPanelProps {
     sourceList: Option[];
     shippingStoreList: Option[];
   };
+  isCompletedStatus?: boolean;
 }
 const FilterPanel: FC<FilterPanelProps> = ({
   form,
@@ -43,6 +45,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
   setIsOpenFilter,
   onSubmit,
   options: { userList, sourceList, shippingStoreList },
+  isCompletedStatus = false,
 }) => {
   return (
     <Panel
@@ -136,7 +139,13 @@ const FilterPanel: FC<FilterPanelProps> = ({
                 <FormControl>
                   <MultipleSelector
                     placeholder="Chọn trạng thái"
-                    options={orderStatusOptions}
+                    options={orderStatusOptions.filter((item) =>
+                      isCompletedStatus
+                        ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(
+                            item.value
+                          )
+                        : true
+                    )}
                     {...field}
                   />
                 </FormControl>

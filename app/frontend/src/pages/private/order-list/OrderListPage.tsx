@@ -218,6 +218,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onSubmit={onFilter}
         form={filterForm}
         options={{ userList, sourceList, shippingStoreList }}
+        isCompletedStatus={isCompleted}
       />
       <OrderPanel
         isOpen={orderPanel.isOpen}

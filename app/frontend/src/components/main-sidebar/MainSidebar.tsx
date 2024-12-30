@@ -18,6 +18,9 @@ const menus: TMenuItem[] = [
       { title: "Đơn hoàn tất", link: "/complete-order-list" },
     ],
   },
+  { type: "single", title: "Quản lý nguồn", link: "/source-list" },
+  { type: "single", title: "Quản lý kho", link: "/store-list" },
+  { type: "single", title: "Quản lý users", link: "/user-list" },
 ];
 
 const MainSidebar = () => {

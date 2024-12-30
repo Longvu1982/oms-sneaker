@@ -4,6 +4,7 @@ import { Home, Login, ProtectedRoutes } from "./routeLoader";
 import { orderRoutes } from "./routes/order.routes";
 import useAuthStore from "@/store/auth";
 import NotFound from "@/pages/public/not-found/404";
+import { sourceRoutes } from "./routes/sources.routers";
 
 export const useRouter = () => {
   const user = useAuthStore((s) => s.user);
@@ -26,7 +27,11 @@ export const useRouter = () => {
     },
     {
       element: <ProtectedRoutes />,
-      children: getRoutesByRole([...route1Route, ...orderRoutes]),
+      children: getRoutesByRole([
+        ...route1Route,
+        ...orderRoutes,
+        ...sourceRoutes,
+      ]),
     },
   ]);
 
