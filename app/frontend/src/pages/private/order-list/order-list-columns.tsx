@@ -1,5 +1,8 @@
+import ComboBox from "@/components/combo-box/ComboBox";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,17 +12,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { OrderWithExtra } from "@/services/main/orderServices";
-import { ShippingStore, Source } from "@/types/model/app-model";
-import { MoreHorizontal } from "lucide-react";
+import { OrderStatus } from "@/types/enum/app-enum";
+import {
+  orderStatusOptions,
+  ShippingStore,
+  Source,
+} from "@/types/model/app-model";
 import { format } from "date-fns/format";
-import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal } from "lucide-react";
 import {
   deliveryCodeStatusObject,
   orderStatusObject,
+  renderBadge,
 } from "./order-list-utils";
-import { Checkbox } from "@/components/ui/checkbox";
-import { OrderStatus } from "@/types/enum/app-enum";
-export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
+
+type getOrdercolumnsProps = {
+  onStatusChange: (id: string, status: OrderStatus) => Promise<A>;
+};
+
+export const getOrdercolumns: ({
+  onStatusChange,
+}: getOrdercolumnsProps) => EnhancedColumnDef<OrderWithExtra>[] = ({
+  onStatusChange,
+}) => [
   {
     accessorKey: "orderDate",
     header: "Ngày order",
@@ -27,6 +42,17 @@ export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
       return (
         <div className="whitespace-nowrap">
           {format(getValue() as string, "dd/MM/yyyy")}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "statusChangeDate",
+    header: "Ngày chuyển trạng thái",
+    cell: ({ getValue }) => {
+      return (
+        <div className="whitespace-nowrap min-w-[120px]">
+          {getValue() ? format(getValue() as string, "dd/MM/yyyy") : ""}
         </div>
       );
     },
@@ -115,55 +141,30 @@ export const columns: EnhancedColumnDef<OrderWithExtra>[] = [
   {
     accessorKey: "status",
     header: "Trạng thái",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const status = getValue() as OrderStatus;
-      const properties = orderStatusObject[status] ?? {};
+      const id = row.original.id;
+
       return (
-        <Badge
-          className="whitespace-nowrap py-1"
-          variant="outline"
-          style={{
-            background: properties.color,
+        <ComboBox
+          value={status}
+          options={orderStatusOptions}
+          onValueChange={(value) => onStatusChange(id, value as OrderStatus)}
+          triggerClassName="p-0"
+          searchable={false}
+          renderOption={(option) => {
+            const props = orderStatusObject[option.value as OrderStatus] ?? {};
+            return renderBadge(props.color, option.label);
           }}
-        >
-          {properties.text}
-        </Badge>
+        />
       );
     },
   },
-  // {
-  //   accessorKey: "email",
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Email
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "amount",
-  //   header: () => <div className="text-right">Amount</div>,
-  //   cell: ({ row }) => {
-  //     const amount = parseFloat(row.getValue("amount"));
-  //     const formatted = new Intl.NumberFormat("en-US", {
-  //       style: "currency",
-  //       currency: "USD",
-  //     }).format(amount);
-
-  //     return <div className="text-right font-medium">{formatted}</div>;
-  //   },
-  // },
   {
     id: "actions",
     fixed: true,
     cell: ({ row }) => {
       const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="sticky right-0">

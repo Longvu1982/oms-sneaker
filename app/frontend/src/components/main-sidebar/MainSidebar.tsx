@@ -15,7 +15,7 @@ const menus: TMenuItem[] = [
     title: "Quản lý đơn hàng",
     items: [
       { title: "Danh sách đơn", link: "/order-list" },
-      { title: "Doanh thu", link: "/route2" },
+      { title: "Đơn hoàn tất", link: "/complete-order-list" },
     ],
   },
 ];

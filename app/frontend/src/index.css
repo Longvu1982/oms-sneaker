@@ -78,6 +78,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* overflow: hidden !important; */
+  }
+
+  input::placeholder {
+    color: #ddd !important;
   }
 }

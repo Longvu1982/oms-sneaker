@@ -1,3 +1,4 @@
+import DateRangeForm from "@/components/date-range/DateRangeForm";
 import MultipleSelector, {
   Option,
 } from "@/components/multi-select/MutipleSelect";
@@ -10,7 +11,9 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { orderStatusOptions } from "@/types/model/app-model";
 import { FC } from "react";
+import { DateRange } from "react-day-picker";
 import { UseFormReturn } from "react-hook-form";
 
 export type FilterFormValues = {
@@ -18,6 +21,9 @@ export type FilterFormValues = {
   users: Option[];
   sources: Option[];
   shippingStores: Option[];
+  statuses: Option[];
+  orderDate: DateRange | null;
+  statusChangeDate: DateRange | null;
 };
 
 interface FilterPanelProps {
@@ -50,8 +56,16 @@ const FilterPanel: FC<FilterPanelProps> = ({
         <form
           id="filterForm"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 p-4"
+          className="space-y-4 p-4"
         >
+          <DateRangeForm form={form} label="Ngày order" name="orderDate" />
+
+          <DateRangeForm
+            form={form}
+            label="Ngày chuyển trạng thái"
+            name="statusChangeDate"
+          />
+
           <FormField
             control={form.control}
             name="searchText"
@@ -107,6 +121,22 @@ const FilterPanel: FC<FilterPanelProps> = ({
                   <MultipleSelector
                     placeholder="Chọn kho VC"
                     options={shippingStoreList}
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="statuses"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Trạng thái đơn hàng</FormLabel>
+                <FormControl>
+                  <MultipleSelector
+                    placeholder="Chọn trạng thái"
+                    options={orderStatusOptions}
                     {...field}
                   />
                 </FormControl>

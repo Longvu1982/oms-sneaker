@@ -6,6 +6,7 @@ import {
   User,
 } from "@/types/model/app-model";
 import ApiService from "../APIService";
+import { OrderStatus } from "@/types/enum/app-enum";
 
 export type OrderWithExtra = Order & {
   user: User;
@@ -33,6 +34,20 @@ export async function apiCreateOrder(
   }>({
     url: "/orders/create",
     method: "post",
+    data,
+  });
+}
+
+export async function apiUpdateOrderStatus(data: {
+  id: string;
+  status: OrderStatus;
+}) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: Order;
+  }>({
+    url: `/orders/${data.id}/changeStatus`,
+    method: "put",
     data,
   });
 }

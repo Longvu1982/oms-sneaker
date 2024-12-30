@@ -48,7 +48,7 @@ const Panel: FC<PanelProps> = ({
             </Button>
           </DrawerClose>
         </DrawerHeader>
-        <div className="overflow-y-auto">{children}</div>
+        <div className="overflow-y-auto flex-1">{children}</div>
         <DrawerFooter className="flex items-center flex-row justify-end">
           <DrawerClose asChild>
             <Button variant="outline">Quay lại</Button>

@@ -9,7 +9,12 @@ const OrderListPage = lazy(
 export const orderRoutes = [
   {
     path: "/order-list",
-    element: <OrderListPage />,
+    element: <OrderListPage isCompleted={false} key={"list"} />,
+    roles: [Role.ADMIN],
+  },
+  {
+    path: "/complete-order-list",
+    element: <OrderListPage isCompleted key={"complete"} />,
     roles: [Role.ADMIN],
   },
 ];

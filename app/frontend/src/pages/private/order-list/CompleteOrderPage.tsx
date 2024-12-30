@@ -12,16 +12,16 @@ import { apiSourcesList } from "@/services/main/sourceServices";
 import { apiGetUsersList } from "@/services/main/userServices";
 import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
-import { FilterIcon, PlusCircle } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FilterIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getOrdercolumns } from "./order-list-columns";
 import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
-import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./panel/order-panel-schema";
+import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 
-const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
+const CompleteOrderPage = () => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
   const [userList, setUserList] = useState<Option[]>([]);
   const [sourceList, setSourceList] = useState<Option[]>([]);
@@ -40,7 +40,6 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       users: [],
       sources: [],
       shippingStores: [],
-      statuses: [],
     },
   });
 
@@ -70,7 +69,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
 
   const columns = getOrdercolumns({ onStatusChange });
 
-  const onFilter = async (data: FilterFormValues) => {
+  const onSubmit = async (data: FilterFormValues) => {
     const newData = {
       ...queryParams,
       pagination: {
@@ -87,7 +86,6 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         },
         { column: "orderDate", value: data.orderDate },
         { column: "statusChangeDate", value: data.statusChangeDate },
-        { column: "status", value: data.statuses.map((u) => u.value) },
       ],
     };
 
@@ -176,8 +174,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
-          {!isCompleted ? "Danh sách đơn hàng" : "Đơn hàng hoàn tất"}
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-6">
+          Đơn hàng hoàn tất
         </h3>
 
         <Button
@@ -189,24 +187,10 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         </Button>
       </div>
 
-      {!isCompleted && (
-        <Button
-          size="sm"
-          className="mb-6"
-          onClick={() => setOrderPanel((prev) => ({ ...prev, isOpen: true }))}
-        >
-          <PlusCircle /> Thêm đơn hàng
-        </Button>
-      )}
-
       <div className="overflow-x-auto">
         <DataTable
           columns={columns}
-          data={orderList.filter((item) =>
-            isCompleted
-              ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)
-              : true
-          )}
+          data={orderList}
           manualPagination
           pagination={queryParams.pagination}
           onPaginationChange={onPaginationChange}
@@ -215,7 +199,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       <FilterPanel
         isOpenFilter={isOpenFilter}
         setIsOpenFilter={setIsOpenFilter}
-        onSubmit={onFilter}
+        onSubmit={onSubmit}
         form={filterForm}
         options={{ userList, sourceList, shippingStoreList }}
       />
@@ -232,4 +216,4 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   );
 };
 
-export default OrderListPage;
+export default CompleteOrderPage;

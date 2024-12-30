@@ -30,7 +30,7 @@ export const schema = z.object({
   status: z.enum(
     [
       OrderStatus.ONGOING,
-      OrderStatus.CANCELLED,
+      OrderStatus.LANDED,
       OrderStatus.SHIPPED,
       OrderStatus.CANCELLED,
     ],

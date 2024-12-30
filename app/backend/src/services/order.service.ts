@@ -1,7 +1,8 @@
 import { db } from '../utils/db.server';
 import { QueryDataModel, TBookID, TBookRead, TBookWrite, TOrderWrite } from '../types/general';
-import { Order, Prisma } from '@prisma/client';
+import { Order, OrderStatus, Prisma } from '@prisma/client';
 import { v4 } from 'uuid';
+import { UUID } from 'node:crypto';
 export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: number; orders: Order[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
@@ -19,7 +20,18 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
   if (filter?.length) {
     const filterArray: any = [];
     filter.forEach(({ column, value }) => {
-      if (Array.isArray(value) && value.length > 0) {
+      if (['orderDate', 'statusChangeDate'].includes(column)) {
+        const dateFilter: Record<string, Date> = {};
+        if (value?.from) {
+          dateFilter.gte = new Date(value.from);
+        }
+        if (value?.to) {
+          dateFilter.lte = new Date(value.to);
+        }
+        if (Object.keys(dateFilter).length > 0) {
+          filterArray.push({ [column]: dateFilter });
+        }
+      } else if (Array.isArray(value) && value.length > 0) {
         filterArray.push({ [column]: { in: value } });
       } else if (!Array.isArray(value) && value != null) {
         filterArray.push({ [column]: value });
@@ -40,6 +52,7 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
       OR: [
         { orderNumber: { contains: searchText, mode: 'insensitive' } },
         { SKU: { contains: searchText, mode: 'insensitive' } },
+        { deliveryCode: { contains: searchText, mode: 'insensitive' } },
         { user: { fullName: { contains: searchText, mode: 'insensitive' } } },
         { source: { name: { contains: searchText, mode: 'insensitive' } } },
         { shippingStore: { name: { contains: searchText, mode: 'insensitive' } } },
@@ -84,11 +97,20 @@ export const getBook = async (id: TBookID): Promise<TBookRead | null> => {
   });
 };
 
+export const getOrder = async (id: UUID): Promise<Order | null> => {
+  return db.order.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
 export const createOrder = async (order: TOrderWrite): Promise<Order> => {
   return db.order.create({
     data: {
       id: v4(),
       ...order,
+      statusChangeDate: order.status !== OrderStatus.ONGOING ? new Date() : null,
     },
   });
 };
@@ -117,6 +139,22 @@ export const updateBook = async (book: TBookWrite, id: TBookID): Promise<TBookRe
           lastName: true,
         },
       },
+    },
+  });
+};
+
+export const updateOrderStaus = async (
+  statusChangeDate: Date | null,
+  newStatus: OrderStatus,
+  id: UUID
+): Promise<Order> => {
+  return db.order.update({
+    where: {
+      id,
+    },
+    data: {
+      statusChangeDate,
+      status: newStatus,
     },
   });
 };

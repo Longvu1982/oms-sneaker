@@ -5,6 +5,8 @@ import { TBookWrite, TOrderWrite } from '../types/general';
 import { orderSchema } from '../types/zod';
 import HttpStatusCode from '../utils/HttpStatusCode';
 import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
+import { UUID } from 'node:crypto';
+import { OrderStatus } from '@prisma/client';
 
 export const listOrders = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -43,6 +45,27 @@ export const updateBook = async (request: Request, response: Response, next: Nex
     book.datePublished = new Date(book.datePublished);
     const updateBook = await OrderSevice.updateBook(book, id);
     return sendSuccessResponse(response, updateBook);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateOrderStatus = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const id = request.params.id as UUID;
+    const existingOrder = await OrderSevice.getOrder(id);
+    if (!existingOrder) return sendNotFoundResponse(response, 'Đơn không tồn tại hoặc đã bị xoá.');
+
+    let currentStatus = existingOrder.status;
+    const newStatus = request.body.status;
+
+    if (currentStatus !== OrderStatus.ONGOING && newStatus === OrderStatus.ONGOING) {
+      existingOrder.statusChangeDate = null;
+    } else {
+      existingOrder.statusChangeDate = new Date();
+    }
+    const updateOrder = await OrderSevice.updateOrderStaus(existingOrder.statusChangeDate, newStatus, id);
+    return sendSuccessResponse(response, updateOrder);
   } catch (error: any) {
     next(error);
   }

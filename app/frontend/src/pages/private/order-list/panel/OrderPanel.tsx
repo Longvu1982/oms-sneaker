@@ -1,4 +1,4 @@
-import ComboBoxForm from "@/components/combo-box/ComboBox";
+import ComboBoxForm from "@/components/combo-box/ComboBoxForm";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import Panel from "@/components/panel/Panel";
 import { Checkbox } from "@/components/ui/checkbox";

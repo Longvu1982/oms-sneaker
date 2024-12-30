@@ -1,12 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  ControllerRenderProps,
-  FieldValues,
-  Path,
-  PathValue,
-  UseFormReturn,
-} from "react-hook-form";
+import { useState } from "react";
 import { Option } from "../multi-select/MutipleSelect";
 import { Button } from "../ui/button";
 import {
@@ -17,139 +11,112 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useState } from "react";
 
-interface ComboBoxFormProps<TFormValue extends FieldValues> {
+interface ComboBoxProps {
   options: Option[];
-  name: Path<TFormValue>;
-  form: UseFormReturn<TFormValue, A, undefined>;
-  label: string;
+  label?: string;
   searchable?: boolean;
   emptyRender?: () => React.ReactNode;
   renderOption?: (option: Option) => React.ReactNode;
   onClickEmptyAction?: () => void;
+  value: Option["value"];
+  triggerClassName?: string;
+  onValueChange?: (value: Option["value"]) => void;
 }
-const ComboBoxForm = <TFormValue extends FieldValues>({
+const ComboBox = ({
   options,
-  name,
-  form,
   label,
   emptyRender,
   onClickEmptyAction,
   renderOption,
+  value,
+  onValueChange,
+  triggerClassName,
   searchable = true,
-}: ComboBoxFormProps<TFormValue>) => {
+}: ComboBoxProps) => {
   const [open, setOpen] = useState(false);
 
-  const renderSelectedOption = (
-    field: ControllerRenderProps<TFormValue, Path<TFormValue>>
-  ) => {
-    if (!field.value) return `Chọn ${label.toLocaleLowerCase()}`;
-    const option = options.find((option) => option.value === field.value);
+  const renderSelectedOption = () => {
+    if (!value)
+      return (
+        <span className="text-[#ddd]">{`Chọn ${label?.toLocaleLowerCase()}`}</span>
+      );
+    const option = options.find((option) => option.value === value);
 
     if (renderOption && option) return renderOption(option);
     return option?.label;
   };
 
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className={cn(
-                    "justify-between",
-                    !field.value && "text-muted-foreground"
-                  )}
-                >
-                  {renderSelectedOption(field)}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <Command>
-                {searchable && (
-                  <CommandInput
-                    placeholder={`Tìm kiếm ${label.toLocaleLowerCase()}...`}
-                    className="h-9"
-                  />
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          role="combobox"
+          className={cn(
+            "justify-between",
+            !value && "text-muted-foreground",
+            triggerClassName
+          )}
+        >
+          {renderSelectedOption()}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-[200px]">
+        <Command value={value}>
+          {searchable && (
+            <CommandInput
+              placeholder={`Tìm kiếm ${label?.toLocaleLowerCase()}...`}
+              className="h-9"
+            />
+          )}
+          <CommandList>
+            {searchable && (
+              <CommandEmpty>
+                {emptyRender ? (
+                  emptyRender()
+                ) : (
+                  <>
+                    <p className="mb-4">
+                      {label?.toLocaleLowerCase()} không tồn tại
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={onClickEmptyAction}
+                    >
+                      Tạo {label?.toLocaleLowerCase()}
+                    </Button>
+                  </>
                 )}
-                <CommandList>
-                  {searchable && (
-                    <CommandEmpty>
-                      {emptyRender ? (
-                        emptyRender()
-                      ) : (
-                        <>
-                          <p className="mb-4">
-                            {label.toLocaleLowerCase()} không tồn tại
-                          </p>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={onClickEmptyAction}
-                          >
-                            Tạo {label.toLocaleLowerCase()}
-                          </Button>
-                        </>
-                      )}
-                    </CommandEmpty>
-                  )}
-                  <CommandGroup ref={field.ref}>
-                    {options.map((option) => (
-                      <CommandItem
-                        value={option.label}
-                        key={option.value}
-                        disabled={option.disable}
-                        onSelect={() => {
-                          form.setValue(
-                            name,
-                            option.value as PathValue<
-                              TFormValue,
-                              Path<TFormValue>
-                            >
-                          );
-                          setOpen(false);
-                          form.trigger(name);
-                        }}
-                      >
-                        {renderOption ? renderOption(option) : option.label}
-                        <Check
-                          className={cn(
-                            "ml-auto",
-                            option.value === field.value
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+              </CommandEmpty>
+            )}
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  value={option.value}
+                  key={option.value}
+                  disabled={option.disable}
+                  onSelect={onValueChange}
+                  className="hover:bg-accent cursor-pointer"
+                >
+                  {renderOption ? renderOption(option) : option.label}
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      option.value === value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 
-export default ComboBoxForm;
+export default ComboBox;
