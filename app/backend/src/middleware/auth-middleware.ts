@@ -2,6 +2,7 @@ import * as UserService from '../services/user.service';
 import { NextFunction, Request, Response } from 'express';
 import { sendBadRequestResponse } from '../utils/responseHandler';
 import { verifyToken } from '../utils/jwtHandler';
+import { TloginRequest } from '../types/general';
 
 const protectAuth = async (request: Request, response: Response, next: NextFunction) => {
   const allCookies = request.cookies;
@@ -10,10 +11,23 @@ const protectAuth = async (request: Request, response: Response, next: NextFunct
   if (token) {
     try {
       const decoded = verifyToken(token);
-      const authUser = await UserService.getUserByID(decoded.id);
-      if (authUser?.username) {
-        request.user = authUser;
+      const account = await UserService.getAccountById(decoded.id);
+      if (!account?.id) {
+        next();
+        return;
       }
+      const user: TloginRequest | null = await UserService.getUserByID(account?.userId);
+      if (!user) {
+        next();
+        return;
+      }
+      request.user = {
+        ...user,
+        account: {
+          username: account.username,
+          role: account.role,
+        },
+      };
       next();
     } catch (error: any) {
       next(error);

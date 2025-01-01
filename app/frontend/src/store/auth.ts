@@ -3,13 +3,18 @@ import { persist } from "zustand/middleware";
 
 interface User {
   id: string;
-  username: string;
   email: string;
   fullName: string;
   phone: string;
   balance: number;
-  role: string;
+  account: Account;
 }
+
+type Account = {
+  id: string;
+  username: string;
+  role: string;
+};
 
 type AuthStoreType = {
   user?: User;

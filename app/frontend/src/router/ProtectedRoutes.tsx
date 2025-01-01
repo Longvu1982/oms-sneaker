@@ -1,11 +1,16 @@
 import AvatarMenu from "@/components/avatar-menu/AvatarMenu";
 import MainSidebar from "@/components/main-sidebar/MainSidebar";
+import { Spinner } from "@/components/spinner/Spinner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import useAuthStore from "@/store/auth";
-import { Navigate, Outlet } from "react-router-dom";
+import { Suspense } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Sticky from "react-sticky-el";
 const ProtectedRoutes = () => {
   const user = useAuthStore((s) => s.user);
+  const location = useLocation();
+
+  console.log(user);
 
   return user ? (
     <SidebarProvider>
@@ -19,7 +24,9 @@ const ProtectedRoutes = () => {
             </div>
           </Sticky>
           <main className="p-4">
-            <Outlet />
+            <Suspense fallback={<Spinner />} key={location.key}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

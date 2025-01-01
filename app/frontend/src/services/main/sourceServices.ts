@@ -11,3 +11,14 @@ export async function apiSourcesList(data: QueryDataModel) {
     data,
   });
 }
+
+export async function apiCreateSource(data: { name: string }) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: Source;
+  }>({
+    url: "/sources/create",
+    method: "post",
+    data,
+  });
+}

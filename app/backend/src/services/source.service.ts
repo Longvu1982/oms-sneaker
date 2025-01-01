@@ -1,6 +1,7 @@
 import { Prisma, Source } from '@prisma/client';
 import { QueryDataModel } from '../types/general';
 import { db } from '../utils/db.server';
+import { v4 } from 'uuid';
 
 export const listSources = async (model: QueryDataModel): Promise<{ totalCount: number; sources: Source[] }> => {
   const { pagination, searchText, sort, filter } = model;
@@ -45,4 +46,13 @@ export const listSources = async (model: QueryDataModel): Promise<{ totalCount: 
   const [totalCount, sources] = await Promise.all([db.source.count({ where: query.where }), db.source.findMany(query)]);
 
   return { totalCount, sources };
+};
+
+export const createSource = async (source: { name: string }): Promise<Source> => {
+  return db.source.create({
+    data: {
+      id: v4(),
+      ...source,
+    },
+  });
 };

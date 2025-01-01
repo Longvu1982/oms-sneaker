@@ -1,3 +1,5 @@
+import { Role } from "@/types/enum/app-enum";
+
 export type TMenuItemButton = {
   title: string;
   link: string;
@@ -10,4 +12,5 @@ export type TMenuItem = {
   link?: string;
   items?: { title: string; link: string; onClick?: () => void }[];
   onClick?: () => void;
+  role: Role[];
 };

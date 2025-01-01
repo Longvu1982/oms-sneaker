@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 
 export const deliveryCodeStatusObject = {
@@ -34,15 +33,3 @@ export const orderStatusObject = {
     color: "#fe364a66",
   },
 };
-
-export const renderBadge = (color: string, text: string) => (
-  <Badge
-    className="whitespace-nowrap py-1"
-    variant="outline"
-    style={{
-      background: color,
-    }}
-  >
-    {text}
-  </Badge>
-);

@@ -29,17 +29,35 @@ model Book {
 }
 
 model User {
-  id        String   @id @unique
+  id        String       @id @unique
   fullName  String
-  username  String   @unique
-  password  String
   email     String
-  role      Role     @default(USER)
   phone     String?
-  balance   Int      @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  account   Account?
+  orders    Order[]
+  transfers Transfered[]
+}
+
+model Transfered {
+  id        String   @id @unique
+  amount    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  orders    Order[]
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Account {
+  id        String   @id @unique
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Order {

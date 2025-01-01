@@ -2,6 +2,6 @@ import { TloginRequest } from './general';
 
 declare module 'express' {
   interface Request {
-    user?: TloginRequest;
+    user?: TloginRequest & { account: Omit<Account, 'createdAt' | 'updatedAt' | 'password'> };
   }
 }

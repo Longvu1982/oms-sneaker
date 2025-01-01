@@ -9,7 +9,6 @@ export const getUserProfile = async (request: Request, response: Response, next:
     const user = {
       id: request.user?.id,
       fullName: request.user?.fullName,
-      username: request.user?.username,
       email: request.user?.email,
     };
     return sendSuccessResponse(response, user);

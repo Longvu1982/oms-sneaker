@@ -3,15 +3,31 @@ import { DeliveryCodeStatus, OrderStatus, Role } from "../enum/app-enum";
 export type User = {
   id: string;
   fullName: string;
-  username: string;
-  password: string;
   email: string;
-  role: Role;
-  phone?: string | null;
-  balance: number;
+  phone?: string;
   createdAt: string; // Date as ISO string
   updatedAt: string; // Date as ISO string
   orders: Order[]; // Relationship
+  account?: Account;
+  transfered?: Transfered[];
+};
+
+export type Account = {
+  id: string;
+  username: string;
+  password: string;
+  role: Role;
+  userId: string;
+  createdAt: string; // Date as ISO string
+  updatedAt: string; // Date as ISO string
+};
+
+export type Transfered = {
+  id: string;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
 };
 
 export type Order = {
@@ -45,8 +61,8 @@ export type Source = {
 export type ShippingStore = {
   id: string;
   name: string;
-  address?: string | null;
-  phone?: string | null;
+  address?: string;
+  phone?: string;
   createdAt: string; // Date as ISO string
   updatedAt: string; // Date as ISO string
   orders: Order[]; // Relationship

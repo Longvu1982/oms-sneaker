@@ -1,4 +1,4 @@
-import { Author, Book, Order, User } from '@prisma/client';
+import { Author, Book, Order, ShippingStore, User } from '@prisma/client';
 
 // _____________  Author Types  _____________
 
@@ -18,6 +18,9 @@ export type TBookWrite = Omit<Book, 'id' | 'createdAt' | 'updatedAt'>;
 export type TUserRegisterWrite = Omit<User, 'createdAt' | 'updatedAt'>;
 export type TloginRead = Omit<User, 'createdAt' | 'updatedAt'>;
 export type TloginRequest = Omit<User, 'createdAt' | 'updatedAt' | 'password'>;
+
+// _____________  Shipping Store Types  _____________
+export type TShippingStoreRequest = Omit<ShippingStore, 'createdAt' | 'updatedAt'>;
 
 // _____________  Order Types  _____________
 export type TOrderWrite = Omit<Order, 'id' | 'createdAt' | 'updatedAt'>;

@@ -22,8 +22,8 @@ import { UseFormReturn } from "react-hook-form";
 import {
   deliveryCodeStatusObject,
   orderStatusObject,
-  renderBadge,
 } from "../order-list-utils";
+import { renderBadge } from "@/lib/utils";
 
 export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt">;
 

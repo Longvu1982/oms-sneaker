@@ -89,8 +89,6 @@ const CompleteOrderPage = () => {
       ],
     };
 
-    console.log(newData);
-
     await getOrderList(newData as QueryDataModel);
     setIsOpenFilter(false);
   };

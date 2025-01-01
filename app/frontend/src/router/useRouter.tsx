@@ -5,10 +5,12 @@ import { orderRoutes } from "./routes/order.routes";
 import useAuthStore from "@/store/auth";
 import NotFound from "@/pages/public/not-found/404";
 import { sourceRoutes } from "./routes/sources.routers";
+import { shippingStoreRoutes } from "./routes/shippingStores.routers";
+import { userRoutes } from "./routes/users.routers";
 
 export const useRouter = () => {
   const user = useAuthStore((s) => s.user);
-  const role = user?.role;
+  const role = user?.account?.role;
 
   const getRoutesByRole = (routes: A[]) =>
     routes.filter(
@@ -31,6 +33,8 @@ export const useRouter = () => {
         ...route1Route,
         ...orderRoutes,
         ...sourceRoutes,
+        ...shippingStoreRoutes,
+        ...userRoutes,
       ]),
     },
   ]);

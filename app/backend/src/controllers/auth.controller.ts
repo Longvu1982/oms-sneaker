@@ -8,16 +8,20 @@ import { generateToken } from '../utils/jwtHandler';
 export const login = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userRequest: TUserSchema = request.body;
-    const user = await UserService.getUserByUsername(userRequest.username);
+    const account = await UserService.getAccountByUsername(userRequest.username);
 
-    if (!user) {
-      return sendUnauthorizedResponse(response, 'Credentials Error');
+    if (!account) {
+      return sendUnauthorizedResponse(response, 'Sai username hoặc mật khẩu.');
     }
 
-    const passwordCompare = await comparePasswords(userRequest.password, user.password);
+    const profile = await UserService.getUserByID(account.userId);
+
+    if (!profile) return sendUnauthorizedResponse(response, 'Người dùng không tồn tại.');
+
+    const passwordCompare = await comparePasswords(userRequest.password, account.password);
 
     if (passwordCompare) {
-      const token = generateToken({ id: user.id }, '30d');
+      const token = generateToken({ id: account.id }, '30d');
 
       response.cookie('jwt', token, {
         httpOnly: true,
@@ -27,16 +31,16 @@ export const login = async (request: Request, response: Response, next: NextFunc
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
 
-      const responseData: any = { ...user };
-      delete responseData.password;
-      delete responseData.createdAt;
-      delete responseData.updatedAt;
-
+      const responseData = {
+        ...profile,
+        account: { username: account.username, role: account.role },
+      };
       return sendSuccessResponse(response, responseData);
     } else {
       return sendUnauthorizedResponse(response, 'Credentials Error');
     }
   } catch (error: any) {
+    console.log(error);
     next(error);
   }
 };
@@ -44,8 +48,10 @@ export const login = async (request: Request, response: Response, next: NextFunc
 export const authMe = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const user = request.user;
-    console.log(user);
-    return sendSuccessResponse(response, user);
+    if (user) return sendSuccessResponse(response, user);
+    else {
+      return sendUnauthorizedResponse(response, 'Vui lòng đăng nhập lại.');
+    }
   } catch (error: any) {
     next(error);
   }

@@ -10,7 +10,7 @@ export const orderRoutes = [
   {
     path: "/order-list",
     element: <OrderListPage isCompleted={false} key={"list"} />,
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.USER],
   },
   {
     path: "/complete-order-list",

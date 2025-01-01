@@ -1,6 +1,7 @@
 import { Prisma, ShippingStore } from '@prisma/client';
-import { QueryDataModel } from '../types/general';
+import { QueryDataModel, TShippingStoreRequest } from '../types/general';
 import { db } from '../utils/db.server';
+import { v4 } from 'uuid';
 
 export const listShippingStores = async (
   model: QueryDataModel
@@ -50,4 +51,13 @@ export const listShippingStores = async (
   ]);
 
   return { totalCount, shippingStores };
+};
+
+export const createStore = async (store: TShippingStoreRequest): Promise<ShippingStore> => {
+  return db.shippingStore.create({
+    data: {
+      ...store,
+      id: v4(),
+    },
+  });
 };

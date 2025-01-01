@@ -20,6 +20,8 @@ import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./panel/order-panel-schema";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { toast } from "sonner";
 
 const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
@@ -33,6 +35,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     isOpen: boolean;
     type: "create" | "edit";
   }>({ isOpen: false, type: "create" });
+
+  const { triggerLoading } = useTriggerLoading();
 
   const filterForm = useForm<FilterFormValues>({
     defaultValues: {
@@ -64,8 +68,10 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   });
 
   const onStatusChange = async (id: string, status: OrderStatus) => {
-    await apiUpdateOrderStatus({ id, status });
-    await getOrderList(queryParams);
+    await triggerLoading(async () => {
+      await apiUpdateOrderStatus({ id, status });
+      await getOrderList(queryParams);
+    });
   };
 
   const columns = getOrdercolumns({ onStatusChange });
@@ -90,21 +96,29 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         { column: "status", value: data.statuses.map((u) => u.value) },
       ],
     };
-
-    console.log(newData);
-
-    await getOrderList(newData as QueryDataModel);
-    setIsOpenFilter(false);
+    triggerLoading(async () => {
+      await getOrderList(newData as QueryDataModel);
+      setIsOpenFilter(false);
+    });
   };
 
   const onCreateOrder = async (data: OrderFormValues) => {
-    await apiCreateOrder(data);
-    await getOrderList(queryParams);
+    await triggerLoading(async () => {
+      await apiCreateOrder(data);
+      toast.success("Tạo đơn hàng thành công.");
+      await getOrderList(queryParams);
+    });
   };
 
   useEffect(() => {
-    getOrderList(initQueryParams);
-    Promise.all([getUserList(), getSourceList(), getShippingStoreList()]);
+    triggerLoading(async () => {
+      await Promise.all([
+        getOrderList(initQueryParams),
+        getUserList(),
+        getSourceList(),
+        getShippingStoreList(),
+      ]);
+    });
   }, []);
 
   const getOrderList = async (params: QueryDataModel) => {
@@ -114,7 +128,10 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       setQueryParams((prev) => ({
         ...prev,
         ...params,
-        pagination: { ...params.pagination, totalCount: data.data.totalCount },
+        pagination: {
+          ...params.pagination,
+          totalCount: data.data.totalCount,
+        },
       }));
     }
   };
@@ -170,7 +187,9 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         pageSize,
       },
     };
-    await getOrderList(newData);
+    triggerLoading(async () => {
+      await getOrderList(newData);
+    });
   };
 
   return (

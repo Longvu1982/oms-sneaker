@@ -1,21 +1,15 @@
 import { DeliveryCodeStatus, OrderStatus, Role } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, v4 } from 'uuid';
 import { TAuthorWrite, TBookWrite, TUserRegisterWrite } from '../src/types/general';
 import { db } from '../src/utils/db.server';
 import { hashPassword } from './../src/utils/bcryptHandler';
 
 async function getUser(): Promise<TUserRegisterWrite> {
-  const password = 'pqvsneakeradmin';
-  const hashedPassword = await hashPassword(password);
   return {
     id: uuidv4(),
     fullName: 'Phạm Quốc Việt',
-    username: 'pqviet',
-    password: hashedPassword,
-    role: Role.ADMIN,
     email: 'example@company.com',
     phone: '',
-    balance: 0,
   };
 }
 
@@ -105,11 +99,21 @@ async function seed() {
 
   // Seed new user
   const user = await getUser();
-  console.log(`[*] Seeding Author : ${JSON.stringify(user)}`);
+  console.log(`[*] Seeding Admin : ${JSON.stringify(user)}`);
   console.log(`[*] password : pqvsneakeradmin `);
+  const password = 'pqvsneakeradmin';
+  const hashedPassword = await hashPassword(password);
   await db.user.create({
     data: {
       ...user,
+      account: {
+        create: {
+          username: 'pqviet',
+          password: hashedPassword,
+          role: Role.ADMIN,
+          id: v4(),
+        },
+      },
     },
   });
 

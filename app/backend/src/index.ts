@@ -34,6 +34,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+console.log(process.env.APP_ENV);
+
 // cookie parser middleware
 app.use(cookieParser());
 

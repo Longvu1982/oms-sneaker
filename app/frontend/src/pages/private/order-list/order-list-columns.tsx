@@ -23,8 +23,8 @@ import { MoreHorizontal } from "lucide-react";
 import {
   deliveryCodeStatusObject,
   orderStatusObject,
-  renderBadge,
 } from "./order-list-utils";
+import { formatAmount, renderBadge } from "@/lib/utils";
 
 type getOrdercolumnsProps = {
   onStatusChange: (id: string, status: OrderStatus) => Promise<A>;
@@ -48,7 +48,13 @@ export const getOrdercolumns: ({
   },
   {
     accessorKey: "statusChangeDate",
-    header: "Ngày chuyển trạng thái",
+    header: () => (
+      <p>
+        <span className="whitespace-nowrap">Ngày chuyển</span>
+        <br />
+        <span className="whitespace-nowrap">trạng thái</span>
+      </p>
+    ),
     cell: ({ getValue }) => {
       return (
         <div className="whitespace-nowrap min-w-[120px]">
@@ -68,10 +74,17 @@ export const getOrdercolumns: ({
   {
     accessorKey: "deposit",
     header: "Cọc",
+    cell: ({ getValue }) => formatAmount(getValue() as number),
   },
   {
     accessorKey: "totalPrice",
     header: "Giá",
+    cell: ({ getValue }) => formatAmount(getValue() as number),
+  },
+  {
+    accessorKey: "shippingFee",
+    header: "Cước VC",
+    cell: ({ getValue }) => formatAmount(getValue() as number),
   },
   {
     accessorKey: "user",
@@ -120,14 +133,6 @@ export const getOrdercolumns: ({
     cell: ({ getValue }) => {
       const source = getValue() as Source;
       return <div>{source.name}</div>;
-    },
-  },
-  {
-    accessorKey: "shippingFee",
-    header: "Cước VC",
-    cell: ({ getValue }) => {
-      const shippingFee = getValue() as number;
-      return <div>{shippingFee}K</div>;
     },
   },
   {

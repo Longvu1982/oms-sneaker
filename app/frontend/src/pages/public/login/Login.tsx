@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { apiLogIn } from "@/services/main/authServices";
 import useAuthStore from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
   const setUser = useAuthStore((s) => s.setUser);
   const user = useAuthStore((s) => s.user);
+
+  const { triggerLoading } = useTriggerLoading();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -33,11 +36,13 @@ export default function Login() {
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    const { data } = await apiLogIn(values);
-    if (data.success) {
-      setUser(data.data);
-    }
+  const onSubmit = (values: LoginFormValues) => {
+    triggerLoading(async () => {
+      const { data } = await apiLogIn(values);
+      if (data.success) {
+        setUser(data.data);
+      }
+    });
   };
 
   if (user) {
