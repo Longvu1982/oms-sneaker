@@ -19,14 +19,14 @@ const Input = React.forwardRef<
         ref={ref}
         {...props}
         onChange={(e) => {
-          if (!isNaN(parseFloat(e.target.value)))
+          if (type === "number") {
             props.onChange?.(
               !isNaN(parseFloat(e.target.value))
                 ? (parseFloat(e.target.value) as A)
                 : ""
             );
-          else {
-            props.onChange?.(e.target.value as A);
+          } else {
+            props.onChange?.(e);
           }
         }}
       />
