@@ -58,6 +58,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       deliveryCode: "",
       deliveryCodeStatus: DeliveryCodeStatus.PENDING,
       shippingFee: 0,
+      secondShippingFee: 0,
       checkBox: false,
       orderNumber: "",
       userId: "",

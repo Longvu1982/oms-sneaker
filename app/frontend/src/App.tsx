@@ -25,6 +25,8 @@ function App() {
         } else {
           logout();
         }
+      } catch {
+        logout();
       } finally {
         setIsLoading(false);
       }

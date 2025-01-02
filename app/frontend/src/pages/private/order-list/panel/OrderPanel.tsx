@@ -184,6 +184,26 @@ const OrderPanel: FC<OrderPanelProps> = ({
           />
           <FormField
             control={form.control}
+            name="secondShippingFee"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cước vận chuyển 2</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Nhập cước"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(parseFloat(e.target.value));
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="orderNumber"
             render={({ field }) => (
               <FormItem>

@@ -45,8 +45,8 @@ export default function Login() {
     });
   };
 
-  if (user) {
-    return <Navigate to="/route1" replace />;
+  if (user?.id) {
+    return <Navigate to="/order-list" replace />;
   }
 
   return (

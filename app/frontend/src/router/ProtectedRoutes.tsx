@@ -10,8 +10,6 @@ const ProtectedRoutes = () => {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
 
-  console.log(user);
-
   return user ? (
     <SidebarProvider>
       <MainSidebar />

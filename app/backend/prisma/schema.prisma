@@ -72,6 +72,7 @@ model Order {
   deliveryCode       String
   deliveryCodeStatus DeliveryCodeStatus @default(PENDING)
   shippingFee        Int
+  secondShippingFee  Int
   checkBox           Boolean            @default(false)
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   source             Source             @relation(fields: [sourceId], references: [id], onDelete: Cascade)

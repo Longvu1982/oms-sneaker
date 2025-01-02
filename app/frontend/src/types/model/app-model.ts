@@ -41,6 +41,7 @@ export type Order = {
   deliveryCode: string;
   deliveryCodeStatus: DeliveryCodeStatus;
   shippingFee: number;
+  secondShippingFee: number;
   checkBox: boolean;
   userId: string;
   sourceId: string;

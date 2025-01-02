@@ -18,6 +18,9 @@ export const schema = z.object({
   deposit: z.number().min(0, "Tiền đặt cọc phải lớn hơn hoặc bằng 0."),
   orderNumber: z.string().nonempty("Số đơn hàng không được để trống."),
   shippingFee: z.number().min(0, "Phí vận chuyển phải lớn hơn hoặc bằng 0."),
+  secondShippingFee: z
+    .number()
+    .min(0, "Phí vận chuyển phải lớn hơn hoặc bằng 0."),
   shippingStoreId: z
     .string()
     .nonempty("Kho không được để trống.")
