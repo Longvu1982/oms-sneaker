@@ -18,8 +18,9 @@ export const renderBadge = (color: string, text: string) => (
   </Badge>
 );
 
-export const formatAmount: (amount: number) => string = (amount) => {
-  if (isNaN(amount)) return "Invalid amount";
+export const formatAmount: (input: number | string) => string = (input) => {
+  const amount = parseFloat(input as string);
+  if (isNaN(amount)) return "";
 
   const amountInVND = amount * 1000;
 

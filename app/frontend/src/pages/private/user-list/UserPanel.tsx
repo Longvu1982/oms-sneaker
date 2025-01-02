@@ -1,3 +1,4 @@
+import ComboBoxForm from "@/components/combo-box/ComboBoxForm";
 import Panel from "@/components/panel/Panel";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -10,28 +11,39 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UserFormValues } from "@/services/main/userServices";
+import { Role } from "@/types/enum/app-enum";
+import { roleStatusOptions } from "@/types/model/app-model";
 import { FC, useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 interface UserPanelProps {
-  form: UseFormReturn<UserFormValues, A, undefined>;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: UserFormValues) => void;
 }
 
-const UserPanel: FC<UserPanelProps> = ({
-  form,
-  isOpen,
-  setIsOpen,
-  onSubmit,
-}) => {
+const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
+  const form = useForm<UserFormValues>({
+    // resolver: zodResolver(schema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      username: "",
+      password: "",
+      role: Role.USER,
+      transferedAmount: 0,
+      willCreateAccount: false,
+    },
+  });
+
   const willCreateAccount = form.watch("willCreateAccount");
 
   useEffect(() => {
     if (willCreateAccount === false) {
       form.setValue("username", "");
       form.setValue("password", "");
+      form.setValue("role", Role.USER);
     }
   }, [willCreateAccount, form]);
 
@@ -95,14 +107,7 @@ const UserPanel: FC<UserPanelProps> = ({
               <FormItem>
                 <FormLabel>Số tiền đã chuyển</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Nhập số tiền"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
-                  />
+                  <Input type="number" placeholder="Nhập số tiền" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -165,6 +170,13 @@ const UserPanel: FC<UserPanelProps> = ({
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+              <ComboBoxForm
+                name="role"
+                form={form}
+                searchable={false}
+                label="Loại tài khoản"
+                options={roleStatusOptions}
               />
             </>
           )}

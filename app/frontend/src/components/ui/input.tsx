@@ -1,10 +1,15 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
-    return (
+const Input = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<"input"> & {
+    renderExtra?: (value: string | number) => React.ReactNode;
+  }
+>(({ className, type, renderExtra, ...props }, ref) => {
+  return (
+    <div className="relative">
       <input
         type={type}
         className={cn(
@@ -13,10 +18,34 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         )}
         ref={ref}
         {...props}
+        onChange={(e) => {
+          if (!isNaN(parseFloat(e.target.value)))
+            props.onChange?.(
+              !isNaN(parseFloat(e.target.value))
+                ? (parseFloat(e.target.value) as A)
+                : ""
+            );
+          else {
+            props.onChange?.(e.target.value as A);
+          }
+        }}
       />
-    )
-  }
-)
-Input.displayName = "Input"
+      {renderExtra && (
+        <div
+          className={cn(
+            "absolute top-0 right-0 bottom-0 bg-accent rounded-sm flex items-center",
+            props.value != null &&
+              props.value !== "" &&
+              !isNaN(props.value as number) &&
+              "px-2"
+          )}
+        >
+          {renderExtra(props.value as string | number)}
+        </div>
+      )}
+    </div>
+  );
+});
+Input.displayName = "Input";
 
-export { Input }
+export { Input };

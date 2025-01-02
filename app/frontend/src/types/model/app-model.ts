@@ -103,3 +103,9 @@ export const orderStatusOptions = [
   { label: "Đã giao", value: OrderStatus.SHIPPED },
   { label: "Đã huỷ", value: OrderStatus.CANCELLED },
 ];
+
+export const roleStatusOptions = [
+  { label: "User", value: Role.USER },
+  { label: "Staff", value: Role.STAFF },
+  { label: "Admin", value: Role.ADMIN },
+];

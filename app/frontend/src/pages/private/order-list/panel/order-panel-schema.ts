@@ -15,11 +15,15 @@ export const schema = z.object({
       errorMap: () => ({ message: "Trạng thái mã giao hàng không hợp lệ." }),
     }
   ),
-  deposit: z.number().min(0, "Tiền đặt cọc phải lớn hơn hoặc bằng 0."),
+  deposit: z
+    .number({ message: "Số tiền không hợp lệ." })
+    .min(0, "Tiền đặt cọc phải lớn hơn hoặc bằng 0."),
   orderNumber: z.string().nonempty("Số đơn hàng không được để trống."),
-  shippingFee: z.number().min(0, "Phí vận chuyển phải lớn hơn hoặc bằng 0."),
+  shippingFee: z
+    .number({ message: "Số tiền không hợp lệ." })
+    .min(0, "Phí vận chuyển phải lớn hơn hoặc bằng 0."),
   secondShippingFee: z
-    .number()
+    .number({ message: "Số tiền không hợp lệ." })
     .min(0, "Phí vận chuyển phải lớn hơn hoặc bằng 0."),
   shippingStoreId: z
     .string()
@@ -41,7 +45,9 @@ export const schema = z.object({
       errorMap: () => ({ message: "Trạng thái không hợp lệ." }),
     }
   ),
-  totalPrice: z.number().min(0, "Tổng giá phải lớn hơn hoặc bằng 0."),
+  totalPrice: z
+    .number({ message: "Số tiền không hợp lệ." })
+    .min(0, "Tổng giá phải lớn hơn hoặc bằng 0."),
   userId: z
     .string()
     .nonempty("KH không được để trống.")

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
+import { apiAddTransfer } from "@/services/main/transferServices";
 import {
   apiCreateUser,
   apiGetUsersListDetails,
@@ -19,11 +20,19 @@ import {
 import { initQueryParams, QueryDataModel, User } from "@/types/model/app-model";
 import { Edit, MoreHorizontal, PlusCircle, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import {
+  AddTransferModal,
+  AddTransferModalFormValues,
+} from "./modal/AddTransferModal";
 import UserPanel from "./UserPanel";
+import { setHours, setMilliseconds, setMinutes, setSeconds } from "date-fns";
 
-const columns: EnhancedColumnDef<User>[] = [
+const getColumns: ({
+  onClickAddTransfer,
+}: {
+  onClickAddTransfer: (user: User) => void;
+}) => EnhancedColumnDef<User>[] = ({ onClickAddTransfer }) => [
   {
     id: "STT",
     header: "STT",
@@ -71,7 +80,8 @@ const columns: EnhancedColumnDef<User>[] = [
   {
     id: "actions",
     fixed: true,
-    cell: () => {
+    cell: ({ row }) => {
+      const user = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="sticky right-0">
@@ -82,7 +92,10 @@ const columns: EnhancedColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onClickAddTransfer(user)}
+            >
               <PlusCircle />
               Nạp tiền
             </DropdownMenuItem>
@@ -104,6 +117,8 @@ const columns: EnhancedColumnDef<User>[] = [
 
 const UserListPage = () => {
   const [userList, setUserList] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isOpenAddTransfer, setOpenAddTransfer] = useState(false);
   const [userPanel, setUserPanel] = useState<{
     isOpen: boolean;
     type: "create" | "edit";
@@ -112,19 +127,6 @@ const UserListPage = () => {
     useState<QueryDataModel>(initQueryParams);
 
   const { triggerLoading } = useTriggerLoading();
-
-  const userForm = useForm<UserFormValues>({
-    // resolver: zodResolver(schema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      phone: "",
-      username: "",
-      password: "",
-      transferedAmount: 0,
-      willCreateAccount: false,
-    },
-  });
 
   const getUserList = async (params: QueryDataModel) => {
     const { data } = await apiGetUsersListDetails(params);
@@ -162,6 +164,40 @@ const UserListPage = () => {
       await getUserList(queryParams);
     });
   };
+
+  const onAddTransfer = async (data: AddTransferModalFormValues) => {
+    const currentTime = new Date();
+    const combinedDateTime = setMilliseconds(
+      setSeconds(
+        setMinutes(
+          setHours(data.createdAt as Date, currentTime.getHours()),
+          currentTime.getMinutes()
+        ),
+        currentTime.getSeconds()
+      ),
+      currentTime.getMilliseconds()
+    );
+
+    const req = {
+      ...data,
+      createdAt: combinedDateTime,
+      userId: selectedUser?.id as string,
+    };
+
+    await triggerLoading(async () => {
+      await apiAddTransfer(req);
+      await getUserList(queryParams);
+      toast.success("Nạp tiền thành công.");
+      setOpenAddTransfer(false);
+    });
+  };
+
+  const onClickAddTransfer = (user: User) => {
+    setOpenAddTransfer(true);
+    setSelectedUser(user);
+  };
+
+  const columns = getColumns({ onClickAddTransfer });
 
   useEffect(() => {
     triggerLoading(async () => {
@@ -201,7 +237,13 @@ const UserListPage = () => {
           setUserPanel((prev) => ({ ...prev, isOpen: value }))
         }
         onSubmit={onCreateUser}
-        form={userForm}
+      />
+
+      <AddTransferModal
+        open={isOpenAddTransfer}
+        onOpenChange={setOpenAddTransfer}
+        selectedUser={selectedUser}
+        onSubmit={onAddTransfer}
       />
     </>
   );

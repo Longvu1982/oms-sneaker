@@ -1,5 +1,6 @@
 import { QueryDataModel, User } from "@/types/model/app-model";
 import ApiService from "../APIService";
+import { Role } from "@/types/enum/app-enum";
 
 export type UserFormValues = Omit<
   User,
@@ -9,6 +10,7 @@ export type UserFormValues = Omit<
   willCreateAccount: boolean;
   username: string;
   password: string;
+  role: Role;
 };
 
 export async function apiGetUsersList(data: QueryDataModel) {

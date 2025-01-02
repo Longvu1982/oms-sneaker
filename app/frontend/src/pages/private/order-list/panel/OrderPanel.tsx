@@ -23,7 +23,7 @@ import {
   deliveryCodeStatusObject,
   orderStatusObject,
 } from "../order-list-utils";
-import { renderBadge } from "@/lib/utils";
+import { formatAmount, renderBadge } from "@/lib/utils";
 
 export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt">;
 
@@ -109,14 +109,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
               <FormItem>
                 <FormLabel>Size</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Nhập size"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
-                  />
+                  <Input type="number" placeholder="Nhập size" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,9 +126,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
                     type="number"
                     placeholder="Nhập tiền cọc"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
+                    renderExtra={formatAmount}
                   />
                 </FormControl>
                 <FormMessage />
@@ -153,9 +144,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
                     type="number"
                     placeholder="Nhập giá trị đơn hàng"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
+                    renderExtra={formatAmount}
                   />
                 </FormControl>
                 <FormMessage />
@@ -173,9 +162,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
                     type="number"
                     placeholder="Nhập cước"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
+                    renderExtra={formatAmount}
                   />
                 </FormControl>
                 <FormMessage />
@@ -193,9 +180,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
                     type="number"
                     placeholder="Nhập cước"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
+                    renderExtra={formatAmount}
                   />
                 </FormControl>
                 <FormMessage />
