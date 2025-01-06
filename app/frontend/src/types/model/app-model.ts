@@ -30,6 +30,11 @@ export type Transfered = {
   userId: string;
 };
 
+export type TransactionBalance = {
+  dateTime: string;
+  data: string;
+};
+
 export type Order = {
   id: string;
   orderNumber: string;

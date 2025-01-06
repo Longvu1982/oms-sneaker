@@ -22,6 +22,15 @@ const menus: TMenuItem[] = [
     role: [],
   },
   {
+    type: "collapsible",
+    title: "Quản lý ngoại tệ",
+    items: [
+      { title: "Danh sách GD", link: "/transaction-list" },
+      { title: "Bảng balance", link: "/transaction-balance" },
+    ],
+    role: [],
+  },
+  {
     type: "single",
     title: "Quản lý nguồn",
     link: "/source-list",

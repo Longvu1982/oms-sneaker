@@ -103,6 +103,14 @@ model ShippingStore {
   orders    Order[]
 }
 
+model TransactionBalance {
+  id        String   @id @unique
+  dateTime  DateTime @default(now())
+  data      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Role {
   ADMIN
   STAFF

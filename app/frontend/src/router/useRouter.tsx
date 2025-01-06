@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import { route1Route } from "./routes/route1.routes";
 import { Home, Login, ProtectedRoutes } from "./routeLoader";
 import { orderRoutes } from "./routes/order.routes";
 import useAuthStore from "@/store/auth";
@@ -7,6 +6,7 @@ import NotFound from "@/pages/public/not-found/404";
 import { sourceRoutes } from "./routes/sources.routers";
 import { shippingStoreRoutes } from "./routes/shippingStores.routers";
 import { userRoutes } from "./routes/users.routers";
+import { transactionRoutes } from "./routes/transactions.routers";
 
 export const useRouter = () => {
   const user = useAuthStore((s) => s.user);
@@ -30,11 +30,11 @@ export const useRouter = () => {
     {
       element: <ProtectedRoutes />,
       children: getRoutesByRole([
-        ...route1Route,
         ...orderRoutes,
         ...sourceRoutes,
         ...shippingStoreRoutes,
         ...userRoutes,
+        ...transactionRoutes,
       ]),
     },
   ]);

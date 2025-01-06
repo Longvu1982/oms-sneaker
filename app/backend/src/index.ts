@@ -10,6 +10,7 @@ import userRouter from './routes/user.router';
 import sourceRouter from './routes/source.router';
 import shippingStoreRouter from './routes/shippingStore.router';
 import transferRouter from './routes/transfer.router';
+import transactionBalancerRouter from './routes/transactionBalance.router';
 import { notFoundHandler } from './middleware/not-found';
 import { errorHandler } from './middleware/error-handler';
 import cookieParser from 'cookie-parser';
@@ -53,6 +54,7 @@ app.use('/api/users', userRouter);
 app.use('/api/sources', sourceRouter);
 app.use('/api/shippingStores', shippingStoreRouter);
 app.use('/api/transfer', transferRouter);
+app.use('/api/transaction-balance', transactionBalancerRouter);
 
 // Not Found Middleware
 app.use(notFoundHandler);

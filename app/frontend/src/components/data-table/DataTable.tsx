@@ -53,17 +53,22 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onPaginationChange: (updater) => {
-      if (typeof updater !== "function") return;
+      if (typeof updater !== "function" || !manualPagination) return;
       const nextState = updater(pagination as PaginationState);
       onPaginationChange?.(nextState.pageIndex, nextState.pageSize);
     },
     rowCount: pagination?.totalCount,
     manualPagination: manualPagination,
-    state: {
-      sorting,
-      pagination,
-    },
+    state: manualPagination
+      ? {
+          sorting,
+          pagination,
+        }
+      : { sorting },
   });
+
+  console.log(table.getRowModel().rows);
+  console.log(data);
 
   return (
     <div className="">
@@ -157,7 +162,7 @@ export function DataTable<TData, TValue>({
           {">"}
         </Button> */}
 
-        <DataTablePagination table={table} />
+        {pagination && <DataTablePagination table={table} />}
       </div>
     </div>
   );
