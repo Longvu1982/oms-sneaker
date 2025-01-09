@@ -1,4 +1,10 @@
-import { DeliveryCodeStatus, OrderStatus, Role } from "../enum/app-enum";
+import {
+  DeliveryCodeStatus,
+  NatureType,
+  OrderStatus,
+  Role,
+  TransactionType,
+} from "../enum/app-enum";
 
 export type User = {
   id: string;
@@ -54,6 +60,21 @@ export type Order = {
   status: OrderStatus;
   createdAt: string; // Date as ISO string
   updatedAt: string; // Date as ISO string
+};
+
+export type Transaction = {
+  id: string;
+  amount: number;
+  rate: number;
+  type: TransactionType;
+  nature: NatureType;
+  userId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type TransactionWithExtra = Transaction & {
+  user?: User;
 };
 
 export type Source = {
@@ -113,4 +134,16 @@ export const roleStatusOptions = [
   { label: "User", value: Role.USER },
   { label: "Staff", value: Role.STAFF },
   { label: "Admin", value: Role.ADMIN },
+];
+
+export const natureTypeOptions = [
+  { label: "In", value: NatureType.IN },
+  { label: "Out", value: NatureType.OUT },
+];
+
+export const transactionTypeOptions = [
+  { label: "Mua tệ", value: TransactionType.BUY_CN },
+  { label: "Bán tệ", value: TransactionType.SELL_CN },
+  { label: "Mua PP", value: TransactionType.BUY_PP },
+  { label: "Cancel-hoàn", value: TransactionType.CANCELLED },
 ];

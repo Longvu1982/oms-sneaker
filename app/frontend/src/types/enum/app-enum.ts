@@ -16,3 +16,15 @@ export enum DeliveryCodeStatus {
   EXIST = "EXIST",
   DELIVERD = "DELIVERD",
 }
+
+export enum TransactionType {
+  BUY_CN = "BUY_CN",
+  SELL_CN = "SELL_CN",
+  BUY_PP = "BUY_PP",
+  CANCELLED = "CANCELLED",
+}
+
+export enum NatureType {
+  IN = "IN",
+  OUT = "OUT",
+}

@@ -1,4 +1,4 @@
-import { Author, Book, Order, ShippingStore, User } from '@prisma/client';
+import { Author, Book, Order, ShippingStore, Transaction, User } from '@prisma/client';
 
 // _____________  Author Types  _____________
 
@@ -24,6 +24,7 @@ export type TShippingStoreRequest = Omit<ShippingStore, 'createdAt' | 'updatedAt
 
 // _____________  Order Types  _____________
 export type TOrderWrite = Omit<Order, 'id' | 'createdAt' | 'updatedAt'>;
+export type TTransactionWrite = Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>;
 
 export type QueryDataModel = {
   pagination: {
