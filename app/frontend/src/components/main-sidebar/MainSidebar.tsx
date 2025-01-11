@@ -30,6 +30,7 @@ const menus: TMenuItem[] = [
     ],
     role: [],
   },
+  { type: "single", title: "Quản lý doanh thu", role: [], link: "/statistics" },
   {
     type: "single",
     title: "Quản lý nguồn",

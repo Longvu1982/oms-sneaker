@@ -6,6 +6,7 @@ import {
   getSortedRowModel,
   PaginationState,
   SortingState,
+  TableOptions,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -34,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   manualPagination?: boolean;
   pagination?: { pageIndex: number; pageSize: number; totalCount: number };
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  showPagination?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -42,33 +44,38 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   manualPagination = false,
+  showPagination = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable({
+  let tableSettings: TableOptions<TData> = {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onPaginationChange: (updater) => {
-      if (typeof updater !== "function" || !manualPagination) return;
-      const nextState = updater(pagination as PaginationState);
-      onPaginationChange?.(nextState.pageIndex, nextState.pageSize);
-    },
-    rowCount: pagination?.totalCount,
     manualPagination: manualPagination,
-    state: manualPagination
-      ? {
-          sorting,
-          pagination,
-        }
-      : { sorting },
-  });
+    state: { sorting },
+  };
 
-  console.log(table.getRowModel().rows);
-  console.log(data);
+  if (manualPagination) {
+    tableSettings = {
+      ...tableSettings,
+      onPaginationChange: (updater) => {
+        if (typeof updater !== "function") return;
+        const nextState = updater(pagination as PaginationState);
+        onPaginationChange?.(nextState.pageIndex, nextState.pageSize);
+      },
+      rowCount: pagination?.totalCount,
+      state: {
+        sorting,
+        pagination,
+      },
+    };
+  }
+
+  const table = useReactTable(tableSettings);
 
   return (
     <div className="">
@@ -162,7 +169,7 @@ export function DataTable<TData, TValue>({
           {">"}
         </Button> */}
 
-        {pagination && <DataTablePagination table={table} />}
+        {showPagination && <DataTablePagination table={table} />}
       </div>
     </div>
   );

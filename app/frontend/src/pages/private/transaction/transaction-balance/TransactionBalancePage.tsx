@@ -1,7 +1,4 @@
-import { DataTable } from "@/components/data-table/DataTable";
-import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { MonthPicker } from "@/components/ui/month-picker";
 import {
   Popover,
@@ -9,23 +6,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
-import { cn, renderBadge } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   apiAddTransactionBalance,
   apiGetTransactionBalanceByDate,
 } from "@/services/main/transactionBalanceServices";
+import { TransactionBalanceItem } from "@/types/model/app-model";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sticky from "react-sticky-el/lib/basic-version";
-
-type TransactionBalanceItem = {
-  id: string;
-  name: string;
-  amount: number | null;
-  rate: number | null;
-};
+import TransactionBalanceTable from "./TransactionBalanceTable";
 
 const defaultTransactionBalance = [
   { id: "1", name: "PPVN", amount: 0, rate: 0 },
@@ -93,86 +85,6 @@ const TransactionBalancePage = () => {
     }
   };
 
-  const columns = useMemo(
-    () =>
-      [
-        {
-          id: "STT",
-          header: "STT",
-          cell: ({ row }) => {
-            return <div>{row.index + 1}</div>;
-          },
-        },
-        {
-          accessorKey: "name",
-          header: "Loại",
-          cell: ({ getValue }) => (
-            <span className="whitespace-nowrap">{getValue() as string}</span>
-          ),
-        },
-        {
-          accessorKey: "amount",
-          header: "Số lượng",
-          cell: ({ row, getValue }) => {
-            const name = row.original.name;
-            return isEdit ? (
-              <Input
-                type="number"
-                className="min-w-[100px]"
-                value={getValue() as number}
-                onChange={(value) => {
-                  setData((prevData) =>
-                    prevData.map((item) =>
-                      item.name === name
-                        ? { ...item, amount: Number(value) }
-                        : item
-                    )
-                  );
-                }}
-              />
-            ) : (
-              (getValue() as number)
-            );
-          },
-        },
-        {
-          accessorKey: "rate",
-          header: "Tỉ giá",
-          cell: ({ row, getValue }) => {
-            const name = row.original.name;
-            return isEdit ? (
-              <Input
-                type="number"
-                className="min-w-[100px]"
-                value={getValue() as number}
-                onChange={(value) => {
-                  setData((prevData) =>
-                    prevData.map((item) =>
-                      item.name === name
-                        ? { ...item, rate: Number(value) }
-                        : item
-                    )
-                  );
-                }}
-              />
-            ) : (
-              (getValue() as number)
-            );
-          },
-        },
-        {
-          id: "props",
-          header: "Tính chất",
-          cell: () => renderBadge("#90EE90", "In"),
-        },
-      ] as EnhancedColumnDef<{
-        name: string;
-        amount: number | null;
-        rate: number | null;
-      }>[],
-    [isEdit, setData]
-  );
-
   return (
     <div>
       <div>
@@ -203,7 +115,7 @@ const TransactionBalancePage = () => {
         </PopoverContent>
       </Popover>
 
-      <DataTable columns={columns} data={data} manualPagination={false} />
+      <TransactionBalanceTable data={data} setData={setData} isEdit={isEdit} />
       {!isEdit ? (
         <Sticky stickyClassName="bottom-0">
           <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>

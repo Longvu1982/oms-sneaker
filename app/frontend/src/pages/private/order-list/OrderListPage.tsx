@@ -1,6 +1,6 @@
-import { DataTable } from "@/components/data-table/DataTable";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import { Button } from "@/components/ui/button";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiCreateOrder,
   apiGetOrderList,
@@ -12,16 +12,15 @@ import { apiSourcesList } from "@/services/main/sourceServices";
 import { apiGetUsersList } from "@/services/main/userServices";
 import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
-import { FilterIcon, PlusCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { getOrdercolumns } from "./order-list-columns";
-import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
-import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { schema } from "./panel/order-panel-schema";
-import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { FilterIcon, PlusCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
+import { schema } from "./panel/order-panel-schema";
+import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
+import OrderTable from "./table/OrderTable";
 
 const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
@@ -68,14 +67,15 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     },
   });
 
-  const onStatusChange = async (id: string, status: OrderStatus) => {
-    await triggerLoading(async () => {
-      await apiUpdateOrderStatus({ id, status });
-      await getOrderList(queryParams);
-    });
-  };
-
-  const columns = getOrdercolumns({ onStatusChange });
+  const onStatusChange = useCallback(
+    async (id: string, status: OrderStatus) => {
+      await triggerLoading(async () => {
+        await apiUpdateOrderStatus({ id, status });
+        await getOrderList(queryParams);
+      });
+    },
+    [triggerLoading, queryParams]
+  );
 
   const onFilter = async (data: FilterFormValues) => {
     const newData = {
@@ -219,19 +219,16 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         </Button>
       )}
 
-      <div className="overflow-x-auto">
-        <DataTable
-          columns={columns}
-          data={orderList.filter((item) =>
-            isCompleted
-              ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)
-              : true
-          )}
-          manualPagination
-          pagination={queryParams.pagination}
-          onPaginationChange={onPaginationChange}
-        />
-      </div>
+      <OrderTable
+        onPaginationChange={onPaginationChange}
+        onStatusChange={onStatusChange}
+        queryParams={queryParams}
+        orderList={orderList.filter((item) =>
+          isCompleted
+            ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)
+            : true
+        )}
+      />
       <FilterPanel
         isOpenFilter={isOpenFilter}
         setIsOpenFilter={setIsOpenFilter}

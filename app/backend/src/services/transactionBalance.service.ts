@@ -52,11 +52,7 @@ export const getTransactionBalanceByDate = async ({
 }: {
   dateTime: string;
 }): Promise<TransactionBalance | null> => {
-  // Parse the dateTime string into a Date object
-  console.log(dateTime);
   const parsedDate = parseISO(dateTime);
-
-  console.log('parse11', parsedDate);
 
   // Get the start and end of the month
   const startOfTheMonth = startOfMonth(parsedDate);

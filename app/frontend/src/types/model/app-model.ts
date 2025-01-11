@@ -95,6 +95,13 @@ export type ShippingStore = {
   orders: Order[]; // Relationship
 };
 
+export type TransactionBalanceItem = {
+  id: string;
+  name: string;
+  amount: number | null;
+  rate: number | null;
+};
+
 export type QueryDataModel = {
   pagination: {
     pageSize: number;
@@ -103,7 +110,7 @@ export type QueryDataModel = {
   };
   searchText?: string;
   sort?: { column: string; type: "asc" | "desc" };
-  filter?: [{ column: string; value: A | A[] }];
+  filter?: { column: string; value: A | A[] }[];
 };
 
 export const initQueryParams: QueryDataModel = {

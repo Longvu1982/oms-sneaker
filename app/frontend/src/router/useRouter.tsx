@@ -7,6 +7,7 @@ import { sourceRoutes } from "./routes/sources.routers";
 import { shippingStoreRoutes } from "./routes/shippingStores.routers";
 import { userRoutes } from "./routes/users.routers";
 import { transactionRoutes } from "./routes/transactions.routers";
+import { statisticRoutes } from "./routes/statistics.routes";
 
 export const useRouter = () => {
   const user = useAuthStore((s) => s.user);
@@ -35,6 +36,7 @@ export const useRouter = () => {
         ...shippingStoreRoutes,
         ...userRoutes,
         ...transactionRoutes,
+        ...statisticRoutes,
       ]),
     },
   ]);

@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FilterIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { getOrdercolumns } from "./order-list-columns";
+import { useGetOrderColumns } from "./order-list-columns";
 import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
@@ -67,7 +67,7 @@ const CompleteOrderPage = () => {
     await getOrderList(queryParams);
   };
 
-  const columns = getOrdercolumns({ onStatusChange });
+  const columns = useGetOrderColumns({ onStatusChange });
 
   const onSubmit = async (data: FilterFormValues) => {
     const newData = {

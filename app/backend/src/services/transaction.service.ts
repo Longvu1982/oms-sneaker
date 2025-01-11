@@ -11,12 +11,15 @@ export const listTransactions = async (
   const { pageSize, pageIndex } = pagination;
   // Infer query type from Prisma
   const query: Prisma.TransactionFindManyArgs = {
-    skip: pageIndex * pageSize, // Paging: Calculate the offset
-    take: pageSize, // Paging: Limit to the page size
     include: { user: true },
     where: {}, // Filtering conditions will be added dynamically
     orderBy: {}, // Sorting conditions will be added dynamically
   };
+
+  if (pageSize) {
+    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
+    query.take = pageSize; // Paging: Limit to the page size
+  }
 
   // Filtering
   if (filter?.length) {
