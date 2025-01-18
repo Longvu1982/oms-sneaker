@@ -25,11 +25,17 @@ import {
 } from "../order-list-utils";
 import { formatAmount, renderBadge } from "@/lib/utils";
 
-export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt">;
+export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt"> & {
+  id?: string;
+};
 
 interface OrderPanelProps {
   form: UseFormReturn<OrderFormValues, A, undefined>;
-  isOpen: boolean;
+  panelState: {
+    isOpen: boolean;
+    type: "create" | "edit";
+    data: OrderFormValues;
+  };
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: OrderFormValues) => void;
   options: {
@@ -41,7 +47,7 @@ interface OrderPanelProps {
 
 const OrderPanel: FC<OrderPanelProps> = ({
   form,
-  isOpen,
+  panelState,
   setIsOpen,
   onSubmit,
   options: { userList, sourceList, shippingStoreList },
@@ -51,9 +57,11 @@ const OrderPanel: FC<OrderPanelProps> = ({
   return (
     <Panel
       formId="orderForm"
-      title="Tạo đơn hàng mới"
-      description="Điền thông tin để tạo đơn hàng"
-      open={isOpen}
+      title={
+        panelState.type === "create" ? "Tạo đơn hàng mới" : "Chỉnh sửa đơn hàng"
+      }
+      description="Điền thông tin"
+      open={panelState.isOpen}
       onOpenChange={setIsOpen}
     >
       <Form {...form}>

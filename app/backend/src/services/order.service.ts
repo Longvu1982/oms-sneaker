@@ -145,19 +145,12 @@ export const updateBook = async (book: TBookWrite, id: TBookID): Promise<TBookRe
   });
 };
 
-export const updateOrderStaus = async (
-  statusChangeDate: Date | null,
-  newStatus: OrderStatus,
-  id: UUID
-): Promise<Order> => {
+export const updateOrder = async (order: Order): Promise<Order> => {
   return db.order.update({
     where: {
-      id,
+      id: order.id,
     },
-    data: {
-      statusChangeDate,
-      status: newStatus,
-    },
+    data: { ...order },
   });
 };
 

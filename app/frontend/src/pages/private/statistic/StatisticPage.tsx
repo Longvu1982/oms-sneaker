@@ -192,6 +192,7 @@ const StatisticPage = () => {
               <OrderTable
                 orderList={statisticData.orderList}
                 manualPagination={false}
+                excludeColumns={["actions"]}
               />
             </CardContent>
           </Card>

@@ -1,3 +1,4 @@
+import { OrderFormValues } from "@/pages/private/order-list/panel/OrderPanel";
 import {
   Order,
   QueryDataModel,
@@ -6,7 +7,6 @@ import {
   User,
 } from "@/types/model/app-model";
 import ApiService from "../APIService";
-import { OrderStatus } from "@/types/enum/app-enum";
 
 export type OrderWithExtra = Order & {
   user: User;
@@ -38,15 +38,12 @@ export async function apiCreateOrder(
   });
 }
 
-export async function apiUpdateOrderStatus(data: {
-  id: string;
-  status: OrderStatus;
-}) {
+export async function apiUpdateOrder(data: OrderFormValues) {
   return ApiService.fetchData<{
     success: boolean;
     data: Order;
   }>({
-    url: `/orders/${data.id}/changeStatus`,
+    url: `/orders/${data.id}/update`,
     method: "put",
     data,
   });

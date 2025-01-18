@@ -37,7 +37,7 @@ router.put(
   OrderController.updateBook
 );
 
-router.put('/:id/changeStatus', protectAuth, OrderController.updateOrderStatus);
+router.put('/:id/update', protectAuth, OrderController.updateOrder);
 
 // Acess : Private
 // DELETE : delete a book

@@ -47,6 +47,7 @@ export const userUpdateSchema = z.object({
 });
 
 export const orderSchema = z.object({
+  id: z.string().optional(),
   SKU: z.string().nonempty('SKU không được để trống.'),
   checkBox: z.boolean(),
   deliveryCode: z.string().optional(),
@@ -60,7 +61,7 @@ export const orderSchema = z.object({
   shippingStoreId: z.string().nonempty('Kho không được để trống.').uuid('ID cửa hàng vận chuyển phải là UUID hợp lệ.'),
   size: z.number().positive('Kích thước phải lớn hơn 0.'),
   sourceId: z.string().nonempty('Nguồn được để trống.').uuid('ID nguồn phải là UUID hợp lệ.'),
-  status: z.enum([OrderStatus.ONGOING, OrderStatus.CANCELLED, OrderStatus.SHIPPED, OrderStatus.CANCELLED], {
+  status: z.enum([OrderStatus.ONGOING, OrderStatus.LANDED, OrderStatus.SHIPPED, OrderStatus.CANCELLED], {
     errorMap: () => ({ message: 'Trạng thái không hợp lệ.' }),
   }),
   totalPrice: z.number().min(0, 'Tổng giá phải lớn hơn hoặc bằng 0.'),

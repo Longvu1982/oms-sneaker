@@ -11,16 +11,24 @@ interface OrderTableProps {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   manualPagination?: boolean;
+  excludeColumns?: string[];
+  onEditClick?: (data: OrderWithExtra) => void;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
   onStatusChange,
   onPaginationChange,
+  onEditClick,
   orderList,
   queryParams,
   manualPagination = true,
+  excludeColumns = [],
 }) => {
-  const columns = useGetOrderColumns({ onStatusChange });
+  const columns = useGetOrderColumns({
+    onStatusChange,
+    excludeColumns,
+    onEditClick,
+  });
 
   return (
     <div>

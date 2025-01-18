@@ -23,6 +23,7 @@ interface ComboBoxProps {
   value: Option["value"];
   triggerClassName?: string;
   onValueChange?: (value: Option["value"]) => void;
+  disabled?: boolean;
 }
 const ComboBox = ({
   options,
@@ -33,6 +34,7 @@ const ComboBox = ({
   value,
   onValueChange,
   triggerClassName,
+  disabled,
   searchable = true,
 }: ComboBoxProps) => {
   const [open, setOpen] = useState(false);
@@ -49,7 +51,13 @@ const ComboBox = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(open) => {
+        if (disabled) return;
+        setOpen(open);
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="ghost"

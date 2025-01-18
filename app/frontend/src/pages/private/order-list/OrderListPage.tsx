@@ -4,13 +4,13 @@ import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiCreateOrder,
   apiGetOrderList,
-  apiUpdateOrderStatus,
+  apiUpdateOrder,
   OrderWithExtra,
 } from "@/services/main/orderServices";
 import { apiShippingStoresList } from "@/services/main/shipingStoreServices";
 import { apiSourcesList } from "@/services/main/sourceServices";
 import { apiGetUsersList } from "@/services/main/userServices";
-import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
+import { DeliveryCodeStatus, OrderStatus, Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FilterIcon, PlusCircle } from "lucide-react";
@@ -21,19 +21,45 @@ import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import OrderTable from "./table/OrderTable";
+import useAuthStore from "@/store/auth";
+
+const initOrderFormValues = {
+  SKU: "",
+  size: 10,
+  deposit: 0,
+  totalPrice: 0,
+  deliveryCode: "",
+  deliveryCodeStatus: DeliveryCodeStatus.PENDING,
+  shippingFee: 0,
+  secondShippingFee: 0,
+  checkBox: false,
+  orderNumber: "",
+  userId: "",
+  sourceId: "",
+  shippingStoreId: "",
+  status: OrderStatus.ONGOING,
+};
 
 const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
   const [userList, setUserList] = useState<Option[]>([]);
   const [sourceList, setSourceList] = useState<Option[]>([]);
   const [shippingStoreList, setShippingStoreList] = useState<Option[]>([]);
-  const [queryParams, setQueryParams] =
-    useState<QueryDataModel>(initQueryParams);
+
+  const user = useAuthStore((s) => s.user);
+  const role = user?.account.role;
+
+  const [queryParams, setQueryParams] = useState<QueryDataModel>({
+    ...initQueryParams,
+    filter: role === Role.USER ? [{ column: "userId", value: [user?.id] }] : [],
+  });
+
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const [orderPanel, setOrderPanel] = useState<{
     isOpen: boolean;
     type: "create" | "edit";
-  }>({ isOpen: false, type: "create" });
+    data: OrderFormValues;
+  }>({ isOpen: false, type: "create", data: {} as OrderFormValues });
 
   const { triggerLoading } = useTriggerLoading();
 
@@ -49,28 +75,13 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
 
   const orderForm = useForm<OrderFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      SKU: "",
-      size: 10,
-      deposit: 0,
-      totalPrice: 0,
-      deliveryCode: "",
-      deliveryCodeStatus: DeliveryCodeStatus.PENDING,
-      shippingFee: 0,
-      secondShippingFee: 0,
-      checkBox: false,
-      orderNumber: "",
-      userId: "",
-      sourceId: "",
-      shippingStoreId: "",
-      status: OrderStatus.ONGOING,
-    },
+    defaultValues: initOrderFormValues,
   });
 
   const onStatusChange = useCallback(
     async (id: string, status: OrderStatus) => {
       await triggerLoading(async () => {
-        await apiUpdateOrderStatus({ id, status });
+        await apiUpdateOrder({ id, status } as OrderFormValues);
         await getOrderList(queryParams);
       });
     },
@@ -103,23 +114,41 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     });
   };
 
-  const onCreateOrder = async (data: OrderFormValues) => {
+  const onCreateUpdateOrder = async (data: OrderFormValues) => {
+    console.log(data);
     await triggerLoading(async () => {
-      await apiCreateOrder(data);
-      toast.success("Tạo đơn hàng thành công.");
+      const promise =
+        orderPanel.type === "create"
+          ? apiCreateOrder(data)
+          : apiUpdateOrder(data);
+      await promise;
+      toast.success(
+        orderPanel.type === "create"
+          ? "Tạo đơn hàng thành công."
+          : "Chỉnh sửa thành công."
+      );
+
+      if (orderPanel.type === "edit")
+        setOrderPanel((prev) => ({ ...prev, isOpen: false }));
+
       await getOrderList(queryParams);
     });
   };
 
   useEffect(() => {
     triggerLoading(async () => {
+      const initParams = { ...initQueryParams };
+      if (role === Role.USER) {
+        initParams.filter = [{ column: "userId", value: [user?.id] }];
+      }
       await Promise.all([
-        getOrderList(initQueryParams),
+        getOrderList(initParams),
         getUserList(),
         getSourceList(),
         getShippingStoreList(),
       ]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getOrderList = async (params: QueryDataModel) => {
@@ -193,6 +222,14 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     });
   };
 
+  const onEditClick = useCallback(
+    (data: OrderWithExtra) => {
+      orderForm.reset({ ...data });
+      setOrderPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
+    },
+    [orderForm]
+  );
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -209,17 +246,25 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         </Button>
       </div>
 
-      {!isCompleted && (
+      {!isCompleted && role === Role.ADMIN && (
         <Button
           size="sm"
           className="mb-6"
-          onClick={() => setOrderPanel((prev) => ({ ...prev, isOpen: true }))}
+          onClick={() => {
+            setOrderPanel({
+              type: "create",
+              isOpen: true,
+              data: {} as OrderFormValues,
+            });
+            orderForm.reset({ ...initOrderFormValues });
+          }}
         >
           <PlusCircle /> Thêm đơn hàng
         </Button>
       )}
 
       <OrderTable
+        onEditClick={onEditClick}
         onPaginationChange={onPaginationChange}
         onStatusChange={onStatusChange}
         queryParams={queryParams}
@@ -238,11 +283,11 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         isCompletedStatus={isCompleted}
       />
       <OrderPanel
-        isOpen={orderPanel.isOpen}
+        panelState={orderPanel}
         setIsOpen={(value) =>
           setOrderPanel((prev) => ({ ...prev, isOpen: value }))
         }
-        onSubmit={onCreateOrder}
+        onSubmit={onCreateUpdateOrder}
         form={orderForm}
         options={{ userList, sourceList, shippingStoreList }}
       />

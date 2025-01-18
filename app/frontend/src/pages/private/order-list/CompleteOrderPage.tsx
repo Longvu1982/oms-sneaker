@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   apiCreateOrder,
   apiGetOrderList,
-  apiUpdateOrderStatus,
+  apiUpdateOrder,
   OrderWithExtra,
 } from "@/services/main/orderServices";
 import { apiShippingStoresList } from "@/services/main/shipingStoreServices";
@@ -63,7 +63,7 @@ const CompleteOrderPage = () => {
   });
 
   const onStatusChange = async (id: string, status: OrderStatus) => {
-    await apiUpdateOrderStatus({ id, status });
+    await apiUpdateOrder({ id, status });
     await getOrderList(queryParams);
   };
 
@@ -202,7 +202,7 @@ const CompleteOrderPage = () => {
         options={{ userList, sourceList, shippingStoreList }}
       />
       <OrderPanel
-        isOpen={orderPanel.isOpen}
+        panelState={orderPanel.isOpen}
         setIsOpen={(value) =>
           setOrderPanel((prev) => ({ ...prev, isOpen: value }))
         }

@@ -3,43 +3,42 @@ import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { formatAmount, renderBadge } from "@/lib/utils";
 import { OrderWithExtra } from "@/services/main/orderServices";
-import { OrderStatus } from "@/types/enum/app-enum";
+import { OrderStatus, Role } from "@/types/enum/app-enum";
 import {
   orderStatusOptions,
   ShippingStore,
   Source,
 } from "@/types/model/app-model";
 import { format } from "date-fns/format";
-import { MoreHorizontal } from "lucide-react";
+import { Edit } from "lucide-react";
+import { useMemo } from "react";
 import {
   deliveryCodeStatusObject,
   orderStatusObject,
 } from "./order-list-utils";
-import { formatAmount, renderBadge } from "@/lib/utils";
-import { useMemo } from "react";
+import useAuthStore from "@/store/auth";
 
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
+  onEditClick?: (data: OrderWithExtra) => void;
+  excludeColumns?: string[];
 };
 
-export const useGetOrderColumns: ({
+export const useGetOrderColumns: (
+  props: getOrdercolumnsProps
+) => EnhancedColumnDef<OrderWithExtra>[] = ({
   onStatusChange,
-}: getOrdercolumnsProps) => EnhancedColumnDef<OrderWithExtra>[] = ({
-  onStatusChange,
+  onEditClick,
+  excludeColumns,
 }) => {
+  const role = useAuthStore((s) => s.user?.account.role);
   const columns = useMemo(
     () =>
       [
         {
+          id: "orderDate",
           accessorKey: "orderDate",
           header: "Ngày order",
           cell: ({ getValue }) => {
@@ -51,6 +50,7 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "statusChangeDate",
           accessorKey: "statusChangeDate",
           header: () => (
             <p>
@@ -68,29 +68,35 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "SKU",
           accessorKey: "SKU",
           header: "SKU",
         },
         {
+          id: "size",
           accessorKey: "size",
           header: "Size",
         },
         {
+          id: "deposit",
           accessorKey: "deposit",
           header: "Cọc",
           cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
+          id: "totalPrice",
           accessorKey: "totalPrice",
           header: "Giá",
           cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
+          id: "shippingFee",
           accessorKey: "shippingFee",
           header: "Cước VC",
           cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
+          id: "user",
           accessorKey: "user",
           header: "Tên khách",
           cell: ({ row }) => {
@@ -99,10 +105,12 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "orderNumber",
           accessorKey: "orderNumber",
           header: "Order number",
         },
         {
+          id: "deliveryCode",
           accessorKey: "deliveryCode",
           header: "MVĐ",
           cell: ({ row }) => {
@@ -126,6 +134,7 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "checkBox",
           accessorKey: "checkBox",
           header: "Hộp kiểm",
           cell: ({ getValue }) => {
@@ -134,6 +143,7 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "source",
           accessorKey: "source",
           header: "Nguồn",
           cell: ({ getValue }) => {
@@ -142,6 +152,7 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "shippingStore",
           accessorKey: "shippingStore",
           header: "Kho VC",
           cell: ({ getValue }) => {
@@ -152,6 +163,7 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          id: "status",
           accessorKey: "status",
           header: "Trạng thái",
           cell: ({ getValue, row }) => {
@@ -160,6 +172,7 @@ export const useGetOrderColumns: ({
 
             return (
               <ComboBox
+                disabled={role !== Role.ADMIN}
                 value={status}
                 options={orderStatusOptions}
                 onValueChange={(value) =>
@@ -177,36 +190,49 @@ export const useGetOrderColumns: ({
           },
         },
         {
+          accessorKey: "actions",
           id: "actions",
+          header: "",
           fixed: true,
           cell: ({ row }) => {
-            const payment = row.original;
+            const data = row.original;
             return (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild className="sticky right-0">
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() => navigator.clipboard.writeText(payment.id)}
-                  >
-                    Copy payment ID
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>View customer</DropdownMenuItem>
-                  <DropdownMenuItem>View payment details</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onEditClick?.(data)}
+                >
+                  <Edit />
+                </Button>
+              </div>
             );
           },
         },
       ] as EnhancedColumnDef<OrderWithExtra>[],
-    [onStatusChange]
+    [onStatusChange, onEditClick, role]
   );
 
-  return columns;
+  const filteredColumns = useMemo(
+    () =>
+      columns.filter((column) => {
+        let finalExclude = [...(excludeColumns ?? [])];
+        if (role === Role.USER)
+          finalExclude = [
+            ...finalExclude,
+            "shippingFee",
+            "secondShippingFee",
+            "orderNumber",
+            "deliveryCode",
+            "checkBox",
+            "source",
+            "shippingStore",
+            "actions",
+          ];
+        return !finalExclude?.includes(column.id as string);
+      }),
+    [columns, excludeColumns, role]
+  );
+
+  return filteredColumns;
 };

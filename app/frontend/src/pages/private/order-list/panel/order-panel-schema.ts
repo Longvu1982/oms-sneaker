@@ -2,6 +2,7 @@ import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import { z } from "zod";
 
 export const schema = z.object({
+  id: z.string().optional(),
   SKU: z.string().nonempty("SKU không được để trống."),
   checkBox: z.boolean(),
   deliveryCode: z.string().optional(),

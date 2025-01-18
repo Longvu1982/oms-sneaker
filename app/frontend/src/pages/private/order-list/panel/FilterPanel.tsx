@@ -11,7 +11,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { OrderStatus } from "@/types/enum/app-enum";
+import useAuthStore from "@/store/auth";
+import { OrderStatus, Role } from "@/types/enum/app-enum";
 import { orderStatusOptions } from "@/types/model/app-model";
 import { FC } from "react";
 import { DateRange } from "react-day-picker";
@@ -47,6 +48,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
   options: { userList, sourceList, shippingStoreList },
   isCompletedStatus = false,
 }) => {
+  const role = useAuthStore((s) => s.user?.account.role);
   return (
     <Panel
       formId="filterForm"
@@ -81,55 +83,59 @@ const FilterPanel: FC<FilterPanelProps> = ({
               </FormItem>
             )}
           />
+          {role !== Role.USER && (
+            <>
+              <FormField
+                control={form.control}
+                name="users"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Người dùng</FormLabel>
+                    <FormControl>
+                      <MultipleSelector
+                        placeholder="Chọn người dùng"
+                        options={userList}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="users"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Người dùng</FormLabel>
-                <FormControl>
-                  <MultipleSelector
-                    placeholder="Chọn người dùng"
-                    options={userList}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="sources"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nguồn hàng</FormLabel>
-                <FormControl>
-                  <MultipleSelector
-                    placeholder="Chọn nguồn"
-                    options={sourceList}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="shippingStores"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kho vận chuyển</FormLabel>
-                <FormControl>
-                  <MultipleSelector
-                    placeholder="Chọn kho VC"
-                    options={shippingStoreList}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="sources"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nguồn hàng</FormLabel>
+                    <FormControl>
+                      <MultipleSelector
+                        placeholder="Chọn nguồn"
+                        options={sourceList}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="shippingStores"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kho vận chuyển</FormLabel>
+                    <FormControl>
+                      <MultipleSelector
+                        placeholder="Chọn kho VC"
+                        options={shippingStoreList}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <FormField
             control={form.control}
             name="statuses"

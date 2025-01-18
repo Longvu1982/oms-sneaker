@@ -50,7 +50,7 @@ export const updateBook = async (request: Request, response: Response, next: Nex
   }
 };
 
-export const updateOrderStatus = async (request: Request, response: Response, next: NextFunction) => {
+export const updateOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const id = request.params.id as UUID;
     const existingOrder = await OrderSevice.getOrder(id);
@@ -60,12 +60,13 @@ export const updateOrderStatus = async (request: Request, response: Response, ne
     const newStatus = request.body.status;
 
     if (currentStatus !== OrderStatus.ONGOING && newStatus === OrderStatus.ONGOING) {
-      existingOrder.statusChangeDate = null;
+      request.body.statusChangeDate = null;
     } else {
-      existingOrder.statusChangeDate = new Date();
+      request.body.statusChangeDate = new Date();
     }
-    const updateOrder = await OrderSevice.updateOrderStaus(existingOrder.statusChangeDate, newStatus, id);
-    return sendSuccessResponse(response, updateOrder);
+
+    const updatedOrder = await OrderSevice.updateOrder(request.body);
+    return sendSuccessResponse(response, updatedOrder);
   } catch (error: any) {
     next(error);
   }
