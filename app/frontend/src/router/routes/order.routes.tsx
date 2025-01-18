@@ -15,6 +15,6 @@ export const orderRoutes = [
   {
     path: "/complete-order-list",
     element: <OrderListPage isCompleted key={"complete"} />,
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.USER],
   },
 ];

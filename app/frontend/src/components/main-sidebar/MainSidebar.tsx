@@ -28,9 +28,14 @@ const menus: TMenuItem[] = [
       { title: "Danh sách GD", link: "/transaction-list" },
       { title: "Bảng balance", link: "/transaction-balance" },
     ],
-    role: [],
+    role: [Role.ADMIN],
   },
-  { type: "single", title: "Quản lý doanh thu", role: [], link: "/statistics" },
+  {
+    type: "single",
+    title: "Quản lý doanh thu",
+    role: [Role.ADMIN],
+    link: "/statistics",
+  },
   {
     type: "single",
     title: "Quản lý nguồn",

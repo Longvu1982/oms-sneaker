@@ -9,7 +9,7 @@ services:
   #   ports:
   #     - "5173:5173"
   #   environment:
-  #     - VITE_API_URL=http://localhost:6060/api # Replace with your backend URL if needed
+  #     - VITE_API_URL=http://localhost:6060/api 
   #   depends_on:
   #     - backend
   #   # volumes:
