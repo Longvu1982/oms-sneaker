@@ -18,6 +18,7 @@ import {
   UserFormValues,
 } from "@/services/main/userServices";
 import { initQueryParams, QueryDataModel, User } from "@/types/model/app-model";
+import { setHours, setMilliseconds, setMinutes, setSeconds } from "date-fns";
 import { Edit, MoreHorizontal, PlusCircle, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -26,7 +27,6 @@ import {
   AddTransferModalFormValues,
 } from "./modal/AddTransferModal";
 import UserPanel from "./UserPanel";
-import { setHours, setMilliseconds, setMinutes, setSeconds } from "date-fns";
 
 const getColumns: ({
   onClickAddTransfer,
@@ -125,6 +125,8 @@ const UserListPage = () => {
   }>({ isOpen: false, type: "create" });
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
+
+
 
   const { triggerLoading } = useTriggerLoading();
 

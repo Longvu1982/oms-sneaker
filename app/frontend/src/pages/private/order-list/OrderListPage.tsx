@@ -268,6 +268,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onPaginationChange={onPaginationChange}
         onStatusChange={onStatusChange}
         queryParams={queryParams}
+        excludeColumns={isCompleted ? [] : ["statusChangeDate"]}
         orderList={orderList.filter((item) =>
           isCompleted
             ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)
@@ -283,6 +284,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         isCompletedStatus={isCompleted}
       />
       <OrderPanel
+      onReloadUser={getUserList}
         panelState={orderPanel}
         setIsOpen={(value) =>
           setOrderPanel((prev) => ({ ...prev, isOpen: value }))

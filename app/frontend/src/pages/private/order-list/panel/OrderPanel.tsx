@@ -23,7 +23,7 @@ import {
   deliveryCodeStatusObject,
   orderStatusObject,
 } from "../order-list-utils";
-import { formatAmount, renderBadge } from "@/lib/utils";
+import { createURL, formatAmount, renderBadge } from "@/lib/utils";
 
 export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt"> & {
   id?: string;
@@ -43,6 +43,7 @@ interface OrderPanelProps {
     sourceList: Option[];
     shippingStoreList: Option[];
   };
+  onReloadUser: () => Promise<void>
 }
 
 const OrderPanel: FC<OrderPanelProps> = ({
@@ -50,6 +51,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
   panelState,
   setIsOpen,
   onSubmit,
+  onReloadUser,
   options: { userList, sourceList, shippingStoreList },
 }) => {
   const [watchDeliveryCode, setWatchDeliveryCode] = useState("");
@@ -283,6 +285,12 @@ const OrderPanel: FC<OrderPanelProps> = ({
             form={form}
             label="Khách hàng"
             options={userList}
+            onReload={onReloadUser}
+            onClickEmptyAction={(value) => {
+              console.log(value)
+              window.open(createURL(window.location.origin + "/user-list", { openPanel: "true", fullName: (value as string) ?? "" }), "_blank")
+            }
+            }
           />
           <ComboBoxForm
             name="sourceId"

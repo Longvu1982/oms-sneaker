@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, RefreshCcw } from "lucide-react";
 import {
   ControllerRenderProps,
   FieldValues,
@@ -35,7 +35,8 @@ interface ComboBoxFormProps<TFormValue extends FieldValues> {
   searchable?: boolean;
   emptyRender?: () => React.ReactNode;
   renderOption?: (option: Option) => React.ReactNode;
-  onClickEmptyAction?: () => void;
+  onClickEmptyAction?: (value: string) => void;
+  onReload?: () => Promise<A>
 }
 const ComboBoxForm = <TFormValue extends FieldValues>({
   options,
@@ -45,9 +46,11 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
   emptyRender,
   onClickEmptyAction,
   renderOption,
+  onReload,
   searchable = true,
 }: ComboBoxFormProps<TFormValue>) => {
   const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("")
 
   const renderSelectedOption = (
     field: ControllerRenderProps<TFormValue, Path<TFormValue>>
@@ -61,6 +64,8 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
     if (renderOption && option) return renderOption(option);
     return option?.label;
   };
+
+  console.log(options)
 
   return (
     <FormField
@@ -88,10 +93,17 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
             <PopoverContent className="p-0">
               <Command>
                 {searchable && (
-                  <CommandInput
-                    placeholder={`Tìm kiếm ${label.toLocaleLowerCase()}...`}
-                    className="h-9"
-                  />
+                  <div className="flex items-center gap-2">
+                    <CommandInput
+                      value={value}
+                      onValueChange={setValue}
+                      placeholder={`Tìm kiếm ${label.toLocaleLowerCase()}...`}
+                      className="h-9 flex-1"
+                    />
+                    {onReload && <Button variant="ghost" size="icon" onClick={onReload}>
+                      <RefreshCcw />
+                    </Button>}
+                  </div>
                 )}
                 <CommandList>
                   {searchable && (
@@ -103,13 +115,13 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
                           <p className="mb-4">
                             {label.toLocaleLowerCase()} không tồn tại
                           </p>
-                          <Button
+                          {onClickEmptyAction && <Button
                             variant="secondary"
                             size="sm"
-                            onClick={onClickEmptyAction}
+                            onClick={() => onClickEmptyAction?.(value)}
                           >
                             Tạo {label.toLocaleLowerCase()}
-                          </Button>
+                          </Button>}
                         </>
                       )}
                     </CommandEmpty>

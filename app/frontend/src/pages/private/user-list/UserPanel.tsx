@@ -13,8 +13,11 @@ import { Input } from "@/components/ui/input";
 import { UserFormValues } from "@/services/main/userServices";
 import { Role } from "@/types/enum/app-enum";
 import { roleStatusOptions } from "@/types/model/app-model";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
+import { z } from "zod";
 
 interface UserPanelProps {
   isOpen: boolean;
@@ -22,9 +25,33 @@ interface UserPanelProps {
   onSubmit: (data: UserFormValues) => void;
 }
 
+const schema = z.object({
+  fullName: z.string().min(1, "Tên người dùng không được để trống"),
+  email: z.union([
+    z.literal(''),
+    z.string().email("Email sai định dạng"),
+  ]),
+  phone: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  role: z.enum(
+    [
+      Role.ADMIN,
+      Role.USER,
+      Role.STAFF,
+    ],
+    {
+      errorMap: () => ({ message: "Loại TK không hợp lệ" }),
+    }
+  ),
+  transferedAmount: z.number().min(0),
+  willCreateAccount: z.boolean(),
+}).refine(data => !data.willCreateAccount || data.username?.trim() !== "", { message: "Username là bắt buộc", path: ["username"] }).
+  refine(data => !data.willCreateAccount || data.password?.trim() !== "", { message: "Mật khẩu là bắt buộc", path: ["password"] })
+
 const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
   const form = useForm<UserFormValues>({
-    // resolver: zodResolver(schema),
+    resolver: zodResolver(schema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -36,6 +63,17 @@ const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
       willCreateAccount: false,
     },
   });
+
+   const [searchParams] = useSearchParams()
+    const fullNameParam = searchParams.get("fullName")
+    const isOpenParam = searchParams.get("openPanel")
+
+    useEffect(() => {
+      if(isOpenParam === "true" && fullNameParam) {
+        setIsOpen(true)
+      }
+      form.setValue("fullName", fullNameParam ?? "")
+    },[fullNameParam, isOpenParam])
 
   const willCreateAccount = form.watch("willCreateAccount");
 

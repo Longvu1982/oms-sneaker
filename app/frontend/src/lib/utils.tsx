@@ -29,3 +29,20 @@ export const formatAmount: (input: number | string) => string = (input) => {
     currency: "VND",
   });
 };
+
+export const createURL = (
+  baseUrl: string,
+  queryObj?: Record<string, string | number | undefined | null>,
+) => {
+  let queryString = ''
+  if (queryObj)
+    queryString = Object.entries(queryObj)
+      .filter(([, value]) => value != null)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value as A)}`,
+      )
+      .join('&')
+
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl
+}
