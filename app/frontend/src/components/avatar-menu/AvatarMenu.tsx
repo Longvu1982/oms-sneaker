@@ -7,10 +7,10 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useAuthStore from "@/store/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { apiLogout } from "@/services/main/authServices";
+import useAuthStore from "@/store/auth";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export default function AvatarMenu() {
   const user = useAuthStore((s) => s.user);
@@ -30,8 +30,13 @@ export default function AvatarMenu() {
       <DropdownMenuTrigger asChild>
         {/* <Button variant="outline">Open</Button> */}
         <Avatar className="cursor-pointer size-8">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback className="text-xs">
+            {user?.fullName
+              ?.split(" ")
+              ?.slice(-2)
+              ?.map((n) => n[0])
+              ?.join("")}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" align="end">

@@ -1,14 +1,13 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { cn, formatAmount } from "@/lib/utils";
 import { getUserById, UserExtra } from "@/services/main/userServices";
-import { format } from "date-fns";
+import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TransfersTimeline } from "./TransferTimeline";
-import { cn, formatAmount } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
