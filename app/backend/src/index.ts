@@ -64,6 +64,6 @@ app.use(notFoundHandler);
 // Error Handling Middleware
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Listening on PORT ${PORT}`);
 });

@@ -50,7 +50,7 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
             </div>
             <div>
               <p className="font-semibold">
-                {transfer.amount >= 0 ? "Nạp tiền" : "Rút tiền"}:
+                {transfer.amount >= 0 ? "Nạp tiền: " : "Rút tiền: "}
                 {formatAmount(Math.abs(transfer.amount))}
               </p>
               <p className="text-sm text-gray-500">
