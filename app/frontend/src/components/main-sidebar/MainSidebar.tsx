@@ -1,14 +1,15 @@
+import logo from "@/assets/viet-sneaker-logo.png";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
+import useAuthStore from "@/store/auth";
+import { Role } from "@/types/enum/app-enum";
+import { Avatar, AvatarImage } from "../ui/avatar";
 import MenuItem from "./menu-item/MenuItem";
 import { TMenuItem } from "./menu-item/menuItems.type";
-import { Role } from "@/types/enum/app-enum";
-import useAuthStore from "@/store/auth";
 
 const menus: TMenuItem[] = [
   // { type: "single", title: "Trang chủ", link: "/route1" },
@@ -62,7 +63,12 @@ const MainSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarHeader>OMS Viet Sneaker</SidebarHeader>
+      <div className="flex items-center gap-2 ml-4 py-4">
+        <Avatar className="size-8">
+          <AvatarImage src={logo} />
+        </Avatar>
+        <span className="font-semibold italic">Viet Sneaker</span>
+      </div>
       <SidebarContent>
         <SidebarGroup className="space-y-1">
           {menus

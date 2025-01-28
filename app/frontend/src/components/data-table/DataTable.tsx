@@ -77,6 +77,9 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable(tableSettings);
 
+  if (!table.getRowModel().rows?.length)
+    return <p className="text-left">Không có dữ liệu</p>;
+
   return (
     <div className="">
       <div className="rounded-md border">

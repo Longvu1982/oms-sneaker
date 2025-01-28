@@ -1,3 +1,4 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
+import logo from "@/assets/viet-sneaker-logo.png";
 
 const loginSchema = z.object({
   username: z.string().nonempty("Username is required"),
@@ -56,16 +58,23 @@ export default function Login() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md"
         >
-          <h2 className="text-2xl font-bold text-center">Login</h2>
-
+          <div className="space-y-2">
+            <h2 className="text-center text-xs">Đăng nhập vào</h2>
+            <div className="flex items-center gap-2 mx-auto justify-center">
+              <Avatar className="size-8">
+                <AvatarImage src={logo} />
+              </Avatar>
+              <span className="font-semibold italic">Viet Sneaker</span>
+            </div>
+          </div>
           <FormField
             control={form.control}
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Tên đăng nhập</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your username" {...field} />
+                  <Input placeholder="VD:viet123" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,11 +86,11 @@ export default function Login() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Mật khẩu</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Nhập mật khẩu"
                     {...field}
                   />
                 </FormControl>
@@ -91,7 +100,7 @@ export default function Login() {
           />
 
           <Button type="submit" className="w-full">
-            Login
+            Đăng nhập
           </Button>
         </form>
       </Form>

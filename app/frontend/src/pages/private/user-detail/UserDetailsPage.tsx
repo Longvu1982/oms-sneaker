@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TransfersTimeline } from "./TransferTimeline";
+import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
@@ -42,7 +43,7 @@ const UserDetailsPage = () => {
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
           Chi tiết người dùng
         </h3>
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">
@@ -115,7 +116,7 @@ const UserDetailsPage = () => {
             </CardContent>
           </Card>
         </section>
-        <section className="space-y-4">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">
@@ -124,6 +125,19 @@ const UserDetailsPage = () => {
             </CardHeader>
             <CardContent>
               <TransfersTimeline transfers={userData.transfers} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">
+                Danh sách giao dịch
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TransactionTable
+                transactionList={userData.transactions}
+                manualPagination={false}
+              />
             </CardContent>
           </Card>
         </section>
