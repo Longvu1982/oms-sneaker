@@ -2,7 +2,7 @@ import type React from "react";
 import { format } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount } from "@/lib/utils";
 
 interface Transfer {
   id: string;
@@ -50,8 +50,8 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
             </div>
             <div>
               <p className="font-semibold">
-                {transfer.amount >= 0 ? "Nạp tiền" : "Rút tiền"}: $
-                {Math.abs(transfer.amount)}
+                {transfer.amount >= 0 ? "Nạp tiền" : "Rút tiền"}:
+                {formatAmount(Math.abs(transfer.amount))}
               </p>
               <p className="text-sm text-gray-500">
                 {format(new Date(transfer.createdAt), "dd/MM/yyyy HH:mm")}
