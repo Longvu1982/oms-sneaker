@@ -118,23 +118,25 @@ export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCou
 
   const [totalCount, users] = await Promise.all([db.user.count({ where: query.where }), db.user.findMany(query)]);
 
-  const userResponse = users.map((u: any) => {
-    const orderList = ((u.orders ?? []) as Order[]).filter((item) => item.status !== OrderStatus.CANCELLED);
-    const transfereds = (u.transfers ?? []) as Transfered[];
-
-    const totalPrice = orderList.reduce((sum, item) => sum + item.totalPrice + item.shippingFee - item.deposit, 0);
-
-    const totalTransfered = transfereds.reduce((sum, item) => sum + item.amount, 0);
-
-    return {
-      ...u,
-      orderCount: u.orders.length,
-      transfered: totalTransfered,
-      balance: totalTransfered - totalPrice,
-    };
-  });
+  const userResponse = users.map(userWithBalance);
 
   return { totalCount, users: userResponse };
+};
+
+const userWithBalance = (u: any) => {
+  const orderList = ((u.orders ?? []) as Order[]).filter((item) => item.status !== OrderStatus.CANCELLED);
+  const transfereds = (u.transfers ?? []) as Transfered[];
+
+  const totalPrice = orderList.reduce((sum, item) => sum + item.totalPrice + item.shippingFee - item.deposit, 0);
+
+  const totalTransfered = transfereds.reduce((sum, item) => sum + item.amount, 0);
+
+  return {
+    ...u,
+    orderCount: u.orders.length,
+    transfered: totalTransfered,
+    balance: totalTransfered - totalPrice,
+  };
 };
 
 export const createUser = async (model: any): Promise<User> => {
@@ -185,11 +187,14 @@ export const getAccountByUsername = async (
 };
 
 export const getUserByID = async (id: string): Promise<TloginRequest | null> => {
-  return db.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
       id: id,
     },
+    include: { transfers: true, orders: true, transactions: true, account: { omit: { password: true } } },
   });
+
+  return userWithBalance(user);
 };
 
 export const getAccountById = async (id: string): Promise<Account | null> => {

@@ -115,7 +115,6 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   };
 
   const onCreateUpdateOrder = async (data: OrderFormValues) => {
-    console.log(data);
     await triggerLoading(async () => {
       const promise =
         orderPanel.type === "create"
@@ -284,7 +283,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         isCompletedStatus={isCompleted}
       />
       <OrderPanel
-      onReloadUser={getUserList}
+        onReloadUser={getUserList}
         panelState={orderPanel}
         setIsOpen={(value) =>
           setOrderPanel((prev) => ({ ...prev, isOpen: value }))

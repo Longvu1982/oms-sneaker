@@ -1,4 +1,11 @@
-import { QueryDataModel, User } from "@/types/model/app-model";
+import {
+  Account,
+  Order,
+  QueryDataModel,
+  Transaction,
+  Transfered,
+  User,
+} from "@/types/model/app-model";
 import ApiService from "../APIService";
 import { Role } from "@/types/enum/app-enum";
 
@@ -11,6 +18,16 @@ export type UserFormValues = Omit<
   username: string;
   password: string;
   role: Role;
+};
+
+export type UserExtra = User & {
+  transactions: Transaction[];
+  transfers: Transfered[];
+  orders: Order[];
+  account?: Account;
+  orderCount: number;
+  transfered: number;
+  balance: number;
 };
 
 export async function apiGetUsersList(data: QueryDataModel) {
@@ -43,5 +60,15 @@ export async function apiCreateUser(data: UserFormValues) {
     url: "/users/create",
     method: "post",
     data,
+  });
+}
+
+export async function getUserById(id: string) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: UserExtra;
+  }>({
+    url: `/users/${id}`,
+    method: "get",
   });
 }

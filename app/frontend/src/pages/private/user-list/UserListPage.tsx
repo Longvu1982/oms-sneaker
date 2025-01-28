@@ -27,12 +27,15 @@ import {
   AddTransferModalFormValues,
 } from "./modal/AddTransferModal";
 import UserPanel from "./UserPanel";
+import { useNavigate } from "react-router-dom";
 
 const getColumns: ({
   onClickAddTransfer,
+  onClickFullname,
 }: {
   onClickAddTransfer: (user: User) => void;
-}) => EnhancedColumnDef<User>[] = ({ onClickAddTransfer }) => [
+  onClickFullname: (id: string) => void;
+}) => EnhancedColumnDef<User>[] = ({ onClickAddTransfer, onClickFullname }) => [
   {
     id: "STT",
     header: "STT",
@@ -43,9 +46,18 @@ const getColumns: ({
   {
     accessorKey: "fullName",
     header: "Họ và tên",
-    cell: ({ getValue }) => (
-      <span className="whitespace-nowrap">{getValue() as string}</span>
-    ),
+    cell: ({ getValue, row }) => {
+      const userId = row.original.id;
+      return (
+        <Button
+          variant="link"
+          className="px-0 text-blue-500"
+          onClick={() => onClickFullname(userId)}
+        >
+          <span className="whitespace-nowrap">{getValue() as string}</span>
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "email",
@@ -126,8 +138,6 @@ const UserListPage = () => {
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
 
-
-
   const { triggerLoading } = useTriggerLoading();
 
   const getUserList = async (params: QueryDataModel) => {
@@ -144,6 +154,8 @@ const UserListPage = () => {
       }));
     }
   };
+  const navigate = useNavigate();
+  const onClickFullname = (userId: string) => navigate(`/user-list/${userId}`);
 
   const onPaginationChange = async (pageIndex: number, pageSize: number) => {
     const newData = {
@@ -199,7 +211,7 @@ const UserListPage = () => {
     setSelectedUser(user);
   };
 
-  const columns = getColumns({ onClickAddTransfer });
+  const columns = getColumns({ onClickAddTransfer, onClickFullname });
 
   useEffect(() => {
     triggerLoading(async () => {

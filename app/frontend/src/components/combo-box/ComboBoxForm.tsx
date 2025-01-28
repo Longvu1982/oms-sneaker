@@ -36,7 +36,7 @@ interface ComboBoxFormProps<TFormValue extends FieldValues> {
   emptyRender?: () => React.ReactNode;
   renderOption?: (option: Option) => React.ReactNode;
   onClickEmptyAction?: (value: string) => void;
-  onReload?: () => Promise<A>
+  onReload?: () => Promise<A>;
 }
 const ComboBoxForm = <TFormValue extends FieldValues>({
   options,
@@ -50,7 +50,7 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
   searchable = true,
 }: ComboBoxFormProps<TFormValue>) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState("");
 
   const renderSelectedOption = (
     field: ControllerRenderProps<TFormValue, Path<TFormValue>>
@@ -64,8 +64,6 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
     if (renderOption && option) return renderOption(option);
     return option?.label;
   };
-
-  console.log(options)
 
   return (
     <FormField
@@ -100,9 +98,11 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
                       placeholder={`Tìm kiếm ${label.toLocaleLowerCase()}...`}
                       className="h-9 flex-1"
                     />
-                    {onReload && <Button variant="ghost" size="icon" onClick={onReload}>
-                      <RefreshCcw />
-                    </Button>}
+                    {onReload && (
+                      <Button variant="ghost" size="icon" onClick={onReload}>
+                        <RefreshCcw />
+                      </Button>
+                    )}
                   </div>
                 )}
                 <CommandList>
@@ -115,13 +115,15 @@ const ComboBoxForm = <TFormValue extends FieldValues>({
                           <p className="mb-4">
                             {label.toLocaleLowerCase()} không tồn tại
                           </p>
-                          {onClickEmptyAction && <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => onClickEmptyAction?.(value)}
-                          >
-                            Tạo {label.toLocaleLowerCase()}
-                          </Button>}
+                          {onClickEmptyAction && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => onClickEmptyAction?.(value)}
+                            >
+                              Tạo {label.toLocaleLowerCase()}
+                            </Button>
+                          )}
                         </>
                       )}
                     </CommandEmpty>

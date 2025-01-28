@@ -43,7 +43,7 @@ interface OrderPanelProps {
     sourceList: Option[];
     shippingStoreList: Option[];
   };
-  onReloadUser: () => Promise<void>
+  onReloadUser: () => Promise<void>;
 }
 
 const OrderPanel: FC<OrderPanelProps> = ({
@@ -287,10 +287,14 @@ const OrderPanel: FC<OrderPanelProps> = ({
             options={userList}
             onReload={onReloadUser}
             onClickEmptyAction={(value) => {
-              console.log(value)
-              window.open(createURL(window.location.origin + "/user-list", { openPanel: "true", fullName: (value as string) ?? "" }), "_blank")
-            }
-            }
+              window.open(
+                createURL(window.location.origin + "/user-list", {
+                  openPanel: "true",
+                  fullName: (value as string) ?? "",
+                }),
+                "_blank"
+              );
+            }}
           />
           <ComboBoxForm
             name="sourceId"

@@ -10,4 +10,6 @@ router.post('/list-detail', protectAuth, UserController.listUsersDetail);
 
 router.post('/create', protectAuth, UserController.createUser);
 
+router.get('/:userId', protectAuth, UserController.getUserByID)
+
 export default router;

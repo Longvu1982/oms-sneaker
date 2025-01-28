@@ -6,10 +6,19 @@ const UserListPage = lazy(
   () => import("@/pages/private/user-list/UserListPage")
 );
 
+const UserDetailsPage = lazy(
+  () => import("@/pages/private/user-detail/UserDetailsPage")
+);
+
 export const userRoutes = [
   {
     path: "/user-list",
     element: <UserListPage />,
+    roles: [Role.ADMIN],
+  },
+  {
+    path: "/user-list/:userId",
+    element: <UserDetailsPage />,
     roles: [Role.ADMIN],
   },
 ];
