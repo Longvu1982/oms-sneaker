@@ -70,10 +70,10 @@ const StatisticPage = () => {
       filter: [
         {
           column: "status",
-          value: [OrderStatus.SHIPPED],
+          value: [OrderStatus.SHIPPED, OrderStatus.ONGOING, OrderStatus.LANDED],
         },
         {
-          column: "statusChangeDate",
+          column: "orderDate",
           value: { from, to },
         },
       ],
