@@ -1,4 +1,5 @@
 import ComboBoxForm from "@/components/combo-box/ComboBoxForm";
+import DateForm from "@/components/date/DateForm";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import Panel from "@/components/panel/Panel";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { createURL, formatAmount, renderBadge } from "@/lib/utils";
 import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import {
   deliveryCodeStatusOptions,
@@ -23,7 +25,6 @@ import {
   deliveryCodeStatusObject,
   orderStatusObject,
 } from "../order-list-utils";
-import { createURL, formatAmount, renderBadge } from "@/lib/utils";
 
 export type OrderFormValues = Omit<Order, "id" | "createdAt" | "updatedAt"> & {
   id?: string;
@@ -72,6 +73,8 @@ const OrderPanel: FC<OrderPanelProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 p-4"
         >
+          <DateForm form={form} name="orderDate" label="Ngày Order" />
+
           <FormField
             control={form.control}
             name="checkBox"

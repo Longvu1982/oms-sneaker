@@ -38,6 +38,7 @@ const initOrderFormValues = {
   sourceId: "",
   shippingStoreId: "",
   status: OrderStatus.ONGOING,
+  orderDate: new Date(),
 };
 
 const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
@@ -117,10 +118,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const onCreateUpdateOrder = async (data: OrderFormValues) => {
     await triggerLoading(async () => {
       const promise =
-        orderPanel.type === "create"
-          ? apiCreateOrder(data)
-          : apiUpdateOrder(data);
-      await promise;
+        orderPanel.type === "create" ? apiCreateOrder : apiUpdateOrder;
+      await promise(data);
       toast.success(
         orderPanel.type === "create"
           ? "Tạo đơn hàng thành công."
@@ -223,7 +222,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
 
   const onEditClick = useCallback(
     (data: OrderWithExtra) => {
-      orderForm.reset({ ...data });
+      orderForm.reset({ ...data, orderDate: new Date(data.orderDate) });
       setOrderPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
     },
     [orderForm]

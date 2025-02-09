@@ -6,6 +6,7 @@ export const schema = z.object({
   SKU: z.string().nonempty("SKU không được để trống."),
   checkBox: z.boolean(),
   deliveryCode: z.string().optional(),
+  orderDate: z.date({ message: "Ngày đặt hàng không hợp lệ." }),
   deliveryCodeStatus: z.enum(
     [
       DeliveryCodeStatus.PENDING,

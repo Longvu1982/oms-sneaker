@@ -66,6 +66,7 @@ export const orderSchema = z.object({
   }),
   totalPrice: z.number().min(0, 'Tổng giá phải lớn hơn hoặc bằng 0.'),
   userId: z.string().nonempty('KH không được để trống.').uuid('ID người dùng phải là UUID hợp lệ.'),
+  orderDate: z.string({ message: 'Ngày đặt hàng không hợp lệ.' }),
 });
 
 // _____________  Export Types   _____________

@@ -44,7 +44,7 @@ export type TransactionBalance = {
 export type Order = {
   id: string;
   orderNumber: string;
-  orderDate: string; // Date as ISO string
+  orderDate: Date; // Date as ISO string
   SKU: string;
   size: number;
   deposit: number;
