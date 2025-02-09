@@ -2,9 +2,9 @@ import ComboBox from "@/components/combo-box/ComboBox";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { formatAmount, renderBadge } from "@/lib/utils";
 import { OrderWithExtra } from "@/services/main/orderServices";
+import useAuthStore from "@/store/auth";
 import { OrderStatus, Role } from "@/types/enum/app-enum";
 import {
   orderStatusOptions,
@@ -18,7 +18,6 @@ import {
   deliveryCodeStatusObject,
   orderStatusObject,
 } from "./order-list-utils";
-import useAuthStore from "@/store/auth";
 
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
@@ -90,12 +89,6 @@ export const useGetOrderColumns: (
           cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
-          id: "shippingFee",
-          accessorKey: "shippingFee",
-          header: "Cước VC",
-          cell: ({ getValue }) => formatAmount(getValue() as number),
-        },
-        {
           id: "user",
           accessorKey: "user",
           header: "Tên khách",
@@ -133,15 +126,15 @@ export const useGetOrderColumns: (
             );
           },
         },
-        {
-          id: "checkBox",
-          accessorKey: "checkBox",
-          header: "Hộp kiểm",
-          cell: ({ getValue }) => {
-            const isChecked = getValue() as boolean;
-            return isChecked ? <Checkbox checked /> : <></>;
-          },
-        },
+        // {
+        //   id: "checkBox",
+        //   accessorKey: "checkBox",
+        //   header: "Hộp kiểm",
+        //   cell: ({ getValue }) => {
+        //     const isChecked = getValue() as boolean;
+        //     return isChecked ? <Checkbox checked /> : <></>;
+        //   },
+        // },
         {
           id: "source",
           accessorKey: "source",
@@ -150,6 +143,12 @@ export const useGetOrderColumns: (
             const source = getValue() as Source;
             return <div>{source.name}</div>;
           },
+        },
+        {
+          id: "shippingFee",
+          accessorKey: "shippingFee",
+          header: "Cước VC",
+          cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
           id: "shippingStore",

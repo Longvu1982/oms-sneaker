@@ -47,6 +47,10 @@ export function DataTable<TData, TValue>({
   showPagination = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [internalPagination, setInternalPagination] = useState({
+    pageIndex: 0, //initial page index
+    pageSize: 100, //default page size
+  });
 
   let tableSettings: TableOptions<TData> = {
     data,
@@ -55,8 +59,9 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onPaginationChange: setInternalPagination,
     manualPagination: manualPagination,
-    state: { sorting },
+    state: { sorting, pagination: internalPagination },
   };
 
   if (manualPagination) {
@@ -93,6 +98,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
+                        "border-l-[1px] border-r-[1px]",
                         fixed
                           ? "sticky right-0 bg-background shadow-md shadow-black hover:bg-muted/50"
                           : ""
@@ -125,6 +131,7 @@ export function DataTable<TData, TValue>({
                         <TableCell
                           key={cell.id}
                           className={cn(
+                            "border-l-[1px] border-r-[1px]",
                             fixed
                               ? "sticky right-0 bg-background shadow-md"
                               : ""

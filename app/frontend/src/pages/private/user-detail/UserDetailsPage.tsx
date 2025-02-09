@@ -39,7 +39,7 @@ const UserDetailsPage = () => {
         <ChevronLeft />
         <span>Quay về danh sách</span>
       </Button>
-      <div className="container mx-auto space-y-8">
+      <div className="container mx-auto space-y-4">
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
           Chi tiết người dùng
         </h3>
