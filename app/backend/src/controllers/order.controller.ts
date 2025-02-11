@@ -72,11 +72,11 @@ export const updateOrder = async (request: Request, response: Response, next: Ne
   }
 };
 
-export const deleteBook = async (request: Request, response: Response, next: NextFunction) => {
+export const deleteOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const id = parseInt(request.params.id, 10);
-    await OrderSevice.deleteBook(id);
-    return sendSuccessNoDataResponse(response, 'Book has been deleted');
+    const id = request.body.id;
+    await OrderSevice.deleteOrder(id);
+    return sendSuccessNoDataResponse(response, 'Xoá đơn hàng thành công');
   } catch (error: any) {
     next(error);
   }

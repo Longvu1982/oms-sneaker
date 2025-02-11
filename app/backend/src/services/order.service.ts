@@ -154,8 +154,8 @@ export const updateOrder = async (order: Order): Promise<Order> => {
   });
 };
 
-export const deleteBook = async (id: TBookID): Promise<void> => {
-  await db.book.delete({
+export const deleteOrder = async (id: string): Promise<void> => {
+  await db.order.delete({
     where: {
       id,
     },

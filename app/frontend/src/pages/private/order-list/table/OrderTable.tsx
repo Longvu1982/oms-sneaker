@@ -13,12 +13,14 @@ interface OrderTableProps {
   manualPagination?: boolean;
   excludeColumns?: string[];
   onEditClick?: (data: OrderWithExtra) => void;
+  onDeleteClick?: (data: OrderWithExtra) => void;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
   onStatusChange,
   onPaginationChange,
   onEditClick,
+  onDeleteClick,
   orderList,
   queryParams,
   manualPagination = true,
@@ -28,6 +30,7 @@ const OrderTable: FC<OrderTableProps> = ({
     onStatusChange,
     excludeColumns,
     onEditClick,
+    onDeleteClick,
   });
 
   return (

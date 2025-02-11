@@ -12,7 +12,7 @@ import {
   Source,
 } from "@/types/model/app-model";
 import { format } from "date-fns/format";
-import { Edit } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { useMemo } from "react";
 import {
   deliveryCodeStatusObject,
@@ -22,6 +22,7 @@ import {
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
   onEditClick?: (data: OrderWithExtra) => void;
+  onDeleteClick?: (data: OrderWithExtra) => void;
   excludeColumns?: string[];
 };
 
@@ -30,6 +31,7 @@ export const useGetOrderColumns: (
 ) => EnhancedColumnDef<OrderWithExtra>[] = ({
   onStatusChange,
   onEditClick,
+  onDeleteClick,
   excludeColumns,
 }) => {
   const role = useAuthStore((s) => s.user?.account.role);
@@ -204,12 +206,19 @@ export const useGetOrderColumns: (
                 >
                   <Edit />
                 </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onDeleteClick?.(data)}
+                >
+                  <Trash className="text-red-500" />
+                </Button>
               </div>
             );
           },
         },
       ] as EnhancedColumnDef<OrderWithExtra>[],
-    [onStatusChange, onEditClick, role]
+    [onStatusChange, onEditClick, onDeleteClick, role]
   );
 
   const filteredColumns = useMemo(

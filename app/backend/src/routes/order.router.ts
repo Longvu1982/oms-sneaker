@@ -24,6 +24,8 @@ router.post(
   OrderController.createOrder
 );
 
+router.post('/delete', protectAuth, OrderController.deleteOrder);
+
 // Acess : Private
 // PUT : update one book
 // Params query : id
@@ -42,6 +44,6 @@ router.put('/:id/update', protectAuth, OrderController.updateOrder);
 // Acess : Private
 // DELETE : delete a book
 // Params query : id
-router.delete('/:id', protectAuth, OrderController.checkExistingBook, OrderController.deleteBook);
+router.delete('/:id', protectAuth, OrderController.checkExistingBook, OrderController.deleteOrder);
 
 export default router;

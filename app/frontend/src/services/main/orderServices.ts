@@ -38,6 +38,16 @@ export async function apiCreateOrder(
   });
 }
 
+export async function apiDeleteOrder(data: { id: string }) {
+  return ApiService.fetchData<{
+    success: boolean;
+  }>({
+    url: "/orders/delete",
+    method: "post",
+    data,
+  });
+}
+
 export async function apiUpdateOrder(data: OrderFormValues) {
   return ApiService.fetchData<{
     success: boolean;

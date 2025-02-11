@@ -1,4 +1,5 @@
 import AvatarMenu from "@/components/avatar-menu/AvatarMenu";
+import GlobalModal from "@/components/global-modal/GlobalModal";
 import MainSidebar from "@/components/main-sidebar/MainSidebar";
 import { Spinner } from "@/components/spinner/Spinner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,6 +14,7 @@ const ProtectedRoutes = () => {
   return user ? (
     <SidebarProvider>
       <MainSidebar />
+      <GlobalModal />
       <div className="flex-1 overflow-x-hidden">
         <div>
           <Sticky stickyClassName="z-[2]">

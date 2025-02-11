@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiCreateOrder,
+  apiDeleteOrder,
   apiGetOrderList,
   apiUpdateOrder,
   OrderWithExtra,
@@ -10,10 +11,12 @@ import {
 import { apiShippingStoresList } from "@/services/main/shipingStoreServices";
 import { apiSourcesList } from "@/services/main/sourceServices";
 import { apiGetUsersList } from "@/services/main/userServices";
+import useAuthStore from "@/store/auth";
+import { useGlobalModal } from "@/store/global-modal";
 import { DeliveryCodeStatus, OrderStatus, Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FilterIcon, PlusCircle } from "lucide-react";
+import { FilterIcon, PlusCircle, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -21,7 +24,6 @@ import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import OrderTable from "./table/OrderTable";
-import useAuthStore from "@/store/auth";
 
 const initOrderFormValues = {
   SKU: "",
@@ -227,6 +229,28 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     },
     [orderForm]
   );
+  const { openConfirmModal } = useGlobalModal();
+  const onDeleteClick = async (data: OrderWithExtra) => {
+    openConfirmModal({
+      title: (
+        <div className="flex gap-2 items-center">
+          <TriangleAlert color="red" />
+          <span>Xác nhận xóa đơn hàng?</span>
+        </div>
+      ),
+      content:
+        "Bạn có chắc muốn xóa đơn hàng này? Tất cả thông tin liên quan (người đặt hàng, doanh thu,... sẽ bị xoá)",
+      confirmType: "alert",
+      confirmText: "Xoá",
+      onConfirm: (closeModal: () => void) =>
+        triggerLoading(async () => {
+          await apiDeleteOrder({ id: data.id });
+          toast.success("Xoá đơn hàng thành công.");
+          await getOrderList(queryParams);
+          closeModal();
+        }),
+    });
+  };
 
   return (
     <>
@@ -263,6 +287,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
 
       <OrderTable
         onEditClick={onEditClick}
+        onDeleteClick={onDeleteClick}
         onPaginationChange={onPaginationChange}
         onStatusChange={onStatusChange}
         queryParams={queryParams}
