@@ -189,6 +189,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       const options = data.data.sources.map((source) => ({
         value: source.id,
         label: source.name,
+        meta: { color: source.color },
       }));
       setSourceList(options);
     }

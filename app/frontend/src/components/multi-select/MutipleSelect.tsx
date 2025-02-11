@@ -18,8 +18,9 @@ export interface Option {
   disable?: boolean;
   /** fixed option that can't be removed. */
   fixed?: boolean;
+  meta?: A;
   /** Group the options by providing key. */
-  [key: string]: string | boolean | undefined;
+  [key: string]: string | boolean | undefined | Record<A, A> | A;
 }
 interface GroupOption {
   [key: string]: Option[];

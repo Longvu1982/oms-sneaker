@@ -304,6 +304,9 @@ const OrderPanel: FC<OrderPanelProps> = ({
             form={form}
             label="Nguồn"
             options={sourceList}
+            renderOption={(option) =>
+              renderBadge(option.meta?.color as string, option.label)
+            }
           />
           <ComboBoxForm
             name="shippingStoreId"

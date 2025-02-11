@@ -83,6 +83,7 @@ export type Source = {
   createdAt: string; // Date as ISO string
   updatedAt: string; // Date as ISO string
   orders: Order[]; // Relationship
+  color: string;
 };
 
 export type ShippingStore = {

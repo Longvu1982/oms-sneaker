@@ -143,7 +143,7 @@ export const useGetOrderColumns: (
           header: "Nguồn",
           cell: ({ getValue }) => {
             const source = getValue() as Source;
-            return <div>{source.name}</div>;
+            return renderBadge(source.color, source.name);
           },
         },
         {

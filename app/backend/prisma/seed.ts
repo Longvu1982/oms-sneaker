@@ -48,12 +48,12 @@ function getShippingStores() {
 
 function getSources() {
   return [
-    { name: 'Taobao' },
-    { name: 'StockX' },
-    { name: 'G95' },
-    { name: 'Poizon' },
-    { name: 'Goat' },
-    { name: 'Vipshop' },
+    { name: 'Taobao', color: '#ffc8aa' },
+    { name: 'StockX', color: '#d3edbd' },
+    { name: 'G95', color: '#1aa260' },
+    { name: 'Poizon', color: '#4887e8' },
+    { name: 'Goat', color: '#c0e0f5' },
+    { name: 'Vipshop', color: '#e5cff5' },
   ];
 }
 
@@ -89,88 +89,79 @@ function getOrders(userId: string, sources, shippingStores) {
 
 async function seed() {
   // Delete records
-  await db.user.deleteMany();
-  await db.author.deleteMany();
-  await db.book.deleteMany();
-  await db.shippingStore.deleteMany();
-  await db.source.deleteMany();
-  await db.order.deleteMany();
-  console.log('Deleted all records in related tables');
+  // await db.user.deleteMany();
+  // await db.author.deleteMany();
+  // await db.book.deleteMany();
+  // await db.shippingStore.deleteMany();
+  // await db.source.deleteMany();
+  // await db.order.deleteMany();
+  // console.log('Deleted all records in related tables');
 
   // Seed new user
-  const user = await getUser();
-  console.log(`[*] Seeding Admin : ${JSON.stringify(user)}`);
-  console.log(`[*] password : pqvsneakeradmin `);
-  const password = 'pqvsneakeradmin';
-  const hashedPassword = await hashPassword(password);
-  await db.user.create({
-    data: {
-      ...user,
-      account: {
-        create: {
-          username: 'pqviet',
-          password: hashedPassword,
-          role: Role.ADMIN,
-          id: v4(),
-        },
-      },
-    },
-  });
-
-  //Seed Author
-  await Promise.all(
-    getAuthors().map((author) => {
-      console.log(`[*] Seeding Author : ${JSON.stringify(author)}`);
-      return db.author.create({
-        data: {
-          firstName: author.firstName,
-          lastName: author.lastName,
-        },
-      });
-    })
-  );
-
-  const author = await db.author.findFirst({
-    where: {
-      firstName: 'william',
-    },
-  });
+  // const user = await getUser();
+  // console.log(`[*] Seeding Admin : ${JSON.stringify(user)}`);
+  // console.log(`[*] password : pqvsneakeradmin `);
+  // const password = 'pqvsneakeradmin';
+  // const hashedPassword = await hashPassword(password);
+  // await db.user.create({
+  //   data: {
+  //     ...user,
+  //     account: {
+  //       create: {
+  //         username: 'pqviet',
+  //         password: hashedPassword,
+  //         role: Role.ADMIN,
+  //         id: v4(),
+  //       },
+  //     },
+  //   },
+  // });
 
   // Seed book
+  // await Promise.all(
+  //   getBooks().map((book) => {
+  //     const createBook = {
+  //       datePublished: book.datePublished,
+  //       isFiction: book.isFiction,
+  //       title: book.title,
+  //       authorId: author?.id || 0,
+  //     };
+  //     console.log(`[*] Seeding Book : ${JSON.stringify(createBook)}`);
+  //     return db.book.create({
+  //       data: {
+  //         ...createBook,
+  //       },
+  //     });
+  //   })
+  // );
+
+  // const shippingStores = await Promise.all(
+  //   getShippingStores().map((store) => {
+  //     console.log(`[*] Seeding Shipping Store: ${JSON.stringify(store)}`);
+  //     return db.shippingStore.create({
+  //       data: { ...store, id: uuidv4() },
+  //     });
+  //   })
+  // );
+
+  // const sources = await Promise.all(
+  //   getSources().map((source) => {
+  //     console.log(`[*] Seeding Source: ${JSON.stringify(source)}`);
+  //     return db.source.create({
+  //       data: {
+  //         ...source,
+  //         id: uuidv4(),
+  //       },
+  //     });
+  //   })
+  // );
+
   await Promise.all(
-    getBooks().map((book) => {
-      const createBook = {
-        datePublished: book.datePublished,
-        isFiction: book.isFiction,
-        title: book.title,
-        authorId: author?.id || 0,
-      };
-      console.log(`[*] Seeding Book : ${JSON.stringify(createBook)}`);
-      return db.book.create({
-        data: {
-          ...createBook,
-        },
-      });
-    })
-  );
-
-  const shippingStores = await Promise.all(
-    getShippingStores().map((store) => {
-      console.log(`[*] Seeding Shipping Store: ${JSON.stringify(store)}`);
-      return db.shippingStore.create({
-        data: { ...store, id: uuidv4() },
-      });
-    })
-  );
-
-  const sources = await Promise.all(
     getSources().map((source) => {
-      console.log(`[*] Seeding Source: ${JSON.stringify(source)}`);
-      return db.source.create({
-        data: {
-          ...source,
-          id: uuidv4(),
-        },
+      console.log(`[*] Updating Source: ${JSON.stringify(source)}`);
+      return db.source.updateMany({
+        where: { name: source.name }, // Match existing records by name
+        data: { color: source.color }, // Only update color
       });
     })
   );

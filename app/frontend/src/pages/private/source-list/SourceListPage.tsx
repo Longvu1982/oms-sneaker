@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import SourcePanel, { SourceFormValues } from "./panel/SourcePanel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./panel/source-panel-scheme";
+import { renderBadge } from "@/lib/utils";
 
 const columns: EnhancedColumnDef<Source>[] = [
   {
@@ -30,6 +31,7 @@ const columns: EnhancedColumnDef<Source>[] = [
   {
     accessorKey: "name",
     header: "Tên nguồn",
+    cell: ({ row }) => renderBadge(row.original.color, row.original.name),
   },
   {
     id: "actions",
@@ -64,6 +66,7 @@ const SourceListPage = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
+      color: "#000000",
     },
   });
 

@@ -1,3 +1,4 @@
+import { ColorPicker } from "@/components/color-picker/ColorPicker";
 import Panel from "@/components/panel/Panel";
 import {
   Form,
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 
-export type SourceFormValues = { name: string };
+export type SourceFormValues = { name: string; color: string };
 
 interface SourcePanelProps {
   form: UseFormReturn<SourceFormValues, A, undefined>;
@@ -48,6 +49,20 @@ const SourcePanel: FC<SourcePanelProps> = ({
                 <FormLabel>Tên</FormLabel>
                 <FormControl>
                   <Input placeholder="Nhập tên kho" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Màu sắc</FormLabel>
+                <FormControl>
+                  <ColorPicker value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

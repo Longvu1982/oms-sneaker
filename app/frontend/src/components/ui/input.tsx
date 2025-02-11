@@ -6,10 +6,11 @@ const Input = React.forwardRef<
   HTMLInputElement,
   React.ComponentProps<"input"> & {
     renderExtra?: (value: string | number) => React.ReactNode;
+    wrapperClassname?: string;
   }
->(({ className, type, renderExtra, ...props }, ref) => {
+>(({ className, type, wrapperClassname, renderExtra, ...props }, ref) => {
   return (
-    <div className="relative">
+    <div className={cn("relative", wrapperClassname)}>
       <input
         type={type}
         className={cn(

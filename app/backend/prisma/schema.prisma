@@ -101,6 +101,7 @@ model Transaction {
 model Source {
   id        String   @id @unique
   name      String
+  color     String   @default("#FFFFFF") // Adding a color field with a default value
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
