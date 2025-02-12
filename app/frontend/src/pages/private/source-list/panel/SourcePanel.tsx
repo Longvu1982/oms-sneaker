@@ -12,27 +12,33 @@ import { Input } from "@/components/ui/input";
 import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 
-export type SourceFormValues = { name: string; color: string };
+export type SourceFormValues = { name: string; color: string; id?: string };
 
 interface SourcePanelProps {
   form: UseFormReturn<SourceFormValues, A, undefined>;
-  isOpen: boolean;
+  panelState: {
+    isOpen: boolean;
+    type: "create" | "edit";
+    data: SourceFormValues;
+  };
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: SourceFormValues) => void;
 }
 
 const SourcePanel: FC<SourcePanelProps> = ({
   form,
-  isOpen,
+  panelState,
   setIsOpen,
   onSubmit,
 }) => {
   return (
     <Panel
       formId="sourceForm"
-      title="Tạo nguồn hàng mới"
-      description="Điền thông tin để tạo nguồn hàng"
-      open={isOpen}
+      title={
+        panelState.type === "create" ? "Tạo nguồn hàng mới" : "Chỉnh sửa nguồn"
+      }
+      description="Điền thông tin"
+      open={panelState.isOpen}
       onOpenChange={setIsOpen}
     >
       <Form {...form}>

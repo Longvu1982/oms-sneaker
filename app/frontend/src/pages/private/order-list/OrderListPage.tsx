@@ -124,8 +124,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       await promise(data);
       toast.success(
         orderPanel.type === "create"
-          ? "Tạo đơn hàng thành công."
-          : "Chỉnh sửa thành công."
+          ? "Tạo đơn hàng thành công"
+          : "Chỉnh sửa thành công"
       );
 
       if (orderPanel.type === "edit")
@@ -230,6 +230,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     },
     [orderForm]
   );
+
   const { openConfirmModal } = useGlobalModal();
   const onDeleteClick = async (data: OrderWithExtra) => {
     openConfirmModal({

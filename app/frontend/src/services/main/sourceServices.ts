@@ -12,12 +12,27 @@ export async function apiSourcesList(data: QueryDataModel) {
   });
 }
 
-export async function apiCreateSource(data: { name: string }) {
+export async function apiCreateSource(data: { name: string; color: string }) {
   return ApiService.fetchData<{
     success: boolean;
     data: Source;
   }>({
     url: "/sources/create",
+    method: "post",
+    data,
+  });
+}
+
+export async function apiUpdateSource(data: {
+  id?: string;
+  name: string;
+  color: string;
+}) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: Source;
+  }>({
+    url: `/sources/${data.id}/update`,
     method: "post",
     data,
   });

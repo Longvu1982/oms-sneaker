@@ -8,4 +8,6 @@ router.post('/list', SourceController.listSources);
 
 router.post('/create', protectAuth, SourceController.createSource);
 
+router.post('/:id/update', protectAuth, SourceController.updateSource);
+
 export default router;

@@ -36,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: { pageIndex: number; pageSize: number; totalCount: number };
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   showPagination?: boolean;
+  meta: A;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +46,7 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   manualPagination = false,
   showPagination = true,
+  meta,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [internalPagination, setInternalPagination] = useState({
@@ -62,7 +64,10 @@ export function DataTable<TData, TValue>({
     onPaginationChange: setInternalPagination,
     manualPagination: manualPagination,
     state: { sorting, pagination: internalPagination },
+    meta,
   };
+
+  console.log(meta);
 
   if (manualPagination) {
     tableSettings = {

@@ -56,3 +56,20 @@ export const createSource = async (source: { name: string }): Promise<Source> =>
     },
   });
 };
+
+export const getSource = async (id: string): Promise<Source | null> => {
+  return db.source.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
+export const updateSource = async (source: Source): Promise<Source> => {
+  return db.source.update({
+    where: {
+      id: source.id,
+    },
+    data: { ...source },
+  });
+};

@@ -5,6 +5,7 @@ import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiCreateSource,
   apiSourcesList,
+  apiUpdateSource,
 } from "@/services/main/sourceServices";
 import {
   initQueryParams,
@@ -12,7 +13,7 @@ import {
   Source,
 } from "@/types/model/app-model";
 import { Edit, PlusCircle, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import SourcePanel, { SourceFormValues } from "./panel/SourcePanel";
@@ -36,10 +37,17 @@ const columns: EnhancedColumnDef<Source>[] = [
   {
     id: "actions",
     fixed: true,
-    cell: () => {
+    cell: ({ table, row }) => {
+      const onEditClick = (table.options.meta as { onEditClick: A })
+        ?.onEditClick;
+
       return (
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onEditClick(row.original)}
+          >
             <Edit />
           </Button>
           <Button variant="outline" size="icon">
@@ -56,7 +64,8 @@ const SourceListPage = () => {
   const [sourcePanel, setSourcePanel] = useState<{
     isOpen: boolean;
     type: "create" | "edit";
-  }>({ isOpen: false, type: "create" });
+    data: SourceFormValues;
+  }>({ isOpen: false, type: "create", data: {} as SourceFormValues });
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
 
@@ -99,10 +108,30 @@ const SourceListPage = () => {
     });
   };
 
-  const onCreateSource = async (data: SourceFormValues) => {
+  const onEditClick = useCallback(
+    (data: Source) => {
+      console.log(data);
+      sourceForm.reset({ ...data });
+      setSourcePanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
+    },
+    [sourceForm]
+  );
+
+  const onCreateUpdateSource = async (data: SourceFormValues) => {
+    console.log("data", data);
     await triggerLoading(async () => {
-      await apiCreateSource(data);
-      toast.success("Tạo nguồn hàng thành công.");
+      const promise =
+        sourcePanel.type === "create" ? apiCreateSource : apiUpdateSource;
+      await promise(data);
+
+      toast.success(
+        sourcePanel.type === "create"
+          ? "Tạo nguồn hàng thành công"
+          : "Chỉnh sửa thành công"
+      );
+      if (sourcePanel.type === "edit")
+        setSourcePanel((prev) => ({ ...prev, isOpen: false }));
+
       await getSourceList(queryParams);
     });
   };
@@ -137,15 +166,16 @@ const SourceListPage = () => {
           manualPagination
           pagination={queryParams.pagination}
           onPaginationChange={onPaginationChange}
+          meta={{ onEditClick }}
         />
       </div>
 
       <SourcePanel
-        isOpen={sourcePanel.isOpen}
+        panelState={sourcePanel}
         setIsOpen={(value) =>
           setSourcePanel((prev) => ({ ...prev, isOpen: value }))
         }
-        onSubmit={onCreateSource}
+        onSubmit={onCreateUpdateSource}
         form={sourceForm}
       />
     </>
