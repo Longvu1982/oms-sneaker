@@ -2,6 +2,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Button } from "@/components/ui/button";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { renderBadge } from "@/lib/utils";
 import {
   apiCreateSource,
   apiSourcesList,
@@ -12,14 +13,13 @@ import {
   QueryDataModel,
   Source,
 } from "@/types/model/app-model";
-import { Edit, PlusCircle, Trash } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit, PlusCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import SourcePanel, { SourceFormValues } from "./panel/SourcePanel";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./panel/source-panel-scheme";
-import { renderBadge } from "@/lib/utils";
+import SourcePanel, { SourceFormValues } from "./panel/SourcePanel";
 
 const columns: EnhancedColumnDef<Source>[] = [
   {
@@ -50,9 +50,9 @@ const columns: EnhancedColumnDef<Source>[] = [
           >
             <Edit />
           </Button>
-          <Button variant="outline" size="icon">
+          {/* <Button variant="outline" size="icon">
             <Trash className="text-red-500" />
-          </Button>
+          </Button> */}
         </div>
       );
     },
@@ -110,7 +110,6 @@ const SourceListPage = () => {
 
   const onEditClick = useCallback(
     (data: Source) => {
-      console.log(data);
       sourceForm.reset({ ...data });
       setSourcePanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
     },
@@ -118,7 +117,6 @@ const SourceListPage = () => {
   );
 
   const onCreateUpdateSource = async (data: SourceFormValues) => {
-    console.log("data", data);
     await triggerLoading(async () => {
       const promise =
         sourcePanel.type === "create" ? apiCreateSource : apiUpdateSource;

@@ -8,7 +8,7 @@ import {
   apiUpdateOrder,
   OrderWithExtra,
 } from "@/services/main/orderServices";
-import { apiShippingStoresList } from "@/services/main/shipingStoreServices";
+import { apiShippingStoresList } from "@/services/main/shippingStoreServices";
 import { apiSourcesList } from "@/services/main/sourceServices";
 import { apiGetUsersList } from "@/services/main/userServices";
 import useAuthStore from "@/store/auth";
@@ -16,7 +16,7 @@ import { useGlobalModal } from "@/store/global-modal";
 import { DeliveryCodeStatus, OrderStatus, Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FilterIcon, PlusCircle, TriangleAlert } from "lucide-react";
+import { FilterIcon, PlusCircle, TriangleAlert, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -61,8 +61,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [orderPanel, setOrderPanel] = useState<{
     isOpen: boolean;
     type: "create" | "edit";
-    data: OrderFormValues;
-  }>({ isOpen: false, type: "create", data: {} as OrderFormValues });
+  }>({ isOpen: false, type: "create" });
 
   const { triggerLoading } = useTriggerLoading();
 
@@ -271,20 +270,24 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       </div>
 
       {!isCompleted && role === Role.ADMIN && (
-        <Button
-          size="sm"
-          className="mb-6"
-          onClick={() => {
-            setOrderPanel({
-              type: "create",
-              isOpen: true,
-              data: {} as OrderFormValues,
-            });
-            orderForm.reset({ ...initOrderFormValues });
-          }}
-        >
-          <PlusCircle /> Thêm đơn hàng
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            className="mb-6"
+            onClick={() => {
+              setOrderPanel({
+                type: "create",
+                isOpen: true,
+              });
+              orderForm.reset({ ...initOrderFormValues });
+            }}
+          >
+            <PlusCircle /> Thêm đơn hàng
+          </Button>
+          <Button size="sm" className="mb-6">
+            <Upload /> Tải Excel
+          </Button>
+        </div>
       )}
 
       <OrderTable

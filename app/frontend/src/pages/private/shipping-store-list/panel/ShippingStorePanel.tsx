@@ -8,34 +8,36 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ShippingStore } from "@/types/model/app-model";
+import { ShippingStoreFormValues } from "@/services/main/shippingStoreServices";
 import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 
-export type ShippingStoreFormValues = Omit<
-  ShippingStore,
-  "id" | "createdAt" | "updatedAt"
->;
-
 interface ShippingStorePanelProps {
   form: UseFormReturn<ShippingStoreFormValues, A, undefined>;
-  isOpen: boolean;
+  panelState: {
+    isOpen: boolean;
+    type: "create" | "edit";
+  };
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: ShippingStoreFormValues) => void;
 }
 
 const ShippingStorePanel: FC<ShippingStorePanelProps> = ({
   form,
-  isOpen,
+  panelState,
   setIsOpen,
   onSubmit,
 }) => {
   return (
     <Panel
       formId="shippingStoreForm"
-      title="Tạo kho vận chuyển mới"
-      description="Điền thông tin để tạo kho"
-      open={isOpen}
+      title={
+        panelState.type === "create"
+          ? "Tạo kho vận chuyển mới"
+          : "Chỉnh sửa thông tin"
+      }
+      description="Điền thông tin"
+      open={panelState.isOpen}
       onOpenChange={setIsOpen}
     >
       <Form {...form}>

@@ -5,21 +5,21 @@ import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiCreateShippingStore,
   apiShippingStoresList,
-} from "@/services/main/shipingStoreServices";
+  apiUpdateShippingStore,
+  ShippingStoreFormValues,
+} from "@/services/main/shippingStoreServices";
 import {
   initQueryParams,
   QueryDataModel,
   ShippingStore,
 } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit, PlusCircle, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Edit, PlusCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { schema } from "./panel/shipping-store-panel.schema";
-import ShippingStorePanel, {
-  ShippingStoreFormValues,
-} from "./panel/ShippingStorePanel";
+import ShippingStorePanel from "./panel/ShippingStorePanel";
 
 const columns: EnhancedColumnDef<ShippingStore>[] = [
   {
@@ -44,15 +44,20 @@ const columns: EnhancedColumnDef<ShippingStore>[] = [
   {
     id: "actions",
     fixed: true,
-    cell: () => {
+    cell: ({ row, table }) => {
+      const onEditClick = (table.options.meta as A)?.onEditClick;
       return (
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onEditClick(row.original)}
+          >
             <Edit />
           </Button>
-          <Button variant="outline" size="icon">
+          {/* <Button variant="outline" size="icon">
             <Trash className="text-red-500" />
-          </Button>
+          </Button> */}
         </div>
       );
     },
@@ -110,10 +115,31 @@ const ShippingStoreListPage = () => {
     });
   };
 
-  const onCreateShippingStore = async (data: ShippingStoreFormValues) => {
+  const onEditClick = useCallback(
+    (data: ShippingStore) => {
+      shippingStoreForm.reset({ ...data });
+      setShippingPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
+    },
+    [shippingStoreForm]
+  );
+
+  const onCreateUpdateShippingStore = async (data: ShippingStoreFormValues) => {
     await triggerLoading(async () => {
-      await apiCreateShippingStore(data);
-      toast.success("Tạo kho vận chuyển thành công.");
+      const promise =
+        shippingPanel.type === "create"
+          ? apiCreateShippingStore
+          : apiUpdateShippingStore;
+      await promise(data);
+
+      toast.success(
+        shippingPanel.type === "create"
+          ? "Tạo kho vận chuyển thành công"
+          : "Chỉnh sửa thành công"
+      );
+
+      if (shippingPanel.type === "edit")
+        setShippingPanel((prev) => ({ ...prev, isOpen: false }));
+
       await getShippingList(queryParams);
     });
   };
@@ -122,6 +148,7 @@ const ShippingStoreListPage = () => {
     triggerLoading(async () => {
       await getShippingList(initQueryParams);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -147,15 +174,16 @@ const ShippingStoreListPage = () => {
           manualPagination
           pagination={queryParams.pagination}
           onPaginationChange={onPaginationChange}
+          meta={{ onEditClick }}
         />
       </div>
 
       <ShippingStorePanel
-        isOpen={shippingPanel.isOpen}
+        panelState={shippingPanel}
         setIsOpen={(value) =>
           setShippingPanel((prev) => ({ ...prev, isOpen: value }))
         }
-        onSubmit={onCreateShippingStore}
+        onSubmit={onCreateUpdateShippingStore}
         form={shippingStoreForm}
       />
     </>

@@ -61,3 +61,20 @@ export const createStore = async (store: TShippingStoreRequest): Promise<Shippin
     },
   });
 };
+
+export const getStore = async (id: string): Promise<ShippingStore | null> => {
+  return db.shippingStore.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
+export const updateStore = async (store: ShippingStore): Promise<ShippingStore> => {
+  return db.shippingStore.update({
+    where: {
+      id: store.id,
+    },
+    data: { ...store },
+  });
+};

@@ -8,4 +8,6 @@ router.post('/list', ShippingController.listShippingStores);
 
 router.post('/create', protectAuth, ShippingController.createShippingStore);
 
+router.post('/:id/update', protectAuth, ShippingController.updateStore);
+
 export default router;

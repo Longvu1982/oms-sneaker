@@ -36,7 +36,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: { pageIndex: number; pageSize: number; totalCount: number };
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   showPagination?: boolean;
-  meta: A;
+  meta?: A;
 }
 
 export function DataTable<TData, TValue>({

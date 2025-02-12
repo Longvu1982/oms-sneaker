@@ -35,7 +35,6 @@ interface OrderPanelProps {
   panelState: {
     isOpen: boolean;
     type: "create" | "edit";
-    data: OrderFormValues;
   };
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: OrderFormValues) => void;
