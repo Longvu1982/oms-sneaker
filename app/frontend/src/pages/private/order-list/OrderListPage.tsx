@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
+import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
 
 const initOrderFormValues = {
@@ -48,6 +49,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [userList, setUserList] = useState<Option[]>([]);
   const [sourceList, setSourceList] = useState<Option[]>([]);
   const [shippingStoreList, setShippingStoreList] = useState<Option[]>([]);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
 
   const user = useAuthStore((s) => s.user);
   const role = user?.account.role;
@@ -284,7 +286,11 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
           >
             <PlusCircle /> Thêm đơn hàng
           </Button>
-          <Button size="sm" className="mb-6">
+          <Button
+            size="sm"
+            className="mb-6"
+            onClick={() => setOpenUploadModal(true)}
+          >
             <Upload /> Tải Excel
           </Button>
         </div>
@@ -320,6 +326,11 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onSubmit={onCreateUpdateOrder}
         form={orderForm}
         options={{ userList, sourceList, shippingStoreList }}
+      />
+
+      <UploadOrderModal
+        open={openUploadModal}
+        onOpenChange={setOpenUploadModal}
       />
     </>
   );
