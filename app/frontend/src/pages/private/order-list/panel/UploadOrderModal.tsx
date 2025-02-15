@@ -120,6 +120,15 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
           },
         });
         return;
+      } else {
+        const { data: createData } = await apiBulkCreateOrder({
+          orders: fileData as A,
+        });
+        if (createData.success) {
+          toast.success("Tạo danh sách đơn hàng thành công");
+          onOpenChange(false);
+          await getList();
+        }
       }
     });
   };
