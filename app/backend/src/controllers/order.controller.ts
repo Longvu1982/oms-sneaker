@@ -1,12 +1,12 @@
+import { OrderStatus } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
+import { UUID } from 'node:crypto';
 import * as AuthorService from '../services/author.service';
 import * as OrderSevice from '../services/order.service';
 import { TBookWrite, TOrderWrite } from '../types/general';
 import { orderSchema } from '../types/zod';
 import HttpStatusCode from '../utils/HttpStatusCode';
 import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
-import { UUID } from 'node:crypto';
-import { OrderStatus } from '@prisma/client';
 
 export const listOrders = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -115,6 +115,29 @@ export const validateOrderData = (request: Request, response: Response, next: Ne
     const order = request.body;
     orderSchema.parse(order);
     next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkMissingUsersName = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { names } = request.body;
+    const missingNames = await OrderSevice.checkMissingUsersName(names);
+    return sendSuccessResponse(response, missingNames);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const bulkCreateOrder = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { orders } = request.body;
+
+    console.log(orders);
+
+    const createdOrders = await OrderSevice.bulkCreateOrder(orders);
+    return sendSuccessResponse(response, createdOrders);
   } catch (error) {
     next(error);
   }

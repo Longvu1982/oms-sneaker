@@ -24,19 +24,29 @@ export const listUsersDetail = async (request: Request, response: Response, next
 
 export const getUserByID = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const userId = request.params.userId
-    const userDetails = await UserService.getUserByID(userId)
+    const userId = request.params.userId;
+    const userDetails = await UserService.getUserByID(userId);
     return sendSuccessResponse(response, userDetails);
   } catch (error: any) {
     next(error);
   }
-}
+};
 
 export const createUser = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
     const orders = await UserService.createUser(query);
     return sendSuccessResponse(response, orders);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const bulkCreateUser = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { names } = request.body;
+    const created = await UserService.bulkCreateUser(names as string[]);
+    return sendSuccessResponse(response, created);
   } catch (error: any) {
     next(error);
   }

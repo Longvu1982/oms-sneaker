@@ -331,6 +331,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       <UploadOrderModal
         open={openUploadModal}
         onOpenChange={setOpenUploadModal}
+        getList={async () => await getOrderList(queryParams)}
       />
     </>
   );

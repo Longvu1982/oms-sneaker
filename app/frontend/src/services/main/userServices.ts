@@ -63,6 +63,17 @@ export async function apiCreateUser(data: UserFormValues) {
   });
 }
 
+export async function apiBulkCreateUser(data: { names: string[] }) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: A;
+  }>({
+    url: "/users/create/bulk",
+    method: "post",
+    data,
+  });
+}
+
 export async function getUserById(id: string) {
   return ApiService.fetchData<{
     success: boolean;

@@ -1,5 +1,5 @@
 import { db } from '../utils/db.server';
-import { QueryDataModel, TBookID, TBookRead, TBookWrite, TOrderWrite } from '../types/general';
+import { QueryDataModel, TBookID, TBookRead, TBookWrite, TBulkOrderWrite, TOrderWrite } from '../types/general';
 import { Order, OrderStatus, Prisma } from '@prisma/client';
 import { v4 } from 'uuid';
 import { UUID } from 'node:crypto';
@@ -117,6 +117,30 @@ export const createOrder = async (order: TOrderWrite): Promise<Order> => {
   });
 };
 
+export const bulkCreateOrder = async (orders: TBulkOrderWrite[]): Promise<Prisma.BatchPayload> => {
+  const users = await db.user.findMany({ select: { id: true, fullName: true } });
+  const shippingStores = await db.shippingStore.findMany({ select: { id: true, name: true } });
+  const sources = await db.source.findMany({ select: { id: true, name: true } });
+
+  const mappedOrders: (TOrderWrite & { id: UUID })[] = orders.map((item) => {
+    const { userName, shippingStoreName, sourceName, ...rest } = item;
+    return {
+      ...rest,
+      id: v4() as UUID,
+      statusChangeDate: item.status !== OrderStatus.ONGOING ? new Date() : null,
+      secondShippingFee: 0,
+      userId: users.find((u) => u.fullName.toLowerCase().includes(item.userName.toLowerCase()))?.id ?? '',
+      sourceId: sources.find((u) => u.name.toLowerCase().includes(item.sourceName.toLowerCase()))?.id ?? '',
+      shippingStoreId:
+        shippingStores.find((u) => u.name.toLowerCase().includes(item.shippingStoreName.toLowerCase()))?.id ?? '',
+    };
+  });
+
+  return db.order.createMany({
+    data: mappedOrders,
+  });
+};
+
 export const updateBook = async (book: TBookWrite, id: TBookID): Promise<TBookRead> => {
   const { title, isFiction, datePublished, authorId } = book;
   return db.book.update({
@@ -160,4 +184,17 @@ export const deleteOrder = async (id: string): Promise<void> => {
       id,
     },
   });
+};
+
+export const checkMissingUsersName = async (userNames: string[]): Promise<string[]> => {
+  const exsitingUser = await db.user.findMany({
+    where: {
+      fullName: { in: userNames, mode: 'insensitive' },
+    },
+    select: { fullName: true },
+  });
+
+  const existingUsersName = new Set(exsitingUser.map(({ fullName }) => fullName.toLowerCase()));
+  console.log(existingUsersName);
+  return userNames.filter((name) => !existingUsersName.has(name.toLowerCase()));
 };

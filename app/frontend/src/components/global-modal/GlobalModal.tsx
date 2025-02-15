@@ -3,7 +3,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -24,8 +23,9 @@ export default function GlobalModal() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{meta.title}</AlertDialogTitle>
-          <AlertDialogDescription>{meta.content}</AlertDialogDescription>
+          {/* <AlertDialogDescription>{meta.content}</AlertDialogDescription> */}
         </AlertDialogHeader>
+        <div className="text-gray-500">{meta.content}</div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>
             {meta.cancelText}

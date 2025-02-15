@@ -1,12 +1,32 @@
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Trash, Upload } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Accept, useDropzone } from "react-dropzone";
+import * as XLSX from "xlsx";
 
-const UploadExcelOrders = () => {
-  const [fileData, setFileData] = useState([]);
-  const [file, setFile] = useState<File | null>(null);
+interface UploadExcelOrderProps<TData> {
+  file?: File | null;
+  setFile?: React.Dispatch<React.SetStateAction<File | null>>;
+  fileData: TData[];
+  setFileData: React.Dispatch<React.SetStateAction<A[]>>;
+  mapper: (rows: A[]) => TData[];
+  accept?: Accept;
+}
+
+const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
+  const {
+    file: fileProps,
+    fileData,
+    accept,
+    setFile: setFileProps,
+    setFileData,
+    mapper,
+  } = props;
+  // const [fileData, setFileData] = useState([]);
+  const [internalFile, setInternalFile] = useState<File | null>(null);
+
+  const file = fileProps ?? internalFile;
+  const setFile = setFileProps ?? setInternalFile;
 
   console.log(fileData);
 
@@ -26,39 +46,28 @@ const UploadExcelOrders = () => {
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (selectedFile.size > 2 * 1024 * 1024) {
-      alert("File size must be under 2MB.");
-      return;
-    }
-
     setFile(selectedFile);
 
     const reader = new FileReader();
 
     reader.onload = async (e) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: "array" });
+      const workbook = XLSX.read(data, {
+        type: "array",
+        cellDates: true,
+        dateNF: "yyyy-mm-dd",
+      });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const rows: A[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const rows: A[] = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        // raw: false,
+      });
+
+      console.log("rows", rows);
 
       // Map Excel columns to object fields
-      const orders = rows.slice(1).map((row) => ({
-        orderDate: new Date(row[0]), // Ngày order
-        SKU: row[1], // SKU
-        size: parseFloat(row[2]), // Size
-        deposit: parseFloat(row[3]), // Cọc
-        totalPrice: parseFloat(row[4]), // Giá
-        userName: row[5], // Tên khách (we will convert to userId)
-        orderNumber: row[6], // Order Number
-        deliveryCode: row[7], // MVĐ
-        checkBox: row[8] === "Yes", // Hộp kiểm
-        sourceName: row[9], // Nguồn (we will convert to sourceId)
-        shippingFee: parseFloat(row[10]), // Cước vận chuyển 1
-        shippingStoreName: row[11], // Kho vận chuyển (we will convert to shippingStoreId)
-        status: row[12] || "ONGOING", // Trạng thái
-      }));
+      const orders = mapper(rows);
 
       setFileData(orders as A);
     };
@@ -68,17 +77,13 @@ const UploadExcelOrders = () => {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: {
+    accept: accept ?? {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
         ".xlsx",
       ],
       "application/vnd.ms-excel": [".xls"],
     },
   });
-
-  const handleUpload = async () => {
-    if (fileData.length === 0) return alert("No orders to upload!");
-  };
 
   return (
     <div className="space-y-4">
@@ -101,10 +106,6 @@ const UploadExcelOrders = () => {
           </Button>
         </div>
       )}
-
-      <Button onClick={handleUpload} disabled={!file || fileData.length === 0}>
-        Upload Orders
-      </Button>
     </div>
   );
 };

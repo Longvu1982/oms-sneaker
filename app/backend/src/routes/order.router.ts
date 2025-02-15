@@ -24,6 +24,13 @@ router.post(
   OrderController.createOrder
 );
 
+router.post(
+  '/create/bulk',
+  protectAuth,
+  // OrderController.checkExistingBookAuthor,
+  OrderController.bulkCreateOrder
+);
+
 router.post('/delete', protectAuth, OrderController.deleteOrder);
 
 // Acess : Private
@@ -40,6 +47,8 @@ router.put(
 );
 
 router.put('/:id/update', protectAuth, OrderController.updateOrder);
+
+router.post('/create/check-missing-user-names', protectAuth, OrderController.checkMissingUsersName);
 
 // Acess : Private
 // DELETE : delete a book

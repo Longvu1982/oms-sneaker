@@ -24,6 +24,14 @@ export type TShippingStoreRequest = Omit<ShippingStore, 'createdAt' | 'updatedAt
 
 // _____________  Order Types  _____________
 export type TOrderWrite = Omit<Order, 'id' | 'createdAt' | 'updatedAt'>;
+export type TBulkOrderWrite = Omit<
+  Order,
+  'id' | 'createdAt' | 'updatedAt' | 'userId' | 'sourceId' | 'shippingStoreId'
+> & {
+  userName: string;
+  shippingStoreName: String;
+  sourceName: string;
+};
 export type TTransactionWrite = Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>;
 
 export type QueryDataModel = {

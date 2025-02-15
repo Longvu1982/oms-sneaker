@@ -38,6 +38,23 @@ export async function apiCreateOrder(
   });
 }
 
+export async function apiBulkCreateOrder(data: {
+  orders: Omit<Order, "id" | "createdAt" | "updatedAt"> & {
+    userName: string;
+    shippingStoreName: string;
+    sourceName: string;
+  };
+}) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: { orders: Order[] };
+  }>({
+    url: "/orders/create/bulk",
+    method: "post",
+    data,
+  });
+}
+
 export async function apiDeleteOrder(data: { id: string }) {
   return ApiService.fetchData<{
     success: boolean;
@@ -55,6 +72,17 @@ export async function apiUpdateOrder(data: OrderFormValues) {
   }>({
     url: `/orders/${data.id}/update`,
     method: "put",
+    data,
+  });
+}
+
+export async function apiCheckUserNamesExist(data: { names: string[] }) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: string[];
+  }>({
+    url: `/orders/create/check-missing-user-names`,
+    method: "post",
     data,
   });
 }

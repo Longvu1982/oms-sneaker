@@ -172,6 +172,12 @@ export const createUser = async (model: any): Promise<User> => {
   return db.user.create(query);
 };
 
+export const bulkCreateUser = async (names: string[]) => {
+  return db.user.createMany({
+    data: names.map((name) => ({ fullName: name, id: v4() })),
+  });
+};
+
 export const getAccountByUsername = async (
   username: string
 ): Promise<Omit<Account, 'createdAt' | 'updatedAt'> | null> => {

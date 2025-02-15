@@ -67,8 +67,6 @@ export function DataTable<TData, TValue>({
     meta,
   };
 
-  console.log(meta);
-
   if (manualPagination) {
     tableSettings = {
       ...tableSettings,
