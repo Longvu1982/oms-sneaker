@@ -126,7 +126,9 @@ export const useGetOrderColumns: (
                 }}
               >
                 {codeText} :{" "}
-                {deliveryCodeStatusObject[deliveryCodeStatus]?.text}
+                <span className="hidden md:block">
+                  {deliveryCodeStatusObject[deliveryCodeStatus]?.text}
+                </span>
               </Badge>
             );
           },
