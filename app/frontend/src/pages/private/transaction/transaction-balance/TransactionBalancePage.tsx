@@ -117,11 +117,12 @@ const TransactionBalancePage = () => {
 
       <TransactionBalanceTable data={data} setData={setData} isEdit={isEdit} />
       {!isEdit ? (
-        <Sticky stickyClassName="bottom-0">
-          <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>
-        </Sticky>
+        // <Sticky stickyClassName="bottom-0">
+        <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>
       ) : (
-        <Sticky stickyClassName="bottom-0" wrapperClassName="space-x-2">
+        // </Sticky>
+        // <Sticky stickyClassName="bottom-0" wrapperClassName="space-x-2">
+        <div className="space-x-2">
           <Button
             variant="outline"
             onClick={async () => {
@@ -132,7 +133,8 @@ const TransactionBalancePage = () => {
             Quay lại
           </Button>
           <Button onClick={onApply}>Áp dụng</Button>
-        </Sticky>
+        </div>
+        // </Sticky>
       )}
     </div>
   );
