@@ -28,8 +28,6 @@ const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
   const file = fileProps ?? internalFile;
   const setFile = setFileProps ?? setInternalFile;
 
-  console.log(fileData);
-
   const handleRemoveFile = () => {
     setFile(null);
     setFileData([]);
@@ -63,8 +61,6 @@ const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
         header: 1,
         // raw: false,
       });
-
-      console.log("rows", rows);
 
       // Map Excel columns to object fields
       const orders = mapper(rows);

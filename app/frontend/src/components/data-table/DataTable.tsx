@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Card, CardContent } from "../ui/card";
 import { DataTablePagination } from "./DataTablePagination";
 
 interface DataTableProps<TData, TValue> {
@@ -90,7 +91,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="">
-      <div className="rounded-md border">
+      <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -164,24 +165,45 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
-        {/* <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {"<"}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {">"}
-        </Button> */}
+      <div className="md:hidden space-y-4">
+        {table.getRowModel().rows.map((row) => {
+          const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
 
+          return (
+            <Card key={row.id}>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {row.getVisibleCells().map((cell) => {
+                    const header = headers.find(
+                      (item) => item.id === cell.column.id
+                    );
+                    return (
+                      <div key={cell.id} className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {header?.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header?.column.columnDef.header,
+                                header?.getContext?.() as A
+                              )}
+                        </p>
+                        <div className="text-sm">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
         {showPagination && <DataTablePagination table={table} />}
       </div>
     </div>

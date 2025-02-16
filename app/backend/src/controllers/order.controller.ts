@@ -133,9 +133,6 @@ export const checkMissingUsersName = async (request: Request, response: Response
 export const bulkCreateOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const { orders } = request.body;
-
-    console.log(orders);
-
     const createdOrders = await OrderSevice.bulkCreateOrder(orders);
     return sendSuccessResponse(response, createdOrders);
   } catch (error) {

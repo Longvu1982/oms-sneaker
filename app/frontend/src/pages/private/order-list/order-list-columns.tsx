@@ -103,6 +103,9 @@ export const useGetOrderColumns: (
           id: "orderNumber",
           accessorKey: "orderNumber",
           header: "Order number",
+          cell: ({ getValue }) => (
+            <p className="break-all md:break-normal">{getValue() as string}</p>
+          ),
         },
         {
           id: "deliveryCode",

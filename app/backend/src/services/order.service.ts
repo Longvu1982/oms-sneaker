@@ -195,6 +195,5 @@ export const checkMissingUsersName = async (userNames: string[]): Promise<string
   });
 
   const existingUsersName = new Set(exsitingUser.map(({ fullName }) => fullName.toLowerCase()));
-  console.log(existingUsersName);
   return userNames.filter((name) => !existingUsersName.has(name.toLowerCase()));
 };

@@ -35,7 +35,6 @@ export type AddTransferModalFormValues = {
 
 const dataMapper = (rowData: A[]) => {
   if (!rowData) return [];
-  console.log(rowData.slice(1));
   return rowData.slice(1)?.map((row) => ({
     orderDate: addHours(row[0], 1),
     SKU: row[1] ?? "", // SKU
@@ -77,7 +76,6 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
       });
       const missingNames = data.data;
       if (missingNames.length) {
-        console.log(missingNames);
         openConfirmModal({
           title: "Người dùng không tồn tại",
           content: (
