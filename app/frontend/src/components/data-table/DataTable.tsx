@@ -170,7 +170,7 @@ export function DataTable<TData, TValue>({
           const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
 
           return (
-            <Card key={row.id}>
+            <Card key={row.id} className="shadow-md border-[1px] border-black">
               <CardContent className="p-4">
                 <div className="grid grid-cols-2 gap-4">
                   {row.getVisibleCells().map((cell) => {
