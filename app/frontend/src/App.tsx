@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { useRouter } from "./router/useRouter";
-import { apiAuthMe } from "./services/main/authServices";
+import { apiAuthMe } from "./services/main/authenServices";
 import useAuthStore from "./store/auth";
 import { Toaster } from "./components/ui/sonner";
 import { useTriggerLoading } from "./hooks/use-trigger-loading";

@@ -7,7 +7,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { apiLogout } from "@/services/main/authServices";
+import { apiLogout } from "@/services/main/authenServices";
 import useAuthStore from "@/store/auth";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "../ui/avatar";

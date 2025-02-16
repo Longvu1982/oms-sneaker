@@ -16,7 +16,6 @@ interface UploadExcelOrderProps<TData> {
 const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
   const {
     file: fileProps,
-    fileData,
     accept,
     setFile: setFileProps,
     setFileData,

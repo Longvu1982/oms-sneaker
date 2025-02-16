@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
-import { apiLogIn } from "@/services/main/authServices";
+import { apiLogIn } from "@/services/main/authenServices";
 import useAuthStore from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
