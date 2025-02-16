@@ -16,7 +16,6 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import Sticky from "react-sticky-el/lib/basic-version";
 import TransactionBalanceTable from "./TransactionBalanceTable";
 
 const defaultTransactionBalance = [
