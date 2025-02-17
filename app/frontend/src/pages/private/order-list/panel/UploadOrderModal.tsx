@@ -42,8 +42,8 @@ const dataMapper = (rowData: A[]) => {
     deposit: parseFloat(row[3]) ?? 0, // Cọc
     totalPrice: parseFloat(row[4]) ?? 0, // Giá
     userName: row[5], // Tên khách (we will convert to userId)
-    orderNumber: row[6] ?? "", // Order Number
-    deliveryCode: row[7] ?? "", // MVĐ
+    orderNumber: row[6] != null ? String(row[6]) : "", // Order Number
+    deliveryCode: row[7] != null ? String(row[7]) : "", // MVĐ
     checkBox: typeof row[8] === "boolean" ? row[8] : row[8] === "TRUE", // Hộp kiểm
     sourceName: row[9], // Nguồn (we will convert to sourceId)
     shippingFee: parseFloat(row[10]) ?? 0, // Cước vận chuyển 1
@@ -54,7 +54,7 @@ const dataMapper = (rowData: A[]) => {
     status:
       orderStatusOptions.find((item) =>
         item.label.toLocaleLowerCase().includes(row[12]?.toLocaleLowerCase())
-      )?.value || OrderStatus.ONGOING, // Trạng thái
+      )?.value ?? OrderStatus.ONGOING, // Trạng thái
   }));
 };
 
@@ -71,8 +71,9 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
   const onSubmit = async () => {
     await triggerLoading(async () => {
       const userNameList = fileData.map((item) => item.userName) as string[];
+      const uniqueList = Array.from(new Set(userNameList));
       const { data } = await apiCheckUserNamesExist({
-        names: userNameList,
+        names: uniqueList,
       });
       const missingNames = data.data;
       if (missingNames.length) {
@@ -104,8 +105,11 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
             if (!data.success) {
               return;
             }
-
             toast.success("Tạo người dùng thành công");
+            closeModal();
+
+            await new Promise((res) => setTimeout(res, 1000));
+
             const { data: createData } = await apiBulkCreateOrder({
               orders: fileData as A,
             });
@@ -117,7 +121,6 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
             }
           },
         });
-        return;
       } else {
         const { data: createData } = await apiBulkCreateOrder({
           orders: fileData as A,

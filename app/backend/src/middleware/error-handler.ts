@@ -9,14 +9,20 @@ export const errorHandler = (error: any, request: Request, response: Response, n
 
   /*
 
+
    REPLACE IT WITH WINSTON
     console.error(error.stack);
   */
+  console.log(error);
+
+  if (error.override) {
+    return sendErrorResponse(response, error.message);
+  }
 
   // Handle Zod validation errors
   if (error instanceof z.ZodError) {
     const errors = error.errors.map((e: any) => e.message) as string[];
-    return sendValidationError(response, 'Validation Error', errors);
+    return sendValidationError(response, 'Kiểu dữ liệu không đúng', errors);
   }
 
   // Handle known Prisma errors

@@ -59,6 +59,7 @@ const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
       const rows: A[] = XLSX.utils.sheet_to_json(sheet, {
         header: 1,
         // raw: false,
+        blankrows: false,
       });
 
       // Map Excel columns to object fields

@@ -135,7 +135,7 @@ export const bulkCreateOrder = async (request: Request, response: Response, next
     const { orders } = request.body;
     const createdOrders = await OrderSevice.bulkCreateOrder(orders);
     return sendSuccessResponse(response, createdOrders);
-  } catch (error) {
-    next(error);
+  } catch (e) {
+    next({ override: true, message: 'Tạo đơn hàng không thành công, kiểm tra kiểu dữ liệu và chính tả' });
   }
 };
