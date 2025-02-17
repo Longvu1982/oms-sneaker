@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SidebarMenuButton } from "@/components/ui/sidebar";
+import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isActive } from "./menuItems.utils";
@@ -14,6 +14,7 @@ const SingleMenuItem: FC<SingleMenuItemProps> = ({ title, onClick, link }) => {
   const navigate = useNavigate();
   const onClickItem = onClick ?? (() => navigate(link));
   const { pathname } = useLocation();
+  const { setOpenMobile } = useSidebar();
 
   return (
     <SidebarMenuButton
@@ -22,7 +23,10 @@ const SingleMenuItem: FC<SingleMenuItemProps> = ({ title, onClick, link }) => {
       asChild
     >
       <Button
-        onClick={onClickItem}
+        onClick={() => {
+          onClickItem();
+          setOpenMobile(false);
+        }}
         variant="ghost"
         className="w-full justify-between px-4"
       >

@@ -98,27 +98,29 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
           cancelText: "Đổi file Excel",
           confirmText: "Tạo",
           onConfirm: async (closeModal) => {
-            const { data } = await apiBulkCreateUser({
-              names: missingNames,
-            });
+            await triggerLoading(async () => {
+              const { data } = await apiBulkCreateUser({
+                names: missingNames,
+              });
 
-            if (!data.success) {
-              return;
-            }
-            toast.success("Tạo người dùng thành công");
-            closeModal();
-
-            await new Promise((res) => setTimeout(res, 1000));
-
-            const { data: createData } = await apiBulkCreateOrder({
-              orders: fileData as A,
-            });
-            if (createData.success) {
-              toast.success("Tạo danh sách đơn hàng thành công");
+              if (!data.success) {
+                return;
+              }
+              toast.success("Tạo người dùng thành công");
               closeModal();
-              onOpenChange(false);
-              await getList();
-            }
+
+              await new Promise((res) => setTimeout(res, 1000));
+
+              const { data: createData } = await apiBulkCreateOrder({
+                orders: fileData as A,
+              });
+              if (createData.success) {
+                toast.success("Tạo danh sách đơn hàng thành công");
+                closeModal();
+                onOpenChange(false);
+                await getList();
+              }
+            });
           },
         });
       } else {
