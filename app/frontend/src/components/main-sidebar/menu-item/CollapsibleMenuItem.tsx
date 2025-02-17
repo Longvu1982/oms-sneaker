@@ -7,7 +7,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { FC, useEffect, useState } from "react";
-import { SidebarMenuButton } from "../../ui/sidebar";
+import { SidebarMenuButton, useSidebar } from "../../ui/sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isActive as isActiveMenuItem } from "./menuItems.utils";
 
@@ -23,7 +23,7 @@ const CollapsibleMenuItem: FC<CollapsibleMenuItemProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-
+  const { setOpenMobile } = useSidebar();
   useEffect(() => {
     if (items.some((item) => isActiveMenuItem(item.link, pathname))) {
       setIsOpen(true);
@@ -49,7 +49,13 @@ const CollapsibleMenuItem: FC<CollapsibleMenuItemProps> = ({
           <SidebarMenuButton
             isActive={isActiveMenuItem(item.link, pathname)}
             key={item.link}
-            onClick={item.onClick ?? (() => navigate(item.link))}
+            onClick={
+              item.onClick ??
+              (() => {
+                navigate(item.link);
+                setOpenMobile(false);
+              })
+            }
             className="w-full justify-start py-0 h-8"
           >
             {item.title}
