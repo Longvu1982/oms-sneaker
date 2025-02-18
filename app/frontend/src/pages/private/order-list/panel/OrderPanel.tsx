@@ -121,7 +121,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
               <FormItem>
                 <FormLabel>Size</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Nhập size" {...field} />
+                  <Input placeholder="Nhập size" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

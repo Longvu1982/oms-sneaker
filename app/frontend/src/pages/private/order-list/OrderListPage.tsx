@@ -28,7 +28,7 @@ import OrderTable from "./table/OrderTable";
 
 const initOrderFormValues = {
   SKU: "",
-  size: 10,
+  size: "",
   deposit: 0,
   totalPrice: 0,
   deliveryCode: "",

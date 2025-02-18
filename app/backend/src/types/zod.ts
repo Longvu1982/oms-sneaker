@@ -59,7 +59,7 @@ export const orderSchema = z.object({
   shippingFee: z.number().min(0, 'Phí vận chuyển phải lớn hơn hoặc bằng 0.'),
   secondShippingFee: z.number().min(0, 'Phí vận chuyển phải lớn hơn hoặc bằng 0.'),
   shippingStoreId: z.string().nonempty('Kho không được để trống.').uuid('ID cửa hàng vận chuyển phải là UUID hợp lệ.'),
-  size: z.number().positive('Kích thước phải lớn hơn 0.'),
+  size: z.string().nonempty('Size không được để trống.'),
   sourceId: z.string().nonempty('Nguồn được để trống.').uuid('ID nguồn phải là UUID hợp lệ.'),
   status: z.enum([OrderStatus.ONGOING, OrderStatus.LANDED, OrderStatus.SHIPPED, OrderStatus.CANCELLED], {
     errorMap: () => ({ message: 'Trạng thái không hợp lệ.' }),

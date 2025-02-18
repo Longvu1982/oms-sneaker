@@ -67,7 +67,7 @@ model Order {
   orderDate          DateTime           @default(now())
   statusChangeDate   DateTime?
   SKU                String
-  size               Float
+  size               String
   deposit            Float
   totalPrice         Float
   deliveryCode       String

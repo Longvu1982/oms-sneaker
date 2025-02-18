@@ -31,7 +31,7 @@ export const schema = z.object({
     .string()
     .nonempty("Kho không được để trống.")
     .uuid("ID cửa hàng vận chuyển phải là UUID hợp lệ."),
-  size: z.number().positive("Kích thước phải lớn hơn 0."),
+  size: z.string().nonempty("Size không được để trống."),
   sourceId: z
     .string()
     .nonempty("Nguồn được để trống.")

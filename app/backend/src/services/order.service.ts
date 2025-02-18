@@ -129,10 +129,11 @@ export const bulkCreateOrder = async (orders: TBulkOrderWrite[]): Promise<Prisma
       id: v4() as UUID,
       statusChangeDate: item.status !== OrderStatus.ONGOING ? new Date() : null,
       secondShippingFee: 0,
-      userId: users.find((u) => u.fullName.toLowerCase().includes(item.userName.toLowerCase()))?.id ?? '',
-      sourceId: sources.find((u) => u.name.toLowerCase().includes(item.sourceName.toLowerCase()))?.id ?? '',
+      userId: users.find((u) => u.fullName.trim().toLowerCase() === item.userName.trim().toLowerCase())?.id ?? '',
+      sourceId: sources.find((u) => u.name.trim().toLowerCase() === item.sourceName.trim().toLowerCase())?.id ?? '',
       shippingStoreId:
-        shippingStores.find((u) => u.name.toLowerCase().includes(item.shippingStoreName.toLowerCase()))?.id ?? '',
+        shippingStores.find((u) => u.name.trim().toLowerCase() === item.shippingStoreName.trim().toLowerCase())?.id ??
+        '',
     };
   });
 

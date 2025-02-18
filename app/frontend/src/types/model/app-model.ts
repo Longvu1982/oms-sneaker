@@ -46,7 +46,7 @@ export type Order = {
   orderNumber: string;
   orderDate: Date; // Date as ISO string
   SKU: string;
-  size: number;
+  size: string;
   deposit: number;
   totalPrice: number;
   deliveryCode: string;
