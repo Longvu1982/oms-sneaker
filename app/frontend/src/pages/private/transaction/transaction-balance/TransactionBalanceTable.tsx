@@ -88,11 +88,7 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
           header: "Tính chất",
           cell: () => renderBadge("#90EE90", "In"),
         },
-      ] as EnhancedColumnDef<{
-        name: string;
-        amount: number | null;
-        rate: number | null;
-      }>[],
+      ] as EnhancedColumnDef<TransactionBalanceItem>[],
     [isEdit, setData]
   );
 

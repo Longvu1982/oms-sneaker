@@ -11,5 +11,6 @@ declare module "@tanstack/table-core" {
     onClickAddTransfer: (user: TData) => void;
     onClickFullname: (id: string) => void;
     onClickEditUser: (user: TData) => void;
+    onClickEditSource: (source: TData) => void;
   }
 }

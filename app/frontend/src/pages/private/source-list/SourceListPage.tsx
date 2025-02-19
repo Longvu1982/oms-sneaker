@@ -38,15 +38,14 @@ const columns: EnhancedColumnDef<Source>[] = [
     id: "actions",
     fixed: true,
     cell: ({ table, row }) => {
-      const onEditClick = (table.options.meta as { onEditClick: A })
-        ?.onEditClick;
+      const onClickEditSource = table.options.meta?.onClickEditSource;
 
       return (
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="icon"
-            onClick={() => onEditClick(row.original)}
+            onClick={() => onClickEditSource?.(row.original)}
           >
             <Edit />
           </Button>
@@ -108,7 +107,7 @@ const SourceListPage = () => {
     });
   };
 
-  const onEditClick = useCallback(
+  const onClickEditSource = useCallback(
     (data: Source) => {
       sourceForm.reset({ ...data });
       setSourcePanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
@@ -164,7 +163,7 @@ const SourceListPage = () => {
           manualPagination
           pagination={queryParams.pagination}
           onPaginationChange={onPaginationChange}
-          meta={{ onEditClick }}
+          meta={{ onClickEditSource }}
         />
       </div>
 
