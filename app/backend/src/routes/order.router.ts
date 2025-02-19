@@ -6,12 +6,12 @@ const router = express.Router();
 
 // Acess : Public
 // GET: List all the books
-router.post('/list', OrderController.listOrders);
+router.post('/list', protectAuth, OrderController.listOrders);
 
 // Acess : Public
 // GET : Get One book by ID
 // Params query : id
-router.get('/:id', OrderController.checkExistingBook, OrderController.getBook);
+router.get('/:id', protectAuth, OrderController.checkExistingBook, OrderController.getBook);
 
 // Acess : Private
 // POST : Create one book

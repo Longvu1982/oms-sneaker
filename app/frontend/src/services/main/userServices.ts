@@ -18,7 +18,7 @@ export type UserFormValues = Omit<
   username: string;
   password: string;
   role: Role;
-};
+} & { id?: string };
 
 export type UserExtra = User & {
   transactions: Transaction[];
@@ -58,6 +58,17 @@ export async function apiCreateUser(data: UserFormValues) {
     data: User;
   }>({
     url: "/users/create",
+    method: "post",
+    data,
+  });
+}
+
+export async function apiUpdateUser(data: UserFormValues) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: User;
+  }>({
+    url: `/users/${data.id}/update`,
     method: "post",
     data,
   });

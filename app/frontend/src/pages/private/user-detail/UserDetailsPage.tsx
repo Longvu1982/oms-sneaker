@@ -7,8 +7,8 @@ import { getUserById, UserExtra } from "@/services/main/userServices";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TransfersTimeline } from "./TransferTimeline";
 import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
+import { TransfersTimeline } from "./TransferTimeline";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
@@ -25,6 +25,7 @@ const UserDetailsPage = () => {
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   if (!userData) return <></>;
@@ -39,7 +40,7 @@ const UserDetailsPage = () => {
         <ChevronLeft />
         <span>Quay về danh sách</span>
       </Button>
-      <div className="container mx-auto space-y-4">
+      <div className="space-y-4">
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
           Chi tiết người dùng
         </h3>
@@ -67,7 +68,7 @@ const UserDetailsPage = () => {
               </div>
               <div className="space-y-2">
                 <p>
-                  <strong>Điện thoại:</strong> {userData.phone || "N/A"}
+                  <strong>Điện thoại:</strong> {userData.phone ?? "N/A"}
                 </p>
                 <p>
                   <strong>Tài khoản:</strong>{" "}

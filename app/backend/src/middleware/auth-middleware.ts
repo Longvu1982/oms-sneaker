@@ -8,32 +8,32 @@ const protectAuth = async (request: Request, response: Response, next: NextFunct
   const allCookies = request.cookies;
   const token = allCookies.jwt;
 
-  if (token) {
-    try {
-      const decoded = verifyToken(token);
-      const account = await UserService.getAccountById(decoded.id);
-      if (!account?.id) {
-        next();
-        return;
-      }
-      const user: TloginRequest | null = await UserService.getUserByID(account?.userId);
-      if (!user) {
-        next();
-        return;
-      }
-      request.user = {
-        ...user,
-        account: {
-          username: account.username,
-          role: account.role,
-        },
-      };
+  if (!token) {
+    return sendBadRequestResponse(response, 'Vui lòng đăng nhập');
+  }
+
+  try {
+    const decoded = verifyToken(token);
+    const account = await UserService.getAccountById(decoded.id);
+    if (!account?.id) {
       next();
-    } catch (error: any) {
-      next(error);
+      return sendBadRequestResponse(response, 'Vui lòng đăng nhập');
     }
-  } else {
-    return sendBadRequestResponse(response, 'Unauthorized - you need to login');
+    const user: TloginRequest | null = await UserService.getUserByID(account?.userId);
+    if (!user) {
+      next();
+      return sendBadRequestResponse(response, 'Vui lòng đăng nhập');
+    }
+    request.user = {
+      ...user,
+      account: {
+        username: account.username,
+        role: account.role,
+      },
+    };
+    next();
+  } catch (error: any) {
+    next(error);
   }
 };
 

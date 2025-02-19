@@ -37,7 +37,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
       };
       return sendSuccessResponse(response, responseData);
     } else {
-      return sendUnauthorizedResponse(response, 'Credentials Error');
+      return sendUnauthorizedResponse(response, 'Sai username hoặc mật khẩu.');
     }
   } catch (error: any) {
     console.log(error);

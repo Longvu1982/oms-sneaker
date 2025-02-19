@@ -4,7 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
+  RowSelectionState,
   SortingState,
   TableOptions,
   useReactTable,
@@ -26,8 +26,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
+import { Checkbox } from "../ui/checkbox";
 import { DataTablePagination } from "./DataTablePagination";
 
 interface DataTableProps<TData, TValue> {
@@ -37,52 +38,99 @@ interface DataTableProps<TData, TValue> {
   pagination?: { pageIndex: number; pageSize: number; totalCount: number };
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
   showPagination?: boolean;
+  selectedRows?: RowSelectionState;
+  onRowSelectionChange?: (newSelection: RowSelectionState) => void;
   meta?: A;
 }
+interface DefaultData {
+  id?: string;
+}
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends DefaultData, TValue>({
   columns,
   data,
-  pagination,
+  pagination: externalPagination,
   onPaginationChange,
   manualPagination = false,
   showPagination = true,
+  selectedRows: externalSelectedRows,
+  onRowSelectionChange,
   meta,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [internalPagination, setInternalPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 100, //default page size
+    totalCount: undefined,
   });
 
-  let tableSettings: TableOptions<TData> = {
+  const [internalRowSelection, setInternalRowSelection] =
+    useState<RowSelectionState>({});
+
+  const pagination = manualPagination ? externalPagination : internalPagination;
+  const setPagination = manualPagination
+    ? onPaginationChange
+    : setInternalPagination;
+
+  const rowSelection = externalSelectedRows ?? internalRowSelection;
+  const setRowSelection = onRowSelectionChange ?? setInternalRowSelection;
+
+  const refinedColumns: ColumnDef<TData, TValue>[] = useMemo(() => {
+    if (externalSelectedRows)
+      return [
+        {
+          id: "select",
+          header: ({ table }) => {
+            let checked: boolean | "indeterminate" =
+              table.getIsAllPageRowsSelected();
+            if (table.getIsSomePageRowsSelected()) checked = "indeterminate";
+
+            return (
+              <Checkbox
+                checked={checked}
+                onCheckedChange={(value) =>
+                  table.toggleAllPageRowsSelected(!!value)
+                }
+                aria-label="Select all"
+              />
+            );
+          },
+          cell: ({ row }) => (
+            <div className="w-[35px]">
+              <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+              />
+            </div>
+          ),
+        },
+        ...columns,
+      ];
+
+    return columns;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!externalSelectedRows, columns]);
+
+  const tableSettings: TableOptions<TData> = {
     data,
-    columns,
+    columns: refinedColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onPaginationChange: setInternalPagination,
-    manualPagination: manualPagination,
-    state: { sorting, pagination: internalPagination },
+    onPaginationChange: setPagination as A,
+    onRowSelectionChange: setRowSelection as A,
+    manualPagination,
+    rowCount: pagination?.totalCount,
+    state: {
+      sorting,
+      rowSelection,
+      pagination,
+    },
+    getRowId: (row) => row.id as string,
     meta,
   };
-
-  if (manualPagination) {
-    tableSettings = {
-      ...tableSettings,
-      onPaginationChange: (updater) => {
-        if (typeof updater !== "function") return;
-        const nextState = updater(pagination as PaginationState);
-        onPaginationChange?.(nextState.pageIndex, nextState.pageSize);
-      },
-      rowCount: pagination?.totalCount,
-      state: {
-        sorting,
-        pagination,
-      },
-    };
-  }
 
   const table = useReactTable(tableSettings);
 

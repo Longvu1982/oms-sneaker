@@ -13,67 +13,40 @@ import { Input } from "@/components/ui/input";
 import { UserFormValues } from "@/services/main/userServices";
 import { Role } from "@/types/enum/app-enum";
 import { roleStatusOptions } from "@/types/model/app-model";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { FC, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import { z } from "zod";
 
 interface UserPanelProps {
-  isOpen: boolean;
+  panelState: {
+    isOpen: boolean;
+    type: "create" | "edit";
+  };
   setIsOpen: (value: boolean) => void;
   onSubmit: (data: UserFormValues) => void;
+  form: UseFormReturn<UserFormValues, A, undefined>;
+  hasAccount: boolean;
 }
 
-const schema = z.object({
-  fullName: z.string().min(1, "Tên người dùng không được để trống"),
-  email: z.union([
-    z.literal(''),
-    z.string().email("Email sai định dạng"),
-  ]),
-  phone: z.string().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  role: z.enum(
-    [
-      Role.ADMIN,
-      Role.USER,
-      Role.STAFF,
-    ],
-    {
-      errorMap: () => ({ message: "Loại TK không hợp lệ" }),
+const UserPanel: FC<UserPanelProps> = ({
+  panelState,
+  setIsOpen,
+  onSubmit,
+  form,
+  hasAccount,
+}) => {
+  const [searchParams] = useSearchParams();
+  const fullNameParam = searchParams.get("fullName");
+  const isOpenParam = searchParams.get("openPanel");
+
+  useEffect(() => {
+    if (isOpenParam === "true" && fullNameParam) {
+      setIsOpen(true);
     }
-  ),
-  transferedAmount: z.number().min(0),
-  willCreateAccount: z.boolean(),
-}).refine(data => !data.willCreateAccount || data.username?.trim() !== "", { message: "Username là bắt buộc", path: ["username"] }).
-  refine(data => !data.willCreateAccount || data.password?.trim() !== "", { message: "Mật khẩu là bắt buộc", path: ["password"] })
-
-const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
-  const form = useForm<UserFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      phone: "",
-      username: "",
-      password: "",
-      role: Role.USER,
-      transferedAmount: 0,
-      willCreateAccount: false,
-    },
-  });
-
-   const [searchParams] = useSearchParams()
-    const fullNameParam = searchParams.get("fullName")
-    const isOpenParam = searchParams.get("openPanel")
-
-    useEffect(() => {
-      if(isOpenParam === "true" && fullNameParam) {
-        setIsOpen(true)
-      }
-      form.setValue("fullName", fullNameParam ?? "")
-    },[fullNameParam, isOpenParam])
+    form.setValue("fullName", fullNameParam ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullNameParam, isOpenParam]);
 
   const willCreateAccount = form.watch("willCreateAccount");
 
@@ -88,9 +61,9 @@ const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
   return (
     <Panel
       formId="userForm"
-      title="Tạo user mới"
-      description="Điền thông tin để tạo user"
-      open={isOpen}
+      title={panelState.type === "create" ? "Tạo user mới" : "Chỉnh sửa user"}
+      description="Điền thông tin"
+      open={panelState.isOpen}
       onOpenChange={setIsOpen}
     >
       <Form {...form}>
@@ -138,22 +111,42 @@ const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="transferedAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Số tiền đã chuyển</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Nhập số tiền" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {panelState.type === "create" && (
+            <FormField
+              control={form.control}
+              name="transferedAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Số tiền đã chuyển</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Nhập số tiền"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <div className="border-b-[1px]" />
 
+          <div className="flex items-center gap-2 text-sm italic">
+            {hasAccount ? (
+              <>
+                <CheckCircle size={16} className="text-green-600" /> Đã có tài
+                khoản
+              </>
+            ) : (
+              <>
+                {" "}
+                <AlertTriangle size={16} className="text-yellow-600" /> Chưa có
+                tài khoản
+              </>
+            )}
+          </div>
           <FormField
             control={form.control}
             name="willCreateAccount"
@@ -173,7 +166,7 @@ const UserPanel: FC<UserPanelProps> = ({ isOpen, setIsOpen, onSubmit }) => {
                     htmlFor="checkBox"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                   >
-                    Tạo tài khoản?
+                    {hasAccount ? "Chỉnh sửa tài khoản" : "Tạo tài khoản"}
                   </label>
                 </div>
                 <FormMessage />

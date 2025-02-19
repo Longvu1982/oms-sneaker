@@ -172,6 +172,44 @@ export const createUser = async (model: any): Promise<User> => {
   return db.user.create(query);
 };
 
+export const updateUser = async (model: any): Promise<User> => {
+  const query: Prisma.UserUpdateArgs = {
+    where: { id: model.id },
+    data: {
+      phone: model.phone,
+      email: model.email,
+      fullName: model.fullName,
+    },
+  };
+
+  if (model.willCreateAccount) {
+    const accountData = {
+      username: model.username,
+      password: await hashPassword(model.password),
+      role: model.role,
+    };
+
+    // Update existing account if it exists, otherwise create a new one.
+    const existingAccount = await db.account.findFirst({ where: { userId: model.id } });
+
+    if (existingAccount) {
+      await db.account.update({
+        where: { id: existingAccount.id },
+        data: accountData,
+      });
+    } else {
+      query.data.account = {
+        create: {
+          ...accountData,
+          id: v4(),
+        },
+      };
+    }
+  }
+
+  return db.user.update(query);
+};
+
 export const bulkCreateUser = async (names: string[]) => {
   return db.user.createMany({
     data: names.map((name) => ({ fullName: name, id: v4() })),

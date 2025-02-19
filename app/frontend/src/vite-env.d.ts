@@ -1,4 +1,15 @@
 /// <reference types="vite/client" />
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare type A = any;
+import "@tanstack/react-table";
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type A = any;
+}
+declare module "@tanstack/table-core" {
+  interface TableMeta<TData extends RowData> {
+    onClickAddTransfer: (user: TData) => void;
+    onClickFullname: (id: string) => void;
+    onClickEditUser: (user: TData) => void;
+  }
+}

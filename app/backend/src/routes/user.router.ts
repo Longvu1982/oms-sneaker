@@ -10,6 +10,8 @@ router.post('/list-detail', protectAuth, UserController.listUsersDetail);
 
 router.post('/create', protectAuth, UserController.createUser);
 
+router.post('/:id/update', protectAuth, UserController.updateUser);
+
 router.post('/create/bulk', protectAuth, UserController.bulkCreateUser);
 
 router.get('/:userId', protectAuth, UserController.getUserByID);

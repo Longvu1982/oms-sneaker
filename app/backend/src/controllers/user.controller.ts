@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import * as UserService from '../services/user.service';
-import { sendSuccessResponse } from '../utils/responseHandler';
+import { sendNotFoundResponse, sendSuccessResponse } from '../utils/responseHandler';
+import { UUID } from 'node:crypto';
 
 export const listUsers = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -35,8 +36,22 @@ export const getUserByID = async (request: Request, response: Response, next: Ne
 export const createUser = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
-    const orders = await UserService.createUser(query);
-    return sendSuccessResponse(response, orders);
+    const created = await UserService.createUser(query);
+    return sendSuccessResponse(response, created);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateUser = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const id = request.params.id as UUID;
+    const existingUser = await UserService.getUserByID(id);
+    if (!existingUser) return sendNotFoundResponse(response, 'User không tồn tại hoặc đã bị xoá.');
+
+    const query = request.body;
+    const updated = await UserService.updateUser(query);
+    return sendSuccessResponse(response, updated);
   } catch (error: any) {
     next(error);
   }

@@ -45,6 +45,6 @@ export const errorHandler = (error: any, request: Request, response: Response, n
   }
 
   // Handle other types of errors
-  const res = process.env.APP_ENV == 'developement' ? { message: error.message } : { message: 'Internal Server Error' };
+  const res = process.env.APP_ENV == 'developement' ? error.message : 'Lỗi hệ thống';
   return sendErrorResponse(response, res);
 };
