@@ -1,7 +1,7 @@
 import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Input } from "@/components/ui/input";
-import { renderBadge } from "@/lib/utils";
+import { formatAmount, renderBadge } from "@/lib/utils";
 import { TransactionBalanceItem } from "@/types/model/app-model";
 import React, { FC, useMemo } from "react";
 
@@ -68,6 +68,7 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
                 type="number"
                 className="min-w-[100px]"
                 value={getValue() as number}
+                renderExtra={formatAmount}
                 onChange={(value) => {
                   setData?.((prevData) =>
                     prevData.map((item) =>

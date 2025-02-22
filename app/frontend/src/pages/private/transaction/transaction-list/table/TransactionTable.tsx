@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
-import { renderBadge } from "@/lib/utils";
+import { formatAmount, renderBadge } from "@/lib/utils";
 import { NatureType, TransactionType } from "@/types/enum/app-enum";
 import { QueryDataModel, TransactionWithExtra } from "@/types/model/app-model";
 import { format } from "date-fns";
@@ -43,6 +43,20 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
   {
     accessorKey: "rate",
     header: "Tỉ giá",
+    cell: ({ getValue }) => {
+      return formatAmount(getValue() as string);
+    },
+  },
+  {
+    id: "total",
+    header: "Tổng",
+    cell: ({
+      row: {
+        original: { amount, rate },
+      },
+    }) => {
+      return formatAmount(amount * rate);
+    },
   },
   {
     accessorKey: "nature",

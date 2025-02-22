@@ -75,12 +75,7 @@ const TransactionPanel: FC<TransactionPanelProps> = ({
               <FormItem>
                 <FormLabel>Số lượng</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Nhập số lượng"
-                    {...field}
-                    renderExtra={formatAmount}
-                  />
+                  <Input type="number" placeholder="Nhập số lượng" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -93,7 +88,12 @@ const TransactionPanel: FC<TransactionPanelProps> = ({
               <FormItem>
                 <FormLabel>Tỉ giá</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Nhập tỉ giá" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Nhập tỉ giá"
+                    {...field}
+                    renderExtra={formatAmount}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
