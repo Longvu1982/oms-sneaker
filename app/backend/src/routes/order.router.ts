@@ -31,6 +31,13 @@ router.post(
   OrderController.bulkCreateOrder
 );
 
+router.post(
+  '/delete/bulk',
+  protectAuth,
+  // OrderController.checkExistingBookAuthor,
+  OrderController.bulkDeleteOrder
+);
+
 router.post('/delete', protectAuth, OrderController.deleteOrder);
 
 // Acess : Private

@@ -4,6 +4,7 @@ import { OrderStatus } from "@/types/enum/app-enum";
 import { QueryDataModel } from "@/types/model/app-model";
 import { FC } from "react";
 import { useGetOrderColumns } from "../order-list-columns";
+import { RowSelectionState } from "@tanstack/react-table";
 
 interface OrderTableProps {
   orderList: OrderWithExtra[];
@@ -14,6 +15,8 @@ interface OrderTableProps {
   excludeColumns?: string[];
   onEditClick?: (data: OrderWithExtra) => void;
   onDeleteClick?: (data: OrderWithExtra) => void;
+  selectedRows?: RowSelectionState;
+  onRowSelectionChange?: (newSelection: RowSelectionState) => void;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
@@ -23,6 +26,8 @@ const OrderTable: FC<OrderTableProps> = ({
   onDeleteClick,
   orderList,
   queryParams,
+  selectedRows,
+  onRowSelectionChange,
   manualPagination = true,
   excludeColumns = [],
 }) => {
@@ -40,6 +45,8 @@ const OrderTable: FC<OrderTableProps> = ({
         data={orderList}
         manualPagination={manualPagination}
         pagination={queryParams?.pagination}
+        selectedRows={selectedRows}
+        onRowSelectionChange={onRowSelectionChange}
         onPaginationChange={onPaginationChange}
       />
     </div>

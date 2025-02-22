@@ -142,6 +142,14 @@ export const bulkCreateOrder = async (orders: TBulkOrderWrite[]): Promise<Prisma
   });
 };
 
+export const bulkDeleteOrder = async (ids: string[]): Promise<Prisma.BatchPayload> => {
+  return db.order.deleteMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+};
+
 export const updateBook = async (book: TBookWrite, id: TBookID): Promise<TBookRead> => {
   const { title, isFiction, datePublished, authorId } = book;
   return db.book.update({

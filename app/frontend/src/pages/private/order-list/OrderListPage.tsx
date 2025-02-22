@@ -2,6 +2,7 @@ import { Option } from "@/components/multi-select/MutipleSelect";
 import { Button } from "@/components/ui/button";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
+  apiBulkDeleteOrder,
   apiCreateOrder,
   apiDeleteOrder,
   apiGetOrderList,
@@ -16,7 +17,13 @@ import { useGlobalModal } from "@/store/global-modal";
 import { DeliveryCodeStatus, OrderStatus, Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FilterIcon, PlusCircle, TriangleAlert, Upload } from "lucide-react";
+import {
+  FilterIcon,
+  PlusCircle,
+  Trash,
+  TriangleAlert,
+  Upload,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,6 +32,7 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
+import { RowSelectionState } from "@tanstack/react-table";
 
 const initOrderFormValues = {
   SKU: "",
@@ -50,6 +58,13 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [sourceList, setSourceList] = useState<Option[]>([]);
   const [shippingStoreList, setShippingStoreList] = useState<Option[]>([]);
   const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
+
+  console.log(selectedRows);
+
+  const selectedRowsId = Object.entries(selectedRows)
+    .filter(([, value]) => value)
+    .map(([key]) => key);
 
   const user = useAuthStore((s) => s.user);
   const role = user?.account.role;
@@ -255,6 +270,40 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     });
   };
 
+  const onBulkDeleteClick = async () => {
+    openConfirmModal({
+      title: (
+        <div className="flex gap-2 items-center">
+          <TriangleAlert color="red" />
+          <span>Xác nhận xóa nhiều đơn hàng?</span>
+        </div>
+      ),
+      content:
+        "Bạn có chắc muốn xóa những đơn hàng này? Tất cả thông tin liên quan (người đặt hàng, doanh thu,... sẽ bị xoá)",
+      confirmType: "alert",
+      confirmText: "Xoá",
+      onConfirm: (closeModal: () => void) =>
+        triggerLoading(async () => {
+          const { data } = await apiBulkDeleteOrder({ ids: selectedRowsId });
+          if (data.success) {
+            toast.success("Xoá nhiều đơn hàng thành công.");
+            await getOrderList(queryParams);
+
+            setSelectedRows((prev) => {
+              const clone = { ...prev };
+              selectedRowsId.forEach((id) => {
+                delete clone[id];
+              });
+
+              return clone;
+            });
+
+            closeModal();
+          }
+        }),
+    });
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -272,26 +321,37 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       </div>
 
       {!isCompleted && role === Role.ADMIN && (
-        <div className="flex gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="mb-6"
+              onClick={() => {
+                setOrderPanel({
+                  type: "create",
+                  isOpen: true,
+                });
+                orderForm.reset({ ...initOrderFormValues });
+              }}
+            >
+              <PlusCircle /> Thêm đơn hàng
+            </Button>
+            <Button
+              size="sm"
+              className="mb-6"
+              onClick={() => setOpenUploadModal(true)}
+            >
+              <Upload /> Tải Excel
+            </Button>
+          </div>
           <Button
-            size="sm"
-            className="mb-6"
-            onClick={() => {
-              setOrderPanel({
-                type: "create",
-                isOpen: true,
-              });
-              orderForm.reset({ ...initOrderFormValues });
-            }}
+            variant="outline"
+            size="icon"
+            className="bg-red-500 hover:bg-red-500 hover:opacity-75"
+            disabled={!selectedRowsId.length}
+            onClick={onBulkDeleteClick}
           >
-            <PlusCircle /> Thêm đơn hàng
-          </Button>
-          <Button
-            size="sm"
-            className="mb-6"
-            onClick={() => setOpenUploadModal(true)}
-          >
-            <Upload /> Tải Excel
+            <Trash className="text-white" />
           </Button>
         </div>
       )}
@@ -303,6 +363,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onStatusChange={onStatusChange}
         queryParams={queryParams}
         excludeColumns={isCompleted ? [] : ["statusChangeDate"]}
+        selectedRows={selectedRows}
+        onRowSelectionChange={setSelectedRows}
         orderList={orderList.filter((item) =>
           isCompleted
             ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)

@@ -139,3 +139,13 @@ export const bulkCreateOrder = async (request: Request, response: Response, next
     next({ override: true, message: 'Tạo đơn hàng không thành công, kiểm tra kiểu dữ liệu và chính tả' });
   }
 };
+
+export const bulkDeleteOrder = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { ids } = request.body;
+    const deletedOrders = await OrderSevice.bulkDeleteOrder(ids);
+    return sendSuccessResponse(response, deletedOrders);
+  } catch (e) {
+    next({ override: true, message: 'Xoá đơn hàng không thành công' });
+  }
+};

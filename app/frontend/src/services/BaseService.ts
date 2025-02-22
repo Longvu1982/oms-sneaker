@@ -9,14 +9,12 @@ const BaseService = axios.create({
 
 BaseService.interceptors.response.use(
   (response) => {
-    console.log(response);
     if (response.data.status && response.data.status >= 400) {
       return Promise.reject(response.data);
     }
     return response;
   },
   (error: AxiosError) => {
-    console.log(error);
     return Promise.reject(error);
   }
 );

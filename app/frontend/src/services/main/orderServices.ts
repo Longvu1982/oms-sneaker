@@ -65,6 +65,16 @@ export async function apiDeleteOrder(data: { id: string }) {
   });
 }
 
+export async function apiBulkDeleteOrder(data: { ids: string[] }) {
+  return ApiService.fetchData<{
+    success: boolean;
+  }>({
+    url: "/orders/delete/bulk",
+    method: "post",
+    data,
+  });
+}
+
 export async function apiUpdateOrder(data: OrderFormValues) {
   return ApiService.fetchData<{
     success: boolean;
