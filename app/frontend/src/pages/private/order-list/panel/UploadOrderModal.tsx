@@ -35,6 +35,7 @@ export type AddTransferModalFormValues = {
 
 const dataMapper = (rowData: A[]) => {
   if (!rowData) return [];
+
   return rowData.slice(1)?.map((row) => ({
     orderDate: addHours(row[0], 1),
     SKU: row[1] ?? "", // SKU

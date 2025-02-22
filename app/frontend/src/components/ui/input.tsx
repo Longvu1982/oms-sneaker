@@ -19,6 +19,7 @@ const Input = React.forwardRef<
         )}
         ref={ref}
         {...props}
+        value={String(props.value)}
         onChange={(e) => {
           if (type === "number") {
             props.onChange?.(

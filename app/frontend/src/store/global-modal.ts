@@ -60,7 +60,7 @@ export const useGlobalModal = () => {
   const openConfirmModal = useCallback(
     (
       meta: Partial<ModalPropsType["meta"]> & {
-        onConfirm?: (closeModal: () => void) => void;
+        onConfirm?: (closeModal: () => void) => A;
         onCancel?: () => void;
       }
     ) => {
