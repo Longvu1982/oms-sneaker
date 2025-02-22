@@ -118,7 +118,7 @@ export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCou
 
   const [totalCount, users] = await Promise.all([db.user.count({ where: query.where }), db.user.findMany(query)]);
 
-  const userResponse = users.map(userWithBalance);
+  const userResponse = users.map(userWithBalance).sort((a, b) => a.balance - b.balance);
 
   return { totalCount, users: userResponse };
 };
