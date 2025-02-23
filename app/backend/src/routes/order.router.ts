@@ -4,7 +4,6 @@ import { protectAuth } from '../middleware/auth-middleware';
 
 const router = express.Router();
 
-router.get('/:id', protectAuth, OrderController.checkExistingBook, OrderController.getBook);
 router.post('/list', protectAuth, OrderController.listOrders);
 
 router.post('/create', protectAuth, OrderController.validateOrderData, OrderController.createOrder);

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import * as UserService from '../services/user.service';
-import { sendNotFoundResponse, sendSuccessResponse } from '../utils/responseHandler';
+import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
 import { UUID } from 'node:crypto';
 
 export const listUsers = async (request: Request, response: Response, next: NextFunction) => {
@@ -64,5 +64,25 @@ export const bulkCreateUser = async (request: Request, response: Response, next:
     return sendSuccessResponse(response, created);
   } catch (error: any) {
     next(error);
+  }
+};
+
+export const deleteUser = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const id = request.body.id;
+    await UserService.deleteUser(id);
+    return sendSuccessNoDataResponse(response, 'Xoá user thành công');
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const bulkDeleteUser = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { ids } = request.body;
+    const deletedUsers = await UserService.bulkDeleteUser(ids);
+    return sendSuccessResponse(response, deletedUsers);
+  } catch (e) {
+    next({ override: true, message: 'Xoá user không thành công' });
   }
 };

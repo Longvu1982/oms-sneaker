@@ -94,3 +94,23 @@ export async function getUserById(id: string) {
     method: "get",
   });
 }
+
+export async function apiDeleteUser(data: { id: string }) {
+  return ApiService.fetchData<{
+    success: boolean;
+  }>({
+    url: "/users/delete",
+    method: "post",
+    data,
+  });
+}
+
+export async function apiBulkDeleteUser(data: { ids: string[] }) {
+  return ApiService.fetchData<{
+    success: boolean;
+  }>({
+    url: "/users/delete/bulk",
+    method: "post",
+    data,
+  });
+}

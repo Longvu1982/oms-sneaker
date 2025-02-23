@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { UUID } from 'node:crypto';
 import * as AuthorService from '../services/author.service';
 import * as OrderSevice from '../services/order.service';
-import { TBookWrite, TOrderWrite } from '../types/general';
+import { TOrderWrite } from '../types/general';
 import { orderSchema } from '../types/zod';
 import HttpStatusCode from '../utils/HttpStatusCode';
 import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
@@ -18,33 +18,11 @@ export const listOrders = async (request: Request, response: Response, next: Nex
   }
 };
 
-export const getBook = async (request: Request, response: Response, next: NextFunction) => {
-  try {
-    const id = parseInt(request.params.id, 10);
-    const book = await OrderSevice.getBook(id);
-    return sendSuccessResponse(response, book);
-  } catch (error: any) {
-    next(error);
-  }
-};
-
 export const createOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const order: TOrderWrite = request.body;
     const newOrder = await OrderSevice.createOrder(order);
     return sendSuccessResponse(response, newOrder, HttpStatusCode.CREATED);
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-export const updateBook = async (request: Request, response: Response, next: NextFunction) => {
-  try {
-    const id = parseInt(request.params.id, 10);
-    const book: TBookWrite = request.body;
-    book.datePublished = new Date(book.datePublished);
-    const updateBook = await OrderSevice.updateBook(book, id);
-    return sendSuccessResponse(response, updateBook);
   } catch (error: any) {
     next(error);
   }

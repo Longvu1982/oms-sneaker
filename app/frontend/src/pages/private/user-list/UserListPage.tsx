@@ -13,16 +13,26 @@ import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { apiAddTransfer } from "@/services/main/transferServices";
 import {
+  apiBulkDeleteUser,
   apiCreateUser,
+  apiDeleteUser,
   apiGetUsersListDetails,
   apiUpdateUser,
   UserFormValues,
 } from "@/services/main/userServices";
+import { useGlobalModal } from "@/store/global-modal";
 import { Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel, User } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RowSelectionState } from "@tanstack/react-table";
 import { setHours, setMilliseconds, setMinutes, setSeconds } from "date-fns";
-import { Edit, MoreHorizontal, PlusCircle, Trash } from "lucide-react";
+import {
+  Edit,
+  MoreHorizontal,
+  PlusCircle,
+  Trash,
+  TriangleAlert,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +43,7 @@ import {
   AddTransferModalFormValues,
 } from "./modal/AddTransferModal";
 import UserPanel from "./UserPanel";
+import useAuthStore from "@/store/auth";
 
 const columns: EnhancedColumnDef<User>[] = [
   {
@@ -96,6 +107,7 @@ const columns: EnhancedColumnDef<User>[] = [
     cell: ({ row, table }) => {
       const onClickAddTransfer = table.options.meta?.onClickAddTransfer;
       const onClickEditUser = table.options.meta?.onClickEditUser;
+      const onDeleteUserClick = table.options.meta?.onDeleteUserClick;
       const user = row.original;
       return (
         <DropdownMenu>
@@ -122,7 +134,10 @@ const columns: EnhancedColumnDef<User>[] = [
               <Edit />
               Chỉnh sửa
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer text-red-600">
+            <DropdownMenuItem
+              className="cursor-pointer text-red-600"
+              onClick={() => onDeleteUserClick?.(user.id)}
+            >
               <Trash className="text-red-500" />
               Xoá
             </DropdownMenuItem>
@@ -183,6 +198,13 @@ const UserListPage = () => {
   }>({ isOpen: false, type: "create" });
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
+  const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
+
+  const currentUserId = useAuthStore((s) => s.user?.id);
+
+  const selectedRowsId = Object.entries(selectedRows)
+    .filter(([, value]) => value)
+    .map(([key]) => key);
 
   const { triggerLoading } = useTriggerLoading();
   const navigate = useNavigate();
@@ -287,6 +309,63 @@ const UserListPage = () => {
     setSelectedUser(user);
   };
 
+  const { openConfirmModal } = useGlobalModal();
+  const onDeleteUserClick = async (id: string) => {
+    openConfirmModal({
+      title: (
+        <div className="flex gap-2 items-center">
+          <TriangleAlert color="red" />
+          <span>Xác nhận xóa user?</span>
+        </div>
+      ),
+      content:
+        "Bạn có chắc muốn xóa user này? Tất cả thông tin liên quan (đơn đặt hàng, doanh thu,... sẽ bị xoá)",
+      confirmType: "alert",
+      confirmText: "Xoá",
+      onConfirm: (closeModal: () => void) =>
+        triggerLoading(async () => {
+          await apiDeleteUser({ id });
+          toast.success("Xoá user thành công.");
+          await getUserList(queryParams);
+          closeModal();
+        }),
+    });
+  };
+
+  const onBulkDeleteClick = async () => {
+    openConfirmModal({
+      title: (
+        <div className="flex gap-2 items-center">
+          <TriangleAlert color="red" />
+          <span>Xác nhận xóa nhiều user?</span>
+        </div>
+      ),
+      content:
+        "Bạn có chắc muốn xóa những user này? Tất cả thông tin liên quan (người đặt hàng, doanh thu,... sẽ bị xoá)",
+      confirmType: "alert",
+      confirmText: "Xoá",
+      onConfirm: (closeModal: () => void) =>
+        triggerLoading(async () => {
+          const { data } = await apiBulkDeleteUser({ ids: selectedRowsId });
+          if (data.success) {
+            toast.success("Xoá nhiều user thành công.");
+            await getUserList(queryParams);
+
+            setSelectedRows((prev) => {
+              const clone = { ...prev };
+              selectedRowsId.forEach((id) => {
+                delete clone[id];
+              });
+
+              return clone;
+            });
+
+            closeModal();
+          }
+        }),
+    });
+  };
+
   useEffect(() => {
     triggerLoading(async () => {
       await getUserList(initQueryParams);
@@ -302,16 +381,27 @@ const UserListPage = () => {
         </h3>
       </div>
 
-      <Button
-        size="sm"
-        className="mb-6"
-        onClick={() => {
-          setUserPanel((prev) => ({ ...prev, type: "create", isOpen: true }));
-          userForm.reset({ ...initFormValues });
-        }}
-      >
-        <PlusCircle /> Thêm user
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button
+          size="sm"
+          className="mb-6"
+          onClick={() => {
+            setUserPanel((prev) => ({ ...prev, type: "create", isOpen: true }));
+            userForm.reset({ ...initFormValues });
+          }}
+        >
+          <PlusCircle /> Thêm user
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-red-500 hover:bg-red-500 hover:opacity-75"
+          disabled={!selectedRowsId.length}
+          onClick={onBulkDeleteClick}
+        >
+          <Trash className="text-white" />
+        </Button>
+      </div>
 
       <div className="overflow-x-auto">
         <DataTable
@@ -320,10 +410,14 @@ const UserListPage = () => {
           manualPagination
           pagination={queryParams.pagination}
           onPaginationChange={onPaginationChange}
+          selectedRows={selectedRows}
+          onRowSelectionChange={setSelectedRows}
+          enableRowSelection={(row) => row.id !== currentUserId}
           meta={{
             onClickAddTransfer,
             onClickFullname,
             onClickEditUser,
+            onDeleteUserClick,
           }}
         />
       </div>

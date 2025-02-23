@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  Row,
   RowSelectionState,
   SortingState,
   TableOptions,
@@ -41,6 +42,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
   meta?: A;
+  enableRowSelection?: (row: Row<TData>) => boolean;
 }
 interface DefaultData {
   id?: string;
@@ -56,6 +58,7 @@ export function DataTable<TData extends DefaultData, TValue>({
   selectedRows: externalSelectedRows,
   onRowSelectionChange,
   meta,
+  enableRowSelection,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [internalPagination, setInternalPagination] = useState({
@@ -98,6 +101,7 @@ export function DataTable<TData extends DefaultData, TValue>({
           cell: ({ row }) => (
             <div className="w-[35px]">
               <Checkbox
+                disabled={!row.getCanSelect()}
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
                 aria-label="Select row"
@@ -130,6 +134,7 @@ export function DataTable<TData extends DefaultData, TValue>({
     },
     getRowId: (row) => row.id as string,
     meta,
+    enableRowSelection,
   };
 
   const table = useReactTable(tableSettings);

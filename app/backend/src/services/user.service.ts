@@ -260,3 +260,19 @@ export const updateUserByID = async (
     data: data,
   });
 };
+
+export const bulkDeleteUser = async (ids: string[]): Promise<Prisma.BatchPayload> => {
+  return db.user.deleteMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+};
+
+export const deleteUser = async (id: string): Promise<void> => {
+  await db.user.delete({
+    where: {
+      id,
+    },
+  });
+};

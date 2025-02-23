@@ -1,8 +1,8 @@
-import { db } from '../utils/db.server';
-import { QueryDataModel, TBookID, TBookRead, TBookWrite, TBulkOrderWrite, TOrderWrite } from '../types/general';
 import { Order, OrderStatus, Prisma } from '@prisma/client';
-import { v4 } from 'uuid';
 import { UUID } from 'node:crypto';
+import { v4 } from 'uuid';
+import { QueryDataModel, TBookID, TBookRead, TBulkOrderWrite, TOrderWrite } from '../types/general';
+import { db } from '../utils/db.server';
 export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: number; orders: Order[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
@@ -146,34 +146,6 @@ export const bulkDeleteOrder = async (ids: string[]): Promise<Prisma.BatchPayloa
   return db.order.deleteMany({
     where: {
       id: { in: ids },
-    },
-  });
-};
-
-export const updateBook = async (book: TBookWrite, id: TBookID): Promise<TBookRead> => {
-  const { title, isFiction, datePublished, authorId } = book;
-  return db.book.update({
-    where: {
-      id,
-    },
-    data: {
-      title,
-      isFiction,
-      datePublished,
-      authorId,
-    },
-    select: {
-      id: true,
-      title: true,
-      isFiction: true,
-      datePublished: true,
-      author: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
     },
   });
 };

@@ -14,5 +14,6 @@ declare module "@tanstack/table-core" {
     onClickEditSource: (source: TData) => void;
     onEditTransactionClick: (data: TransactionWithExtra) => void;
     onDeleteTransactionClick: (id: string) => void;
+    onDeleteUserClick: (id: string) => void;
   }
 }
