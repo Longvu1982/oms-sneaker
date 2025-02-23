@@ -57,6 +57,10 @@ const columns: EnhancedColumnDef<Source>[] = [
     },
   },
 ];
+const initSourceFormValues = {
+  name: "",
+  color: "#000000",
+};
 
 const SourceListPage = () => {
   const [sourceList, setSourceList] = useState<Source[]>([]);
@@ -72,10 +76,7 @@ const SourceListPage = () => {
 
   const sourceForm = useForm<SourceFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: "",
-      color: "#000000",
-    },
+    defaultValues: initSourceFormValues,
   });
 
   const getSourceList = async (params: QueryDataModel) => {
@@ -151,7 +152,10 @@ const SourceListPage = () => {
       <Button
         size="sm"
         className="mb-6"
-        onClick={() => setSourcePanel((prev) => ({ ...prev, isOpen: true }))}
+        onClick={() => {
+          setSourcePanel((prev) => ({ ...prev, type: "create", isOpen: true }));
+          sourceForm.reset({ ...initSourceFormValues });
+        }}
       >
         <PlusCircle /> Thêm nguồn hàng
       </Button>

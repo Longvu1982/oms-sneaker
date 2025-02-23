@@ -63,6 +63,11 @@ const columns: EnhancedColumnDef<ShippingStore>[] = [
     },
   },
 ];
+const initFormValues = {
+  name: "",
+  address: "",
+  phone: "",
+};
 
 const ShippingStoreListPage = () => {
   const [shippingStoreList, setShippingStoreList] = useState<ShippingStore[]>(
@@ -79,11 +84,7 @@ const ShippingStoreListPage = () => {
 
   const shippingStoreForm = useForm<ShippingStoreFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: "",
-      address: "",
-      phone: "",
-    },
+    defaultValues: initFormValues,
   });
 
   const getShippingList = async (params: QueryDataModel) => {
@@ -162,7 +163,14 @@ const ShippingStoreListPage = () => {
       <Button
         size="sm"
         className="mb-6"
-        onClick={() => setShippingPanel((prev) => ({ ...prev, isOpen: true }))}
+        onClick={() => {
+          setShippingPanel((prev) => ({
+            ...prev,
+            type: "create",
+            isOpen: true,
+          }));
+          shippingStoreForm.reset({ ...initFormValues });
+        }}
       >
         <PlusCircle /> Thêm kho
       </Button>

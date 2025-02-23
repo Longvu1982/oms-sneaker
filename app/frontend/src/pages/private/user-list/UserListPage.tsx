@@ -160,6 +160,18 @@ const schema = z
     path: ["role"],
   });
 
+const initFormValues: UserFormValues = {
+  id: "",
+  fullName: "",
+  email: "",
+  phone: "",
+  username: "",
+  password: "",
+  role: Role.USER,
+  transferedAmount: 0,
+  willCreateAccount: false,
+};
+
 const UserListPage = () => {
   const [userList, setUserList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -177,17 +189,7 @@ const UserListPage = () => {
 
   const userForm = useForm<UserFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      id: "",
-      fullName: "",
-      email: "",
-      phone: "",
-      username: "",
-      password: "",
-      role: Role.USER,
-      transferedAmount: 0,
-      willCreateAccount: false,
-    },
+    defaultValues: initFormValues,
   });
 
   const getUserList = async (params: QueryDataModel) => {
@@ -303,7 +305,10 @@ const UserListPage = () => {
       <Button
         size="sm"
         className="mb-6"
-        onClick={() => setUserPanel((prev) => ({ ...prev, isOpen: true }))}
+        onClick={() => {
+          setUserPanel((prev) => ({ ...prev, type: "create", isOpen: true }));
+          userForm.reset({ ...initFormValues });
+        }}
       >
         <PlusCircle /> Thêm user
       </Button>
