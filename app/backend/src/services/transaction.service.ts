@@ -1,4 +1,4 @@
-import { Order, Prisma, Transaction } from '@prisma/client';
+import { Prisma, Transaction } from '@prisma/client';
 import { UUID } from 'node:crypto';
 import { v4 } from 'uuid';
 import { QueryDataModel, TTransactionWrite } from '../types/general';
@@ -73,8 +73,8 @@ export const listTransactions = async (
   return { totalCount, transactions };
 };
 
-export const getTransaction = async (id: UUID): Promise<Order | null> => {
-  return db.order.findUnique({
+export const getTransaction = async (id: UUID): Promise<Transaction | null> => {
+  return db.transaction.findUnique({
     where: {
       id,
     },
@@ -86,6 +86,31 @@ export const createTransaction = async (transaction: TTransactionWrite): Promise
     data: {
       id: v4(),
       ...transaction,
+    },
+  });
+};
+
+export const updateTransaction = async (transaction: Transaction): Promise<Transaction> => {
+  return db.transaction.update({
+    where: {
+      id: transaction.id,
+    },
+    data: { ...transaction },
+  });
+};
+
+export const deleteTransaction = async (id: string): Promise<Transaction> => {
+  return db.transaction.delete({
+    where: {
+      id,
+    },
+  });
+};
+
+export const bulkDeleteTransaction = async (ids: string[]): Promise<Prisma.BatchPayload> => {
+  return db.transaction.deleteMany({
+    where: {
+      id: { in: ids },
     },
   });
 };

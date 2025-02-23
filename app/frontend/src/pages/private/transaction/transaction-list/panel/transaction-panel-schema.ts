@@ -2,6 +2,7 @@ import { NatureType, TransactionType } from "@/types/enum/app-enum";
 import { z } from "zod";
 
 export const schema = z.object({
+  id: z.string().optional(),
   amount: z
     .number({ message: "Số tiền không hợp lệ." })
     .min(0, "Tiền phải lớn hơn hoặc bằng 0."),

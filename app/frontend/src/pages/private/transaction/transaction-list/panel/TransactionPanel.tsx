@@ -11,20 +11,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { formatAmount, renderBadge } from "@/lib/utils";
+import { TransactionFormValues } from "@/services/main/transactionServices";
 import { NatureType, TransactionType } from "@/types/enum/app-enum";
 import {
   natureTypeOptions,
-  Transaction,
   transactionTypeOptions,
 } from "@/types/model/app-model";
 import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { natureObject, transactionTypeObject } from "../transaction-utils";
-
-export type TransactionFormValues = Omit<
-  Transaction,
-  "id" | "createdAt" | "updatedAt"
->;
 
 interface TransactionPanelProps {
   form: UseFormReturn<TransactionFormValues, A, undefined>;

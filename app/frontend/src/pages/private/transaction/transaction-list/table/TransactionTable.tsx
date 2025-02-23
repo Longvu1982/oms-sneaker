@@ -6,6 +6,9 @@ import { QueryDataModel, TransactionWithExtra } from "@/types/model/app-model";
 import { format } from "date-fns";
 import { FC } from "react";
 import { natureObject, transactionTypeObject } from "../transaction-utils";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash } from "lucide-react";
+import { RowSelectionState } from "@tanstack/react-table";
 
 const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
   {
@@ -66,6 +69,34 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
       return renderBadge(color, text);
     },
   },
+  {
+    id: "actions",
+    fixed: true,
+    cell: ({ table, row }) => {
+      const onEditTransactionClick = table.options.meta?.onEditTransactionClick;
+      const onDeleteTransactionClick =
+        table.options.meta?.onDeleteTransactionClick;
+
+      return (
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onEditTransactionClick?.(row.original)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onDeleteTransactionClick?.(row.original.id)}
+          >
+            <Trash className="text-red-500" />
+          </Button>
+        </div>
+      );
+    },
+  },
 ];
 
 interface TransactionTableProps {
@@ -73,12 +104,20 @@ interface TransactionTableProps {
   queryParams?: QueryDataModel;
   manualPagination?: boolean;
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  onEditTransactionClick?: (data: TransactionWithExtra) => void;
+  onDeleteTransactionClick?: (id: string) => void;
+  selectedRows?: RowSelectionState;
+  onRowSelectionChange?: (newSelection: RowSelectionState) => void;
 }
 
 const TransactionTable: FC<TransactionTableProps> = ({
   transactionList,
   queryParams,
   onPaginationChange,
+  onEditTransactionClick,
+  onDeleteTransactionClick,
+  selectedRows,
+  onRowSelectionChange,
   manualPagination = true,
 }) => {
   return (
@@ -88,6 +127,9 @@ const TransactionTable: FC<TransactionTableProps> = ({
       manualPagination={manualPagination}
       pagination={queryParams?.pagination}
       onPaginationChange={onPaginationChange}
+      meta={{ onEditTransactionClick, onDeleteTransactionClick }}
+      selectedRows={selectedRows}
+      onRowSelectionChange={onRowSelectionChange}
     />
   );
 };

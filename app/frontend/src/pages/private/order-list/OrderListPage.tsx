@@ -60,8 +60,6 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
 
-  console.log(selectedRows);
-
   const selectedRowsId = Object.entries(selectedRows)
     .filter(([, value]) => value)
     .map(([key]) => key);

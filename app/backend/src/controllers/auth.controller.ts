@@ -40,7 +40,6 @@ export const login = async (request: Request, response: Response, next: NextFunc
       return sendUnauthorizedResponse(response, 'Sai username hoặc mật khẩu.');
     }
   } catch (error: any) {
-    console.log(error);
     next(error);
   }
 };

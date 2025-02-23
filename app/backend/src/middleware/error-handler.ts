@@ -13,7 +13,6 @@ export const errorHandler = (error: any, request: Request, response: Response, n
    REPLACE IT WITH WINSTON
     console.error(error.stack);
   */
-  console.log(error);
 
   if (error.override) {
     return sendErrorResponse(response, error.message);
