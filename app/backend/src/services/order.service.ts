@@ -11,7 +11,7 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
   const query: Prisma.OrderFindManyArgs = {
     include: { user: true, shippingStore: true, source: true },
     where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+    orderBy: { orderDate: 'desc' }, // Sorting conditions will be added dynamically
   };
 
   if (pageSize) {
