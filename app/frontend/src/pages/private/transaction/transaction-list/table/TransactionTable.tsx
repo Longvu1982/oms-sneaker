@@ -103,7 +103,10 @@ interface TransactionTableProps {
   transactionList: TransactionWithExtra[];
   queryParams?: QueryDataModel;
   manualPagination?: boolean;
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  onPaginationChange?: (pagination: {
+    pageIndex: number;
+    pageSize: number;
+  }) => void;
   onEditTransactionClick?: (data: TransactionWithExtra) => void;
   onDeleteTransactionClick?: (id: string) => void;
   selectedRows?: RowSelectionState;

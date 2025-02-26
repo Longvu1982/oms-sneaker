@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   Row,
   RowSelectionState,
   SortingState,
@@ -37,7 +38,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   manualPagination?: boolean;
   pagination?: { pageIndex: number; pageSize: number; totalCount: number };
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  onPaginationChange?: (value: { pageIndex: number; pageSize: number }) => void;
   showPagination?: boolean;
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
@@ -123,7 +124,11 @@ export function DataTable<TData extends DefaultData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onPaginationChange: setPagination as A,
+    onPaginationChange: (updater) => {
+      if (typeof updater !== "function") return;
+      const nextState = updater(pagination as PaginationState);
+      setPagination?.(nextState as A);
+    },
     onRowSelectionChange: setRowSelection as A,
     manualPagination,
     rowCount: pagination?.totalCount,

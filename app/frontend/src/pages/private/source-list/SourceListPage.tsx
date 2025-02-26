@@ -94,7 +94,13 @@ const SourceListPage = () => {
     }
   };
 
-  const onPaginationChange = async (pageIndex: number, pageSize: number) => {
+  const onPaginationChange = async ({
+    pageIndex,
+    pageSize,
+  }: {
+    pageIndex: number;
+    pageSize: number;
+  }) => {
     const newData = {
       ...queryParams,
       pagination: {

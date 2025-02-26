@@ -18,6 +18,7 @@ import {
   TransactionWithExtra,
 } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RowSelectionState } from "@tanstack/react-table";
 import { FilterIcon, PlusCircle, Trash, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -26,7 +27,6 @@ import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/transaction-panel-schema";
 import TransactionPanel from "./panel/TransactionPanel";
 import TransactionTable from "./table/TransactionTable";
-import { RowSelectionState } from "@tanstack/react-table";
 
 const initValues = {
   amount: 0,
@@ -149,7 +149,13 @@ const TransactionListPage = () => {
     }
   };
 
-  const onPaginationChange = async (pageIndex: number, pageSize: number) => {
+  const onPaginationChange = async ({
+    pageIndex,
+    pageSize,
+  }: {
+    pageIndex: number;
+    pageSize: number;
+  }) => {
     const newData = {
       ...queryParams,
       pagination: {

@@ -10,7 +10,10 @@ interface OrderTableProps {
   orderList: OrderWithExtra[];
   queryParams?: QueryDataModel;
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  onPaginationChange?: (pagination: {
+    pageIndex: number;
+    pageSize: number;
+  }) => void;
   manualPagination?: boolean;
   excludeColumns?: string[];
   onEditClick?: (data: OrderWithExtra) => void;
