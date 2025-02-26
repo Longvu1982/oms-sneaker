@@ -178,3 +178,11 @@ export const checkMissingUsersName = async (userNames: string[]): Promise<string
   const existingUsersName = new Set(exsitingUser.map(({ fullName }) => fullName.toLowerCase()));
   return userNames.filter((name) => !existingUsersName.has(name.toLowerCase()));
 };
+
+export const getOrdersByIds = async (ids: UUID[]) => {
+  return db.order.findMany({ where: { id: { in: ids } }, select: { id: true, status: true } });
+};
+
+export const updateOrders = async (ids: UUID[], data: Partial<Order>) => {
+  return db.order.updateMany({ where: { id: { in: ids } }, data });
+};

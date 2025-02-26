@@ -7,6 +7,7 @@ import {
   User,
 } from "@/types/model/app-model";
 import ApiService from "../APIService";
+import { OrderStatus } from "@/types/enum/app-enum";
 
 export type OrderWithExtra = Order & {
   user: User;
@@ -51,6 +52,20 @@ export async function apiBulkCreateOrder(data: {
   }>({
     url: "/orders/create/bulk",
     method: "post",
+    data,
+  });
+}
+
+export async function apiBulkUpdateOrderStatus(data: {
+  ids: string[];
+  status: OrderStatus;
+}) {
+  return ApiService.fetchData<{
+    success: boolean;
+    data: { orders: Order[] };
+  }>({
+    url: "/orders/update-status/bulk",
+    method: "put",
     data,
   });
 }

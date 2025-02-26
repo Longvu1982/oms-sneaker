@@ -28,3 +28,8 @@ export enum NatureType {
   IN = "IN",
   OUT = "OUT",
 }
+
+export enum BalanceNatureType {
+  IN = "IN",
+  PENDING = "PENDING",
+}

@@ -12,7 +12,11 @@ import { cn, formatAmount } from "@/lib/utils";
 import { apiGetOrderList, OrderWithExtra } from "@/services/main/orderServices";
 import { apiGetTransactionBalanceByDate } from "@/services/main/transactionBalanceServices";
 import { apiGetTransactionList } from "@/services/main/transactionServices";
-import { NatureType, OrderStatus } from "@/types/enum/app-enum";
+import {
+  BalanceNatureType,
+  NatureType,
+  OrderStatus,
+} from "@/types/enum/app-enum";
 import {
   initQueryParams,
   QueryDataModel,
@@ -246,7 +250,10 @@ const calculateBalance = (
   balanceTable: TransactionBalanceItem[]
 ) => {
   const balanceTableIn = balanceTable
-    .filter((item) => item.amount && item.rate)
+    .filter(
+      (item) =>
+        item.amount && item.rate && item.nature !== BalanceNatureType.PENDING
+    )
     .reduce(
       (acc, cur) => acc + (cur.amount as number) * (cur.rate as number),
       0

@@ -62,6 +62,7 @@ const ComboBox = ({
         <Button
           variant="ghost"
           role="combobox"
+          disabled={disabled}
           className={cn(
             "justify-between",
             !value && "text-muted-foreground",

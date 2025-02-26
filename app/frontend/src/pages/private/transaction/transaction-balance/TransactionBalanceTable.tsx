@@ -1,9 +1,15 @@
+import ComboBox from "@/components/combo-box/ComboBox";
 import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Input } from "@/components/ui/input";
 import { formatAmount, renderBadge } from "@/lib/utils";
-import { TransactionBalanceItem } from "@/types/model/app-model";
+import { BalanceNatureType } from "@/types/enum/app-enum";
+import {
+  balancenNtureTypeOptions,
+  TransactionBalanceItem,
+} from "@/types/model/app-model";
 import React, { FC, useMemo } from "react";
+import { balanceNatureObject } from "../transaction-list/transaction-utils";
 
 interface TransactionBalanceTableProps {
   data: TransactionBalanceItem[];
@@ -85,9 +91,44 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
           },
         },
         {
-          id: "props",
+          id: "nature",
+          accessorKey: "nature",
           header: "Tính chất",
-          cell: () => renderBadge("#90EE90", "In"),
+          cell: ({ getValue, row }) => {
+            const props =
+              balanceNatureObject[getValue() as BalanceNatureType] ?? {};
+            const id = row.original.id;
+
+            return isEdit ? (
+              <ComboBox
+                value={getValue() as BalanceNatureType}
+                label="tính chất"
+                searchable={false}
+                onValueChange={(value) =>
+                  setData?.((prev) =>
+                    prev.map((item) => {
+                      if (item.id === id) {
+                        return {
+                          ...item,
+                          nature: value as BalanceNatureType,
+                        };
+                      }
+                      return item;
+                    })
+                  )
+                }
+                options={balancenNtureTypeOptions}
+                renderOption={(option) => {
+                  const props =
+                    balanceNatureObject[option.value as BalanceNatureType] ??
+                    {};
+                  return renderBadge(props.color, option.label);
+                }}
+              />
+            ) : (
+              renderBadge(props.color, props.text)
+            );
+          },
         },
       ] as EnhancedColumnDef<TransactionBalanceItem>[],
     [isEdit, setData]

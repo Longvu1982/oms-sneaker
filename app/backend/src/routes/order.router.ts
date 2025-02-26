@@ -14,6 +14,7 @@ router.post('/delete/bulk', protectAuth, OrderController.bulkDeleteOrder);
 router.post('/delete', protectAuth, OrderController.deleteOrder);
 
 router.put('/:id/update', protectAuth, OrderController.updateOrder);
+router.put('/update-status/bulk', protectAuth, OrderController.updateMultipleOrders);
 router.delete('/:id', protectAuth, OrderController.checkExistingBook, OrderController.deleteOrder);
 
 export default router;

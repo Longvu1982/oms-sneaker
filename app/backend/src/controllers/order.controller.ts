@@ -6,7 +6,12 @@ import * as OrderSevice from '../services/order.service';
 import { TOrderWrite } from '../types/general';
 import { orderSchema } from '../types/zod';
 import HttpStatusCode from '../utils/HttpStatusCode';
-import { sendNotFoundResponse, sendSuccessNoDataResponse, sendSuccessResponse } from '../utils/responseHandler';
+import {
+  sendBadRequestResponse,
+  sendNotFoundResponse,
+  sendSuccessNoDataResponse,
+  sendSuccessResponse,
+} from '../utils/responseHandler';
 
 export const listOrders = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -45,6 +50,47 @@ export const updateOrder = async (request: Request, response: Response, next: Ne
 
     const updatedOrder = await OrderSevice.updateOrder(request.body);
     return sendSuccessResponse(response, updatedOrder);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateMultipleOrders = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { ids, status: newStatus } = request.body as { ids: UUID[]; status: OrderStatus };
+
+    if (!ids.length) {
+      return sendBadRequestResponse(response, 'Danh sách đơn hàng không hợp lệ.');
+    }
+
+    const orders = await OrderSevice.getOrdersByIds(ids);
+    if (!orders.length) {
+      return sendNotFoundResponse(response, 'Không tìm thấy đơn hàng nào phù hợp.');
+    }
+
+    // Step 2: Categorize orders based on the status change logic
+    const updateWithResetDateIds = orders
+      .filter((order) => order.status !== OrderStatus.ONGOING && newStatus === OrderStatus.ONGOING)
+      .map((order) => order.id as UUID);
+
+    const updateWithNewDateIds = orders
+      .filter((order) => !(order.status !== OrderStatus.ONGOING && newStatus === OrderStatus.ONGOING))
+      .map((order) => order.id as UUID);
+
+    // Step 3: Perform batch updates
+    const updates = [];
+
+    if (updateWithResetDateIds.length) {
+      updates.push(OrderSevice.updateOrders(updateWithResetDateIds, { status: newStatus, statusChangeDate: null }));
+    }
+
+    if (updateWithNewDateIds.length) {
+      updates.push(OrderSevice.updateOrders(updateWithNewDateIds, { status: newStatus, statusChangeDate: new Date() }));
+    }
+
+    await Promise.all(updates);
+
+    return sendSuccessResponse(response, { message: 'Cập nhật đơn hàng thành công.' });
   } catch (error: any) {
     next(error);
   }

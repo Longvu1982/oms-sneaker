@@ -17,12 +17,25 @@ import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import TransactionBalanceTable from "./TransactionBalanceTable";
+import { BalanceNatureType } from "@/types/enum/app-enum";
 
 const defaultTransactionBalance = [
-  { id: "1", name: "PPVN", amount: 0, rate: 0 },
-  { id: "2", name: "PPUS", amount: 0, rate: 0 },
-  { id: "3", name: "ALI-156", amount: 0, rate: 0 },
-  { id: "4", name: "ALI-836", amount: 0, rate: 0 },
+  { id: "1", name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
+  { id: "2", name: "PPUS", amount: 0, rate: 0, nature: BalanceNatureType.IN },
+  {
+    id: "3",
+    name: "ALI-156",
+    amount: 0,
+    rate: 0,
+    nature: BalanceNatureType.IN,
+  },
+  {
+    id: "4",
+    name: "ALI-836",
+    amount: 0,
+    rate: 0,
+    nature: BalanceNatureType.IN,
+  },
 ];
 
 const TransactionBalancePage = () => {

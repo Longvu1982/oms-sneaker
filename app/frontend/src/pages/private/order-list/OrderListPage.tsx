@@ -1,8 +1,11 @@
+import ComboBox from "@/components/combo-box/ComboBox";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import { Button } from "@/components/ui/button";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { renderBadge } from "@/lib/utils";
 import {
   apiBulkDeleteOrder,
+  apiBulkUpdateOrderStatus,
   apiCreateOrder,
   apiDeleteOrder,
   apiGetOrderList,
@@ -15,8 +18,13 @@ import { apiGetUsersList } from "@/services/main/userServices";
 import useAuthStore from "@/store/auth";
 import { useGlobalModal } from "@/store/global-modal";
 import { DeliveryCodeStatus, OrderStatus, Role } from "@/types/enum/app-enum";
-import { initQueryParams, QueryDataModel } from "@/types/model/app-model";
+import {
+  initQueryParams,
+  orderStatusOptions,
+  QueryDataModel,
+} from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RowSelectionState } from "@tanstack/react-table";
 import {
   FilterIcon,
   PlusCircle,
@@ -27,12 +35,12 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { orderStatusObject } from "./order-list-utils";
 import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
-import { RowSelectionState } from "@tanstack/react-table";
 
 const initOrderFormValues = {
   SKU: "",
@@ -65,6 +73,7 @@ const OrderListPage = ({
   const [shippingStoreList, setShippingStoreList] = useState<Option[]>([]);
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
+  const [targetStatus, setTargetStatus] = useState<OrderStatus | "">("");
 
   const selectedRowsId = Object.entries(selectedRows)
     .filter(([, value]) => value)
@@ -320,6 +329,50 @@ const OrderListPage = ({
     });
   };
 
+  const onBulkUpdateStatusClick = async (status: OrderStatus) => {
+    const props = orderStatusObject[status] ?? {};
+    const statusBadge = renderBadge(props.color, props.text);
+
+    openConfirmModal({
+      title: (
+        <div className="flex gap-2 items-center">
+          <TriangleAlert color="red" />
+          <span>Xác nhận thay đổi trạng thái nhiều đơn hàng?</span>
+        </div>
+      ),
+      content: (
+        <div>
+          Trạng thái sẽ được sửa thành {statusBadge}
+          <p>Ngày thay đổi trạng thái sẽ bị chỉnh sửa</p>
+        </div>
+      ),
+      confirmType: "alert",
+      confirmText: "Áp dụng",
+      onConfirm: (closeModal: () => void) =>
+        triggerLoading(async () => {
+          const { data } = await apiBulkUpdateOrderStatus({
+            ids: selectedRowsId,
+            status: status,
+          });
+          if (data.success) {
+            toast.success("Chỉnh sửa thành công.");
+            await getOrderList(queryParams);
+
+            setSelectedRows((prev) => {
+              const clone = { ...prev };
+              selectedRowsId.forEach((id) => {
+                delete clone[id];
+              });
+
+              return clone;
+            });
+            setTargetStatus("");
+            closeModal();
+          }
+        }),
+    });
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -355,15 +408,32 @@ const OrderListPage = ({
               <Upload /> Tải Excel
             </Button>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="bg-red-500 hover:bg-red-500 hover:opacity-75"
-            disabled={!selectedRowsId.length}
-            onClick={onBulkDeleteClick}
-          >
-            <Trash className="text-white" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ComboBox
+              value={targetStatus}
+              onValueChange={(value) =>
+                onBulkUpdateStatusClick(value as OrderStatus)
+              }
+              searchable={false}
+              label="Trạng thái đơn hàng"
+              options={orderStatusOptions}
+              disabled={!selectedRowsId.length}
+              renderOption={(option) => {
+                const props =
+                  orderStatusObject[option.value as OrderStatus] ?? {};
+                return renderBadge(props.color, option.label);
+              }}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-red-500 hover:bg-red-500 hover:opacity-75"
+              disabled={!selectedRowsId.length}
+              onClick={onBulkDeleteClick}
+            >
+              <Trash className="text-white" />
+            </Button>
+          </div>
         </div>
       )}
 

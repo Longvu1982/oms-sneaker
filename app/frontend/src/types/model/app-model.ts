@@ -1,4 +1,5 @@
 import {
+  BalanceNatureType,
   DeliveryCodeStatus,
   NatureType,
   OrderStatus,
@@ -101,6 +102,7 @@ export type TransactionBalanceItem = {
   name: string;
   amount: number | null;
   rate: number | null;
+  nature: BalanceNatureType;
 };
 
 export type QueryDataModel = {
@@ -154,4 +156,9 @@ export const transactionTypeOptions = [
   { label: "Bán tệ", value: TransactionType.SELL_CN },
   { label: "Mua PP", value: TransactionType.BUY_PP },
   { label: "Cancel-hoàn", value: TransactionType.CANCELLED },
+];
+
+export const balancenNtureTypeOptions = [
+  { label: "In", value: BalanceNatureType.IN },
+  { label: "Pending", value: BalanceNatureType.PENDING },
 ];

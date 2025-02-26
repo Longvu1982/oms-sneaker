@@ -1,4 +1,8 @@
-import { NatureType, TransactionType } from "@/types/enum/app-enum";
+import {
+  BalanceNatureType,
+  NatureType,
+  TransactionType,
+} from "@/types/enum/app-enum";
 
 export const transactionTypeObject = {
   [TransactionType.BUY_CN]: {
@@ -27,5 +31,16 @@ export const natureObject = {
   [NatureType.OUT]: {
     text: "Out",
     color: "#c16e79",
+  },
+};
+
+export const balanceNatureObject = {
+  [BalanceNatureType.IN]: {
+    text: "In",
+    color: "#90EE90",
+  },
+  [BalanceNatureType.PENDING]: {
+    text: "Pending",
+    color: "#f8942f",
   },
 };
