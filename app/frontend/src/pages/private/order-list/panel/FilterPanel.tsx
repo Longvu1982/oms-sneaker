@@ -39,14 +39,15 @@ interface FilterPanelProps {
     shippingStoreList: Option[];
   };
   isCompletedStatus?: boolean;
+  orderStatuses: OrderStatus[];
 }
 const FilterPanel: FC<FilterPanelProps> = ({
   form,
   isOpenFilter,
   setIsOpenFilter,
   onSubmit,
+  orderStatuses,
   options: { userList, sourceList, shippingStoreList },
-  isCompletedStatus = false,
 }) => {
   const role = useAuthStore((s) => s.user?.account.role);
   return (
@@ -146,11 +147,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
                   <MultipleSelector
                     placeholder="Chọn trạng thái"
                     options={orderStatusOptions.filter((item) =>
-                      isCompletedStatus
-                        ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(
-                            item.value
-                          )
-                        : true
+                      orderStatuses.includes(item.value)
                     )}
                     {...field}
                   />

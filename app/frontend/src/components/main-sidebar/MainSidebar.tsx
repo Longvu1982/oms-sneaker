@@ -19,6 +19,7 @@ const menus: TMenuItem[] = [
     items: [
       { title: "Danh sách đơn", link: "/order-list" },
       { title: "Đơn hoàn tất", link: "/complete-order-list" },
+      { title: "Đơn đã huỷ", link: "/cancel-order-list" },
     ],
     role: [],
   },

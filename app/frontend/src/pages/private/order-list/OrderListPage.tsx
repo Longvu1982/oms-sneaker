@@ -52,7 +52,13 @@ const initOrderFormValues = {
   orderDate: new Date(),
 };
 
-const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
+const OrderListPage = ({
+  orderStatuses,
+  title,
+}: {
+  orderStatuses: OrderStatus[];
+  title: string;
+}) => {
   const [orderList, setOrderList] = useState<OrderWithExtra[]>([]);
   const [userList, setUserList] = useState<Option[]>([]);
   const [sourceList, setSourceList] = useState<Option[]>([]);
@@ -151,14 +157,12 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     triggerLoading(async () => {
       const initParams = { ...initQueryParams };
       if (role === Role.USER) {
-        initParams.filter = [{ column: "userId", value: [user?.id] }];
-      } else if (isCompleted) {
         initParams.filter = [
-          {
-            column: "status",
-            value: [OrderStatus.LANDED, OrderStatus.SHIPPED],
-          },
+          { column: "userId", value: [user?.id] },
+          { column: "status", value: orderStatuses },
         ];
+      } else {
+        initParams.filter = [{ column: "status", value: orderStatuses }];
       }
       await Promise.all([
         getOrderList(initParams),
@@ -320,7 +324,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     <>
       <div className="flex items-center justify-between">
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
-          {!isCompleted ? "Danh sách đơn hàng" : "Đơn hàng hoàn tất"}
+          {title}
         </h3>
 
         <Button
@@ -373,14 +377,12 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onPaginationChange={onPaginationChange}
         onStatusChange={onStatusChange}
         queryParams={queryParams}
-        excludeColumns={isCompleted ? [] : ["statusChangeDate"]}
+        excludeColumns={
+          orderStatuses.includes(OrderStatus.LANDED) ? [] : ["statusChangeDate"]
+        }
         selectedRows={selectedRows}
         onRowSelectionChange={setSelectedRows}
-        orderList={orderList.filter((item) =>
-          isCompleted
-            ? [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item.status)
-            : true
-        )}
+        orderList={orderList}
       />
       <FilterPanel
         isOpenFilter={isOpenFilter}
@@ -388,7 +390,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         onSubmit={onFilter}
         form={filterForm}
         options={{ userList, sourceList, shippingStoreList }}
-        isCompletedStatus={isCompleted}
+        orderStatuses={orderStatuses}
       />
       <OrderPanel
         onReloadUser={getUserList}
