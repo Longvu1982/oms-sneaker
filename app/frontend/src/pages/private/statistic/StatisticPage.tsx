@@ -189,6 +189,10 @@ const StatisticPage = () => {
               <CardTitle>Danh sách đơn hàng</CardTitle>
             </CardHeader>
             <CardContent>
+              <p className="mb-4">
+                Số lượng: <strong>{statisticData.orderList?.length}</strong>
+              </p>
+
               <OrderTable
                 orderList={statisticData.orderList}
                 manualPagination={false}
@@ -203,6 +207,11 @@ const StatisticPage = () => {
               <CardTitle>Danh sách giao dịch</CardTitle>
             </CardHeader>
             <CardContent>
+              <p className="mb-4">
+                Số lượng:{" "}
+                <strong>{statisticData.transactionList?.length}</strong>
+              </p>
+
               <TransactionTable
                 transactionList={statisticData.transactionList}
                 manualPagination={false}

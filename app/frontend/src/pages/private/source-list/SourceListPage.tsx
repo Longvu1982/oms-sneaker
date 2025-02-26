@@ -166,6 +166,10 @@ const SourceListPage = () => {
         <PlusCircle /> Thêm nguồn hàng
       </Button>
 
+      <p className="mb-4">
+        Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
+      </p>
+
       <div className="overflow-x-auto">
         <DataTable
           columns={columns}

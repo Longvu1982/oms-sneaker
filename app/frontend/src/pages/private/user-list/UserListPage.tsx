@@ -409,6 +409,10 @@ const UserListPage = () => {
         </Button>
       </div>
 
+      <p className="mb-4">
+        Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
+      </p>
+
       <div className="overflow-x-auto">
         <DataTable
           columns={columns}

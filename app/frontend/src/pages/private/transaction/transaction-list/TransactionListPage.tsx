@@ -254,10 +254,9 @@ const TransactionListPage = () => {
         </Button>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <Button
           size="sm"
-          className="mb-6"
           onClick={() => {
             setTransactionPanel((prev) => ({
               ...prev,
@@ -281,6 +280,10 @@ const TransactionListPage = () => {
           <Trash className="text-white" />
         </Button>
       </div>
+
+      <p className="mb-4">
+        Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
+      </p>
 
       <TransactionTable
         queryParams={queryParams}

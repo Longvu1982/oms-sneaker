@@ -67,10 +67,8 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
   const user = useAuthStore((s) => s.user);
   const role = user?.account.role;
 
-  const [queryParams, setQueryParams] = useState<QueryDataModel>({
-    ...initQueryParams,
-    filter: role === Role.USER ? [{ column: "userId", value: [user?.id] }] : [],
-  });
+  const [queryParams, setQueryParams] =
+    useState<QueryDataModel>(initQueryParams);
 
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const [orderPanel, setOrderPanel] = useState<{
@@ -154,6 +152,13 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
       const initParams = { ...initQueryParams };
       if (role === Role.USER) {
         initParams.filter = [{ column: "userId", value: [user?.id] }];
+      } else if (isCompleted) {
+        initParams.filter = [
+          {
+            column: "status",
+            value: [OrderStatus.LANDED, OrderStatus.SHIPPED],
+          },
+        ];
       }
       await Promise.all([
         getOrderList(initParams),
@@ -184,6 +189,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     const { data } = await apiGetUsersList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },
+      filter: [],
     });
     if (data.success) {
       const options = data.data.users.map((user) => ({
@@ -198,6 +204,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     const { data } = await apiSourcesList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },
+      filter: [],
     });
     if (data.success) {
       const options = data.data.sources.map((source) => ({
@@ -213,6 +220,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
     const { data } = await apiShippingStoresList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },
+      filter: [],
     });
     if (data.success) {
       const options = data.data.shippingStores.map((s) => ({
@@ -324,12 +332,11 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
         </Button>
       </div>
 
-      {!isCompleted && role === Role.ADMIN && (
-        <div className="flex items-center justify-between">
+      {role === Role.ADMIN && (
+        <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2">
             <Button
               size="sm"
-              className="mb-6"
               onClick={() => {
                 setOrderPanel({
                   type: "create",
@@ -340,11 +347,7 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
             >
               <PlusCircle /> Thêm đơn hàng
             </Button>
-            <Button
-              size="sm"
-              className="mb-6"
-              onClick={() => setOpenUploadModal(true)}
-            >
+            <Button size="sm" onClick={() => setOpenUploadModal(true)}>
               <Upload /> Tải Excel
             </Button>
           </div>
@@ -359,6 +362,10 @@ const OrderListPage = ({ isCompleted }: { isCompleted: boolean }) => {
           </Button>
         </div>
       )}
+
+      <p className="mb-4">
+        Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
+      </p>
 
       <OrderTable
         onEditClick={onEditClick}
