@@ -19,7 +19,7 @@ import {
   TransactionBalanceItem,
   TransactionWithExtra,
 } from "@/types/model/app-model";
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ const StatisticPage = () => {
   const [open, setOpen] = useState(false);
 
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getStatisticData(date);
+    const isSuccess = await getStatisticData(addDays(date, 1));
     if (isSuccess) {
       setDate(date);
       setOpen(false);

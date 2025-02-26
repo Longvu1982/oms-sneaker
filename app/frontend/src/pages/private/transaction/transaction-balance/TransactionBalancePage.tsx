@@ -12,7 +12,7 @@ import {
   apiGetTransactionBalanceByDate,
 } from "@/services/main/transactionBalanceServices";
 import { TransactionBalanceItem } from "@/types/model/app-model";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -49,7 +49,9 @@ const TransactionBalancePage = () => {
 
   const getTransactionBalance = async (date: Date) => {
     return await triggerLoading(async () => {
-      const { data } = await apiGetTransactionBalanceByDate({ dateTime: date });
+      const { data } = await apiGetTransactionBalanceByDate({
+        dateTime: addDays(date, 1),
+      });
       if (!data.success) return false;
       const balanceData = data.data;
 

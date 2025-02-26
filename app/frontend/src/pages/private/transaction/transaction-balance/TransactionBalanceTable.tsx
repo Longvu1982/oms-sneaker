@@ -80,7 +80,7 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
                 }}
               />
             ) : (
-              (getValue() as number)
+              formatAmount(getValue() as number)
             );
           },
         },
