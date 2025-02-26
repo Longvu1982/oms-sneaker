@@ -4,7 +4,7 @@ import { formatAmount, renderBadge } from "@/lib/utils";
 import { NatureType, TransactionType } from "@/types/enum/app-enum";
 import { QueryDataModel, TransactionWithExtra } from "@/types/model/app-model";
 import { format } from "date-fns";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { natureObject, transactionTypeObject } from "../transaction-utils";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
@@ -12,6 +12,7 @@ import { RowSelectionState } from "@tanstack/react-table";
 
 const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
   {
+    id: "createdAt",
     accessorKey: "createdAt",
     header: "Ngày GD",
     cell: ({ getValue }) => {
@@ -23,6 +24,7 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     },
   },
   {
+    id: "type",
     accessorKey: "type",
     header: "Loại GD",
     cell: ({ getValue }) => {
@@ -32,6 +34,7 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     },
   },
   {
+    id: "user",
     accessorKey: "user",
     header: "Tên khách",
     cell: ({ row }) => {
@@ -40,10 +43,12 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     },
   },
   {
+    id: "amount",
     accessorKey: "amount",
     header: "Số lượng",
   },
   {
+    id: "rate",
     accessorKey: "rate",
     header: "Tỉ giá",
     cell: ({ getValue }) => {
@@ -62,6 +67,7 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     },
   },
   {
+    id: "nature",
     accessorKey: "nature",
     header: "Tính chất",
     cell: ({ getValue }) => {
@@ -111,6 +117,7 @@ interface TransactionTableProps {
   onDeleteTransactionClick?: (id: string) => void;
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
+  excludeColumns?: string[];
 }
 
 const TransactionTable: FC<TransactionTableProps> = ({
@@ -121,11 +128,18 @@ const TransactionTable: FC<TransactionTableProps> = ({
   onDeleteTransactionClick,
   selectedRows,
   onRowSelectionChange,
+  excludeColumns = [],
   manualPagination = true,
 }) => {
+  const filteredColumns = useMemo(() => {
+    return columns.filter(
+      (column) => !excludeColumns.includes(column.id as string)
+    );
+  }, [excludeColumns]);
+
   return (
     <DataTable
-      columns={columns}
+      columns={filteredColumns}
       data={transactionList}
       manualPagination={manualPagination}
       pagination={queryParams?.pagination}

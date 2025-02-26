@@ -44,7 +44,7 @@ export async function apiGetUsersList(data: QueryDataModel) {
 export async function apiGetUsersListDetails(data: QueryDataModel) {
   return ApiService.fetchData<{
     success: boolean;
-    data: { users: User[]; totalCount: number };
+    data: { users: User[]; totalCount: number; totalBalance: number };
   }>({
     url: "/users/list-detail",
     method: "post",

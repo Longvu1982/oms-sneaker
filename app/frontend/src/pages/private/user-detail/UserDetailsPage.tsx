@@ -138,6 +138,7 @@ const UserDetailsPage = () => {
               <TransactionTable
                 transactionList={userData.transactions}
                 manualPagination={false}
+                excludeColumns={["actions"]}
               />
             </CardContent>
           </Card>

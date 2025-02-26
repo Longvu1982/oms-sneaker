@@ -215,6 +215,7 @@ const StatisticPage = () => {
               <TransactionTable
                 transactionList={statisticData.transactionList}
                 manualPagination={false}
+                excludeColumns={["actions"]}
               />
             </CardContent>
           </Card>

@@ -62,14 +62,16 @@ export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: nu
   return { totalCount, users };
 };
 
-export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCount: number; users: User[] }> => {
+export const listUsersDetail = async (
+  model: QueryDataModel
+): Promise<{ totalCount: number; users: User[]; totalBalance: number }> => {
   const { pagination, searchText, sort, filter } = model;
 
   const { pageSize, pageIndex } = pagination;
   // Infer query type from Prisma
-  const query: Prisma.UserFindManyArgs = {
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+  const baseQuery: Prisma.UserFindManyArgs = {
+    where: {},
+    orderBy: {},
     include: {
       orders: true,
       transfers: true,
@@ -83,15 +85,18 @@ export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCou
     },
   };
 
+  const allUsers = await db.user.findMany(baseQuery);
+  const totalBalance = allUsers.reduce((sum, user) => sum + userWithBalance(user).balance, 0);
+
   if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+    baseQuery.skip = pageIndex * pageSize; // Paging: Calculate the offset
+    baseQuery.take = pageSize; // Paging: Limit to the page size
   }
 
   // Filtering
   if (filter?.length) {
-    query.where = {
-      ...query.where,
+    baseQuery.where = {
+      ...baseQuery.where,
       AND: filter.map(({ column, value }) => ({
         [column]: Array.isArray(value) ? { in: value } : value,
       })),
@@ -100,8 +105,8 @@ export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCou
 
   // Searching
   if (searchText) {
-    query.where = {
-      ...query.where,
+    baseQuery.where = {
+      ...baseQuery.where,
       OR: [
         { fullName: { contains: searchText, mode: 'insensitive' } },
         { account: { username: { contains: searchText, mode: 'insensitive' } } },
@@ -111,16 +116,19 @@ export const listUsersDetail = async (model: QueryDataModel): Promise<{ totalCou
 
   // Sorting
   if (sort?.column) {
-    query.orderBy = {
+    baseQuery.orderBy = {
       [sort.column]: sort.type,
     };
   }
 
-  const [totalCount, users] = await Promise.all([db.user.count({ where: query.where }), db.user.findMany(query)]);
+  const [totalCount, users] = await Promise.all([
+    db.user.count({ where: baseQuery.where }),
+    db.user.findMany(baseQuery),
+  ]);
 
   const userResponse = users.map(userWithBalance).sort((a, b) => a.balance - b.balance);
 
-  return { totalCount, users: userResponse };
+  return { totalBalance, totalCount, users: userResponse };
 };
 
 const userWithBalance = (u: any) => {

@@ -1,6 +1,7 @@
 import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ import {
   apiUpdateUser,
   UserFormValues,
 } from "@/services/main/userServices";
+import useAuthStore from "@/store/auth";
 import { useGlobalModal } from "@/store/global-modal";
 import { Role } from "@/types/enum/app-enum";
 import { initQueryParams, QueryDataModel, User } from "@/types/model/app-model";
@@ -43,7 +45,6 @@ import {
   AddTransferModalFormValues,
 } from "./modal/AddTransferModal";
 import UserPanel from "./UserPanel";
-import useAuthStore from "@/store/auth";
 
 const columns: EnhancedColumnDef<User>[] = [
   {
@@ -189,6 +190,7 @@ const initFormValues: UserFormValues = {
 
 const UserListPage = () => {
   const [userList, setUserList] = useState<User[]>([]);
+  const [totalBalance, setTotalBalance] = useState<number>(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isOpenAddTransfer, setOpenAddTransfer] = useState(false);
   const [hasAccount, setHasAccount] = useState(false);
@@ -218,6 +220,7 @@ const UserListPage = () => {
     const { data } = await apiGetUsersListDetails(params);
     if (data.success) {
       setUserList(data.data.users ?? []);
+      setTotalBalance(data.data.totalBalance);
       setQueryParams((prev) => ({
         ...prev,
         ...params,
@@ -387,10 +390,9 @@ const UserListPage = () => {
         </h3>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <Button
           size="sm"
-          className="mb-6"
           onClick={() => {
             setUserPanel((prev) => ({ ...prev, type: "create", isOpen: true }));
             userForm.reset({ ...initFormValues });
@@ -412,6 +414,25 @@ const UserListPage = () => {
       <p className="mb-4">
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
       </p>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Số dư</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <span
+                className={cn(
+                  totalBalance < 0 ? "text-red-500" : "text-green-600"
+                )}
+              >
+                {formatAmount(totalBalance)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="overflow-x-auto">
         <DataTable
