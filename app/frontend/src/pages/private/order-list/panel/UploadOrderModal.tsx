@@ -48,13 +48,14 @@ const dataMapper = (rowData: A[]) => {
     checkBox: typeof row[8] === "boolean" ? row[8] : row[8] === "TRUE", // Hộp kiểm
     sourceName: row[9], // Nguồn (we will convert to sourceId)
     shippingFee: parseFloat(row[10]) ?? 0, // Cước vận chuyển 1
-    shippingStoreName: row[11], // Kho vận chuyển (we will convert to shippingStoreId)
+    secondShippingFee: parseFloat(row[11]) ?? 0, // Cước vận chuyển 1
+    shippingStoreName: row[12], // Kho vận chuyển (we will convert to shippingStoreId)
     deliveryCodeStatus: row[7]
       ? DeliveryCodeStatus.EXIST
       : DeliveryCodeStatus.PENDING,
     status:
       orderStatusOptions.find((item) =>
-        item.label.toLocaleLowerCase().includes(row[12]?.toLocaleLowerCase())
+        item.label.toLocaleLowerCase().includes(row[13]?.toLocaleLowerCase())
       )?.value ?? OrderStatus.ONGOING, // Trạng thái
   }));
 };
@@ -152,7 +153,7 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
           <Button
             variant="ghost"
             onClick={() => {
-              const fileUrl = "/Template.xlsx";
+              const fileUrl = "/Template-with-second-ship.xlsx";
               const link = document.createElement("a");
               link.href = fileUrl;
               link.download = "Template.xlsx";
