@@ -2,7 +2,7 @@ import ComboBox from "@/components/combo-box/ComboBox";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import { Button } from "@/components/ui/button";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
-import { renderBadge } from "@/lib/utils";
+import { cn, formatAmount, renderBadge } from "@/lib/utils";
 import {
   apiBulkDeleteOrder,
   apiBulkUpdateOrderStatus,
@@ -32,7 +32,7 @@ import {
   TriangleAlert,
   Upload,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { orderStatusObject } from "./order-list-utils";
@@ -41,6 +41,7 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const initOrderFormValues = {
   SKU: "",
@@ -75,9 +76,29 @@ const OrderListPage = ({
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [targetStatus, setTargetStatus] = useState<OrderStatus | "">("");
 
-  const selectedRowsId = Object.entries(selectedRows)
-    .filter(([, value]) => value)
-    .map(([key]) => key);
+  const selectedRowsId = useMemo(
+    () =>
+      Object.entries(selectedRows)
+        .filter(([, value]) => value)
+        .map(([key]) => key),
+    [selectedRows]
+  );
+
+  const totalSelectedValues = useMemo(() => {
+    const selectedList = orderList.filter((item) =>
+      selectedRowsId.includes(item.id)
+    );
+
+    return selectedList.reduce((acc, item) => {
+      return (
+        acc +
+        (item.totalPrice ?? 0) -
+        (item.deposit ?? 0) +
+        (item.shippingFee ?? 0) +
+        (item.secondShippingFee ?? 0)
+      );
+    }, 0);
+  }, [orderList, selectedRowsId]);
 
   const user = useAuthStore((s) => s.user);
   const role = user?.account.role;
@@ -314,15 +335,6 @@ const OrderListPage = ({
             toast.success("Xoá nhiều đơn hàng thành công.");
             await getOrderList(queryParams);
 
-            // setSelectedRows((prev) => {
-            //   const clone = { ...prev };
-            //   selectedRowsId.forEach((id) => {
-            //     delete clone[id];
-            //   });
-
-            //   return clone;
-            // });
-
             closeModal();
           }
         }),
@@ -440,6 +452,29 @@ const OrderListPage = ({
       <p className="mb-4">
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
       </p>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Đã chọn:{" "}
+              <strong className="text-red-500">{selectedRowsId.length}</strong>{" "}
+              đơn
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <span
+                className={cn(
+                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600"
+                )}
+              >
+                {formatAmount(totalSelectedValues)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <OrderTable
         onEditClick={onEditClick}
