@@ -25,11 +25,26 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
     filter.forEach(({ column, value }) => {
       if (['orderDate', 'statusChangeDate'].includes(column)) {
         const dateFilter: Record<string, Date> = {};
-        if (value?.from) {
-          dateFilter.gte = new Date(value.from);
-        }
-        if (value?.to) {
-          dateFilter.lte = new Date(value.to);
+        if (value?.from && value?.to) {
+          const fromDate = new Date(value.from);
+          const toDate = new Date(value.to);
+
+          // Check if dates are the same (same day query)
+          if (fromDate.toDateString() === toDate.toDateString()) {
+            // Set range for the entire day
+            dateFilter.gte = new Date(fromDate.setHours(0, 0, 0, 0));
+            dateFilter.lte = new Date(toDate.setHours(23, 59, 59, 999));
+          } else {
+            dateFilter.gte = fromDate;
+            dateFilter.lte = toDate;
+          }
+        } else {
+          if (value?.from) {
+            dateFilter.gte = new Date(value.from);
+          }
+          if (value?.to) {
+            dateFilter.lte = new Date(value.to);
+          }
         }
         if (Object.keys(dateFilter).length > 0) {
           filterArray.push({ [column]: dateFilter });
