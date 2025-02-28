@@ -68,8 +68,6 @@ function getOrders(userId: string, sources, shippingStores) {
 async function seed() {
   // Delete records
   await db.user.deleteMany();
-  await db.author.deleteMany();
-  await db.book.deleteMany();
   await db.shippingStore.deleteMany();
   await db.source.deleteMany();
   await db.order.deleteMany();

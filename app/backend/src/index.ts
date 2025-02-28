@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import authorRouter from './routes/author.router';
-import bookRouter from './routes/book.router';
 import authRouter from './routes/auth.router';
 import profileRouter from './routes/profile.router';
 import orderRouter from './routes/order.router';
@@ -48,8 +46,6 @@ app.use(requestLogger);
 // Main Routes
 app.use('/api/auth', authRouter);
 app.use('/api/profile', profileRouter);
-app.use('/api/authors', authorRouter);
-app.use('/api/books', bookRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/users', userRouter);
 app.use('/api/sources', sourceRouter);

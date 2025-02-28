@@ -1,7 +1,7 @@
 import { Order, OrderStatus, Prisma } from '@prisma/client';
 import { UUID } from 'node:crypto';
 import { v4 } from 'uuid';
-import { QueryDataModel, TBookID, TBookRead, TBulkOrderWrite, TOrderWrite } from '../types/general';
+import { QueryDataModel, TBulkOrderWrite, TOrderWrite } from '../types/general';
 import { db } from '../utils/db.server';
 export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: number; orders: Order[] }> => {
   const { pagination, searchText, sort, filter } = model;
@@ -76,27 +76,6 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
 
   // Return the totalCount and orders
   return { totalCount, orders };
-};
-
-export const getBook = async (id: TBookID): Promise<TBookRead | null> => {
-  return db.book.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      title: true,
-      isFiction: true,
-      datePublished: true,
-      author: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-  });
 };
 
 export const getOrder = async (id: UUID): Promise<Order | null> => {

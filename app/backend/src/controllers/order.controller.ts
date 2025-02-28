@@ -1,7 +1,6 @@
 import { OrderStatus } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { UUID } from 'node:crypto';
-import * as AuthorService from '../services/author.service';
 import * as OrderSevice from '../services/order.service';
 import { TOrderWrite } from '../types/general';
 import { orderSchema } from '../types/zod';
@@ -102,34 +101,6 @@ export const deleteOrder = async (request: Request, response: Response, next: Ne
     await OrderSevice.deleteOrder(id);
     return sendSuccessNoDataResponse(response, 'Xoá đơn hàng thành công');
   } catch (error: any) {
-    next(error);
-  }
-};
-
-export const checkExistingBook = async (request: Request, response: Response, next: NextFunction) => {
-  try {
-    const id = parseInt(request.params.id, 10);
-    const existingBook = await OrderSevice.getBook(id);
-    if (!existingBook) {
-      return sendNotFoundResponse(response, 'Book Not Found');
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const checkExistingBookAuthor = async (request: Request, response: Response, next: NextFunction) => {
-  try {
-    const authorId: number = request.body.authorId;
-
-    const existingAuthor = await AuthorService.getAuthor(authorId);
-
-    if (!existingAuthor) {
-      return sendNotFoundResponse(response, 'Author Not Found');
-    }
-    next();
-  } catch (error) {
     next(error);
   }
 };
