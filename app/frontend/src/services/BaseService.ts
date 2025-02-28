@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 const BaseService = axios.create({
   timeout: 60000,
   // baseURL: appConfig.apiPrefix,
-  baseURL: "http://localhost:6060/api",
+  baseURL: import.meta.env.VITE_BASE_API_URL,
   withCredentials: true,
 });
 

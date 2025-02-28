@@ -1,67 +1,69 @@
 version: '3.8'
 
 services:
-  # frontend:
-  #   build:
-  #     context: ./app/frontend
-  #     dockerfile: Dockerfile
-  #   container_name: frontend-container
-  #   ports:
-  #     - "5173:5173"
-  #   environment:
-  #     - VITE_API_URL=http://localhost:6060/api 
-  #   depends_on:
-  #     - backend
-  #   # volumes:
-  #   #   - ./app/frontend:/usr/src/app
-  #   #   - /usr/src/app/node_modules
-  #   develop:
-  #     # we specify the files to watch for changes
-  #     watch:
-  #       # it'll watch for changes in package.json and package-lock.json and rebuild the container if there are any changes
-  #       - path: ./app/frontend/package.json
-  #         action: rebuild
-  #       - path: ./app/frontend/package-lock.json
-  #         action: rebuild
-  #       # it'll watch for changes in the frontend directory and sync the changes with the container real time
-  #       - path: .app/frontend
-  #         target: /app
-  #         action: sync
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    container_name: frontend-container
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:6060/api 
+    depends_on:
+      - backend
+    env_file:
+      - ./app/frontend/.env
+    # volumes:
+    #   - ./app/frontend:/usr/src/app
+    #   - /usr/src/app/node_modules
+    develop:
+      # we specify the files to watch for changes
+      watch:
+        # it'll watch for changes in package.json and package-lock.json and rebuild the container if there are any changes
+        - path: ./app/frontend/package.json
+          action: rebuild
+        - path: ./app/frontend/package-lock.json
+          action: rebuild
+        # it'll watch for changes in the frontend directory and sync the changes with the container real time
+        - path: .app/frontend
+          target: /app
+          action: sync
 
 
-  # backend:
-  #   build:
-  #     context: ./app/backend
-  #     dockerfile: Dockerfile
-  #   container_name: backend-container
-  #   ports:
-  #     - "6060:6060" # Adjust if the backend runs on a different port
-  #   # environment:
-  #   #   - APP_ENV="developement"
-  #   #   - DATABASE_URL="postgresql://user:password@postgres-container:5432/mydb?schema=public"
-  #   #   - PORT=6060
-  #   #   - JWT_SECRET="kris@secret"
-  #   #   - ORIGIN=http://localhost:5173
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - ./app/backend/.env
-  #   # volumes:
-  #   #   - ./app/backend:/usr/src/app
-  #   #   - /usr/src/app/node_modules
-  #   develop:
-  #     # specify the files to watch for changes
-  #     watch:
-  #       # it'll watch for changes in package.json and package-lock.json and rebuild the container and image if there are any changes
-  #       - path: .app/backend/package.json
-  #         action: rebuild
-  #       - path: .app/backend/package-lock.json
-  #         action: rebuild
+  backend:
+    build:
+      context: ./app/backend
+      dockerfile: Dockerfile
+    container_name: backend-container
+    ports:
+      - "6060:6060" # Adjust if the backend runs on a different port
+    # environment:
+    #   - APP_ENV="developement"
+    #   - DATABASE_URL="postgresql://user:password@postgres-container:5432/mydb?schema=public"
+    #   - PORT=6060
+    #   - JWT_SECRET="kris@secret"
+    #   - ORIGIN=http://localhost:5173
+    depends_on:
+      - db
+    env_file:
+      - ./app/backend/.env
+    # volumes:
+    #   - ./app/backend:/usr/src/app
+    #   - /usr/src/app/node_modules
+    develop:
+      # specify the files to watch for changes
+      watch:
+        # it'll watch for changes in package.json and package-lock.json and rebuild the container and image if there are any changes
+        - path: .app/backend/package.json
+          action: rebuild
+        - path: .app/backend/package-lock.json
+          action: rebuild
         
-  #       # it'll watch for changes in the backend directory and sync the changes with the container real time
-  #       - path: .app/backend
-  #         target: /app
-  #         action: sync
+        # it'll watch for changes in the backend directory and sync the changes with the container real time
+        - path: .app/backend
+          target: /app
+          action: sync
 
 
   db:
