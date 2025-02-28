@@ -36,7 +36,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { orderStatusObject } from "./order-list-utils";
-import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
+import FilterPanel, {
+  FilterFormValues,
+  countActiveFilters,
+} from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
@@ -75,6 +78,9 @@ const OrderListPage = ({
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [targetStatus, setTargetStatus] = useState<OrderStatus | "">("");
+  const [appliedFilters, setAppliedFilters] = useState<FilterFormValues | null>(
+    null
+  );
 
   const selectedRowsId = useMemo(
     () =>
@@ -162,6 +168,7 @@ const OrderListPage = ({
     triggerLoading(async () => {
       await getOrderList(newData as QueryDataModel);
       setIsOpenFilter(false);
+      setAppliedFilters(data);
     });
   };
 
@@ -392,13 +399,20 @@ const OrderListPage = ({
           {title}
         </h3>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsOpenFilter(true)}
-        >
-          <FilterIcon />
-        </Button>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpenFilter(true)}
+          >
+            <FilterIcon />
+          </Button>
+          {appliedFilters && countActiveFilters(appliedFilters) > 0 && (
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              {countActiveFilters(appliedFilters)}
+            </div>
+          )}
+        </div>
       </div>
 
       {role === Role.ADMIN && (

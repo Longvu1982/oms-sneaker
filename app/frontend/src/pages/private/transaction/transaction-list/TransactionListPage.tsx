@@ -23,7 +23,10 @@ import { FilterIcon, PlusCircle, Trash, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import FilterPanel, { FilterFormValues } from "./panel/FilterPanel";
+import FilterPanel, {
+  FilterFormValues,
+  countActiveFilters,
+} from "./panel/FilterPanel";
 import { schema } from "./panel/transaction-panel-schema";
 import TransactionPanel from "./panel/TransactionPanel";
 import TransactionTable from "./table/TransactionTable";
@@ -48,6 +51,9 @@ const TransactionListPage = () => {
     isOpen: boolean;
     type: "create" | "edit";
   }>({ isOpen: false, type: "create" });
+  const [appliedFilters, setAppliedFilters] = useState<FilterFormValues | null>(
+    null
+  );
 
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
 
@@ -96,6 +102,7 @@ const TransactionListPage = () => {
     triggerLoading(async () => {
       await getTransactionList(newData as QueryDataModel);
       setIsOpenFilter(false);
+      setAppliedFilters(data);
     });
   };
 
@@ -237,13 +244,20 @@ const TransactionListPage = () => {
           Danh sách giao dịch
         </h3>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsOpenFilter(true)}
-        >
-          <FilterIcon />
-        </Button>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpenFilter(true)}
+          >
+            <FilterIcon />
+          </Button>
+          {appliedFilters && countActiveFilters(appliedFilters) > 0 && (
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              {countActiveFilters(appliedFilters)}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mb-6">

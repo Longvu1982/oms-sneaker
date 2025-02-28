@@ -19,6 +19,16 @@ import { FC } from "react";
 import { DateRange } from "react-day-picker";
 import { UseFormReturn } from "react-hook-form";
 
+export const countActiveFilters = (values: FilterFormValues): number => {
+  let count = 0;
+  if (values.searchText) count++;
+  if (values.users?.length) count++;
+  if (values.types?.length) count++;
+  if (values.natures?.length) count++;
+  if (values.createdAt?.from || values.createdAt?.to) count++;
+  return count;
+};
+
 export type FilterFormValues = {
   searchText: string;
   users: Option[];
