@@ -13,7 +13,7 @@ export const listTransactions = async (
   const query: Prisma.TransactionFindManyArgs = {
     include: { user: true },
     where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+    orderBy: { transactionDate: 'desc' }, // Sorting conditions will be added dynamically
   };
 
   if (pageSize) {
@@ -25,7 +25,7 @@ export const listTransactions = async (
   if (filter?.length) {
     const filterArray: any = [];
     filter.forEach(({ column, value }) => {
-      if (['createdAt'].includes(column)) {
+      if (['transactionDate'].includes(column)) {
         const dateFilter: Record<string, Date> = {};
         if (value?.from && value?.to) {
           const fromDate = new Date(value.from);

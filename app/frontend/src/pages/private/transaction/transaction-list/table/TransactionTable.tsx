@@ -12,13 +12,13 @@ import { RowSelectionState } from "@tanstack/react-table";
 
 const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
   {
-    id: "createdAt",
-    accessorKey: "createdAt",
+    id: "transactionDate",
+    accessorKey: "transactionDate",
     header: "Ngày GD",
     cell: ({ getValue }) => {
       return (
         <div className="whitespace-nowrap">
-          {format(getValue() as string, "dd/MM/yyyy")}
+          {getValue() ? format(getValue() as string, "dd/MM/yyyy") : "-"}
         </div>
       );
     },

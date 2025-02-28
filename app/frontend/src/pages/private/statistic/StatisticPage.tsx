@@ -88,7 +88,7 @@ const StatisticPage = () => {
       pagination: paginationParams,
       filter: [
         {
-          column: "createdAt",
+          column: "transactionDate",
           value: { from, to },
         },
       ],

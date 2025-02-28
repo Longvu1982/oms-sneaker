@@ -37,6 +37,7 @@ const initValues = {
   nature: NatureType.IN,
   type: undefined,
   userId: undefined,
+  transactionDate: new Date(),
 };
 
 const TransactionListPage = () => {
@@ -70,6 +71,7 @@ const TransactionListPage = () => {
       natures: [],
       types: [],
       users: [],
+      transactionDate: null,
     },
   });
 
@@ -96,7 +98,7 @@ const TransactionListPage = () => {
           column: "nature",
           value: data.natures.map((ss) => ss.value),
         },
-        { column: "createdAt", value: data.createdAt },
+        { column: "transactionDate", value: data.transactionDate },
       ],
     };
     triggerLoading(async () => {
@@ -177,7 +179,10 @@ const TransactionListPage = () => {
   };
 
   const onEditTransactionClick = async (data: TransactionWithExtra) => {
-    transactionForm.reset({ ...data });
+    transactionForm.reset({
+      ...data,
+      transactionDate: new Date(data.transactionDate),
+    });
     setTransactionPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
   };
 

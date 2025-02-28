@@ -72,6 +72,7 @@ export type Transaction = {
   userId?: string;
   createdAt: Date;
   updatedAt: Date;
+  transactionDate: Date; // Date as ISO string
 };
 
 export type TransactionWithExtra = Transaction & {

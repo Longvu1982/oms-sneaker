@@ -36,6 +36,13 @@ const defaultTransactionBalance = [
     rate: 0,
     nature: BalanceNatureType.IN,
   },
+  {
+    id: "5",
+    name: "Pending",
+    amount: 0,
+    rate: 0,
+    nature: BalanceNatureType.IN,
+  },
 ];
 
 const TransactionBalancePage = () => {

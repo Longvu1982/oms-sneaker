@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const schema = z.object({
   id: z.string().optional(),
+  transactionDate: z.date({ message: "Ngày đặt hàng không hợp lệ." }),
   amount: z
     .number({ message: "Số tiền không hợp lệ." })
     .min(0, "Tiền phải lớn hơn hoặc bằng 0."),

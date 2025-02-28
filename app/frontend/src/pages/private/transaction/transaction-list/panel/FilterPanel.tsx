@@ -19,22 +19,22 @@ import { FC } from "react";
 import { DateRange } from "react-day-picker";
 import { UseFormReturn } from "react-hook-form";
 
+export type FilterFormValues = {
+  searchText: string;
+  users: Option[];
+  types: Option[];
+  natures: Option[];
+  transactionDate: DateRange | null;
+};
+
 export const countActiveFilters = (values: FilterFormValues): number => {
   let count = 0;
   if (values.searchText) count++;
   if (values.users?.length) count++;
   if (values.types?.length) count++;
   if (values.natures?.length) count++;
-  if (values.createdAt?.from || values.createdAt?.to) count++;
+  if (values.transactionDate?.from || values.transactionDate?.to) count++;
   return count;
-};
-
-export type FilterFormValues = {
-  searchText: string;
-  users: Option[];
-  types: Option[];
-  natures: Option[];
-  createdAt: DateRange | null;
 };
 
 interface FilterPanelProps {
@@ -67,7 +67,11 @@ const FilterPanel: FC<FilterPanelProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 p-4"
         >
-          <DateRangeForm form={form} label="Ngày giao dịch" name="createdAt" />
+          <DateRangeForm
+            form={form}
+            label="Ngày giao dịch"
+            name="transactionDate"
+          />
 
           <FormField
             control={form.control}

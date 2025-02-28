@@ -20,6 +20,7 @@ import {
 import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { natureObject, transactionTypeObject } from "../transaction-utils";
+import DateForm from "@/components/date/DateForm";
 
 interface TransactionPanelProps {
   form: UseFormReturn<TransactionFormValues, A, undefined>;
@@ -52,6 +53,8 @@ const TransactionPanel: FC<TransactionPanelProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 p-4"
         >
+          <DateForm form={form} name="transactionDate" label="Ngày giao dịch" />
+
           <ComboBoxForm
             name="nature"
             form={form}
