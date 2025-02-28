@@ -181,7 +181,13 @@ export function DataTable<TData extends DefaultData, TValue>({
     return <p className="text-left">Không có dữ liệu</p>;
 
   return (
-    <div className="">
+    <div>
+      {showPagination && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <DataTablePagination table={table} />
+        </div>
+      )}
+
       <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
