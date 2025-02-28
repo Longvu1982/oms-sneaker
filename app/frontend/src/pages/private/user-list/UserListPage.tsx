@@ -360,15 +360,6 @@ const UserListPage = () => {
             toast.success("Xoá nhiều user thành công.");
             await getUserList(queryParams);
 
-            setSelectedRows((prev) => {
-              const clone = { ...prev };
-              selectedRowsId.forEach((id) => {
-                delete clone[id];
-              });
-
-              return clone;
-            });
-
             closeModal();
           }
         }),

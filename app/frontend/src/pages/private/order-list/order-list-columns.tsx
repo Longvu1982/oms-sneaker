@@ -1,6 +1,5 @@
 import ComboBox from "@/components/combo-box/ComboBox";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatAmount, renderBadge } from "@/lib/utils";
 import { OrderWithExtra } from "@/services/main/orderServices";
@@ -14,16 +13,15 @@ import {
 import { format } from "date-fns/format";
 import { Edit, Trash } from "lucide-react";
 import { useMemo } from "react";
-import {
-  deliveryCodeStatusObject,
-  orderStatusObject,
-} from "./order-list-utils";
+import { orderStatusObject } from "./order-list-utils";
+import { EditableDeliveryCode } from "./components/EditableDeliveryCode";
 
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
   onEditClick?: (data: OrderWithExtra) => void;
   onDeleteClick?: (data: OrderWithExtra) => void;
   excludeColumns?: string[];
+  onReload?: () => Promise<void>;
 };
 
 export const useGetOrderColumns: (
@@ -33,6 +31,7 @@ export const useGetOrderColumns: (
   onEditClick,
   onDeleteClick,
   excludeColumns,
+  onReload,
 }) => {
   const role = useAuthStore((s) => s.user?.account.role);
   const columns = useMemo(
@@ -113,35 +112,9 @@ export const useGetOrderColumns: (
           header: "MVĐ",
           cell: ({ row }) => {
             const order = row.original;
-            const { deliveryCodeStatus, deliveryCode } = order;
-
-            const codeText = deliveryCode || "Chưa có MVĐ";
-            return (
-              <Badge
-                className="whitespace-nowrap py-1"
-                variant="outline"
-                style={{
-                  background:
-                    deliveryCodeStatusObject[deliveryCodeStatus]?.color,
-                }}
-              >
-                {codeText}
-                <span className="hidden md:block">
-                  {` : ${deliveryCodeStatusObject[deliveryCodeStatus]?.text}`}
-                </span>
-              </Badge>
-            );
+            return <EditableDeliveryCode order={order} onReload={onReload} />;
           },
         },
-        // {
-        //   id: "checkBox",
-        //   accessorKey: "checkBox",
-        //   header: "Hộp kiểm",
-        //   cell: ({ getValue }) => {
-        //     const isChecked = getValue() as boolean;
-        //     return isChecked ? <Checkbox checked /> : <></>;
-        //   },
-        // },
         {
           id: "source",
           accessorKey: "source",
@@ -223,7 +196,7 @@ export const useGetOrderColumns: (
           },
         },
       ] as EnhancedColumnDef<OrderWithExtra>[],
-    [onStatusChange, onEditClick, onDeleteClick, role]
+    [onStatusChange, onEditClick, onDeleteClick, role, onReload]
   );
 
   const filteredColumns = useMemo(

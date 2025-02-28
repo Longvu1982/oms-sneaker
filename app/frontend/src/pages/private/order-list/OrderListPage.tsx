@@ -314,14 +314,14 @@ const OrderListPage = ({
             toast.success("Xoá nhiều đơn hàng thành công.");
             await getOrderList(queryParams);
 
-            setSelectedRows((prev) => {
-              const clone = { ...prev };
-              selectedRowsId.forEach((id) => {
-                delete clone[id];
-              });
+            // setSelectedRows((prev) => {
+            //   const clone = { ...prev };
+            //   selectedRowsId.forEach((id) => {
+            //     delete clone[id];
+            //   });
 
-              return clone;
-            });
+            //   return clone;
+            // });
 
             closeModal();
           }
@@ -358,14 +358,14 @@ const OrderListPage = ({
             toast.success("Chỉnh sửa thành công.");
             await getOrderList(queryParams);
 
-            setSelectedRows((prev) => {
-              const clone = { ...prev };
-              selectedRowsId.forEach((id) => {
-                delete clone[id];
-              });
+            // setSelectedRows((prev) => {
+            //   const clone = { ...prev };
+            //   selectedRowsId.forEach((id) => {
+            //     delete clone[id];
+            //   });
 
-              return clone;
-            });
+            //   return clone;
+            // });
             setTargetStatus("");
             closeModal();
           }
@@ -453,6 +453,7 @@ const OrderListPage = ({
         selectedRows={selectedRows}
         onRowSelectionChange={setSelectedRows}
         orderList={orderList}
+        onReload={() => getOrderList(queryParams)}
       />
       <FilterPanel
         isOpenFilter={isOpenFilter}

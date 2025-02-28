@@ -28,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import { DataTablePagination } from "./DataTablePagination";
@@ -79,6 +79,25 @@ export function DataTable<TData extends DefaultData, TValue>({
   const rowSelection = externalSelectedRows ?? internalRowSelection;
   const setRowSelection = onRowSelectionChange ?? setInternalRowSelection;
 
+  useEffect(() => {
+    const availableRowIds = data.map((row) => row.id);
+    const filteredSelection = Object.keys(rowSelection).filter((id) =>
+      availableRowIds.includes(id)
+    );
+    const selectionState = filteredSelection.reduce(
+      (acc, id) => ({ ...acc, [id]: true }),
+      {}
+    );
+
+    // Only update if the selection actually changed
+    const hasSelectionChanged =
+      filteredSelection.length !== Object.keys(rowSelection).length;
+    if (hasSelectionChanged) {
+      setRowSelection(selectionState);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, setRowSelection]);
+
   const refinedColumns: ColumnDef<TData, TValue>[] = useMemo(() => {
     if (externalSelectedRows)
       return [
@@ -93,7 +112,7 @@ export function DataTable<TData extends DefaultData, TValue>({
               <Checkbox
                 checked={checked}
                 onCheckedChange={(value) =>
-                  table.toggleAllPageRowsSelected(!!value)
+                  table.toggleAllRowsSelected(!!value)
                 }
                 aria-label="Select all"
               />
@@ -104,7 +123,7 @@ export function DataTable<TData extends DefaultData, TValue>({
               <Checkbox
                 disabled={!row.getCanSelect()}
                 checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                onCheckedChange={row.getToggleSelectedHandler()}
                 aria-label="Select row"
               />
             </div>
@@ -129,7 +148,21 @@ export function DataTable<TData extends DefaultData, TValue>({
       const nextState = updater(pagination as PaginationState);
       setPagination?.(nextState as A);
     },
-    onRowSelectionChange: setRowSelection as A,
+
+    onRowSelectionChange: (updater) => {
+      const availableRowIds = data.map((row) => row.id);
+      const newSelection =
+        typeof updater === "function" ? updater(rowSelection) : updater;
+      const filteredSelection = Object.keys(newSelection).filter((id) =>
+        availableRowIds.includes(id)
+      );
+      const selectionState = filteredSelection.reduce(
+        (acc, id) => ({ ...acc, [id]: true }),
+        {}
+      );
+      setRowSelection(selectionState);
+    },
+
     manualPagination,
     rowCount: pagination?.totalCount,
     state: {

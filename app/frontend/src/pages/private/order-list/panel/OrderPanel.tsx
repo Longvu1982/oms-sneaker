@@ -19,7 +19,7 @@ import {
   Order,
   orderStatusOptions,
 } from "@/types/model/app-model";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 import {
   deliveryCodeStatusObject,
@@ -54,7 +54,7 @@ const OrderPanel: FC<OrderPanelProps> = ({
   onReloadUser,
   options: { userList, sourceList, shippingStoreList },
 }) => {
-  const [watchDeliveryCode, setWatchDeliveryCode] = useState("");
+  const watchDeliveryCode = form.watch("deliveryCode");
 
   return (
     <Panel
@@ -231,7 +231,6 @@ const OrderPanel: FC<OrderPanelProps> = ({
                           : DeliveryCodeStatus.PENDING
                       );
                       field.onChange(e);
-                      setWatchDeliveryCode(e.target.value);
                     }}
                   />
                 </FormControl>

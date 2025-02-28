@@ -217,15 +217,6 @@ const TransactionListPage = () => {
             toast.success("Xoá nhiều giao dịch thành công.");
             await getTransactionList(queryParams);
 
-            setSelectedRows((prev) => {
-              const clone = { ...prev };
-              selectedRowsId.forEach((id) => {
-                delete clone[id];
-              });
-
-              return clone;
-            });
-
             closeModal();
           }
         }),
@@ -236,6 +227,7 @@ const TransactionListPage = () => {
     triggerLoading(async () => {
       await Promise.all([getTransactionList(initQueryParams), getUserList()]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -20,6 +20,7 @@ interface OrderTableProps {
   onDeleteClick?: (data: OrderWithExtra) => void;
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
+  onReload?: () => Promise<void>;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
@@ -33,12 +34,14 @@ const OrderTable: FC<OrderTableProps> = ({
   onRowSelectionChange,
   manualPagination = true,
   excludeColumns = [],
+  onReload,
 }) => {
   const columns = useGetOrderColumns({
     onStatusChange,
     excludeColumns,
     onEditClick,
     onDeleteClick,
+    onReload,
   });
 
   return (
