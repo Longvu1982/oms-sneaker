@@ -27,8 +27,8 @@ const app = express();
 
 // CORS Middleware
 const corsOptions = {
-  // origin: process.env.APP_ENV == 'developement' ? '*' : process.env.ORIGIN,
-  origin: ['http://localhost:5173', '*'],
+  origin: process.env.APP_ENV == 'developement' ? '*' : process.env.ORIGIN,
+  // origin: [process.env.ORIGIN!],
   credentials: true,
   optionsSuccessStatus: 204,
 };
