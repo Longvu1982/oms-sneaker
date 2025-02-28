@@ -19,12 +19,23 @@ export const orderRoutes = [
     roles: [Role.ADMIN, Role.USER],
   },
   {
+    path: "/landed-order-list",
+    element: (
+      <OrderListPage
+        orderStatuses={[OrderStatus.LANDED]}
+        key="landed"
+        title="Danh sách đến kho"
+      />
+    ),
+    roles: [Role.ADMIN, Role.USER],
+  },
+  {
     path: "/complete-order-list",
     element: (
       <OrderListPage
-        orderStatuses={[OrderStatus.LANDED, OrderStatus.SHIPPED]}
+        orderStatuses={[OrderStatus.SHIPPED]}
         key="complete"
-        title="Danh sách hoàn tất"
+        title="Danh sách đã giao"
       />
     ),
     roles: [Role.ADMIN, Role.USER],

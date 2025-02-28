@@ -135,7 +135,7 @@ const OrderListPage = ({
         },
         { column: "orderDate", value: data.orderDate },
         { column: "statusChangeDate", value: data.statusChangeDate },
-        { column: "status", value: data.statuses.map((u) => u.value) },
+        { column: "status", value: orderStatuses },
       ],
     };
     triggerLoading(async () => {
@@ -390,7 +390,7 @@ const OrderListPage = ({
       </div>
 
       {role === Role.ADMIN && (
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div className="flex gap-2">
             <Button
               size="sm"

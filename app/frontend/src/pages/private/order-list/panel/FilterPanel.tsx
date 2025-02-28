@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import useAuthStore from "@/store/auth";
 import { OrderStatus, Role } from "@/types/enum/app-enum";
-import { orderStatusOptions } from "@/types/model/app-model";
 import { FC } from "react";
 import { DateRange } from "react-day-picker";
 import { UseFormReturn } from "react-hook-form";
@@ -46,7 +45,6 @@ const FilterPanel: FC<FilterPanelProps> = ({
   isOpenFilter,
   setIsOpenFilter,
   onSubmit,
-  orderStatuses,
   options: { userList, sourceList, shippingStoreList },
 }) => {
   const role = useAuthStore((s) => s.user?.account.role);
@@ -137,7 +135,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
               />
             </>
           )}
-          <FormField
+          {/* <FormField
             control={form.control}
             name="statuses"
             render={({ field }) => (
@@ -154,7 +152,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
                 </FormControl>
               </FormItem>
             )}
-          />
+          /> */}
         </form>
       </Form>
     </Panel>
