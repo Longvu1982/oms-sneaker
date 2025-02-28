@@ -162,7 +162,7 @@ export function DataTable<TData extends DefaultData, TValue>({
                       className={cn(
                         "border-l-[1px] border-r-[1px]",
                         fixed
-                          ? "sticky right-0 bg-background shadow-md shadow-black hover:bg-muted/50"
+                          ? "sticky right-0 bg-background shadow-md hover:bg-muted/50"
                           : ""
                       )}
                     >
