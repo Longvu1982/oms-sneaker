@@ -15,5 +15,6 @@ declare module "@tanstack/table-core" {
     onEditTransactionClick: (data: TransactionWithExtra) => void;
     onDeleteTransactionClick: (id: string) => void;
     onDeleteUserClick: (id: string) => void;
+    onChangeOrderCheckBox: (id: string, checked: boolean) => void;
   }
 }

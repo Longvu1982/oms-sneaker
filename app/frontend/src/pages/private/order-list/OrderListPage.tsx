@@ -67,7 +67,9 @@ const initOrderFormValues = {
 const OrderListPage = ({
   orderStatuses,
   title,
+  type,
 }: {
+  type: string;
   orderStatuses: OrderStatus[];
   title: string;
 }) => {
@@ -135,10 +137,27 @@ const OrderListPage = ({
     defaultValues: initOrderFormValues,
   });
 
+  const excludeColumns = useMemo(() => {
+    const result = [];
+    if (type === "list" || type === "canceled") result.push("statusChangeDate");
+    if (type !== "landed") result.push("checkBox");
+    return result;
+  }, [type]);
+
   const onStatusChange = useCallback(
     async (id: string, status: OrderStatus) => {
       await triggerLoading(async () => {
         await apiUpdateOrder({ id, status } as OrderFormValues);
+        await getOrderList(queryParams);
+      });
+    },
+    [triggerLoading, queryParams]
+  );
+
+  const onChangeOrderCheckBox = useCallback(
+    async (id: string, checkBox: boolean) => {
+      await triggerLoading(async () => {
+        await apiUpdateOrder({ id, checkBox } as OrderFormValues);
         await getOrderList(queryParams);
       });
     },
@@ -496,13 +515,12 @@ const OrderListPage = ({
         onPaginationChange={onPaginationChange}
         onStatusChange={onStatusChange}
         queryParams={queryParams}
-        excludeColumns={
-          orderStatuses.includes(OrderStatus.LANDED) ? [] : ["statusChangeDate"]
-        }
+        excludeColumns={excludeColumns}
         selectedRows={selectedRows}
         onRowSelectionChange={setSelectedRows}
         orderList={orderList}
         onReload={() => getOrderList(queryParams)}
+        onChangeOrderCheckBox={onChangeOrderCheckBox}
       />
       <FilterPanel
         isOpenFilter={isOpenFilter}

@@ -13,6 +13,7 @@ export const orderRoutes = [
       <OrderListPage
         orderStatuses={[OrderStatus.ONGOING]}
         key="list"
+        type="list"
         title="Danh sách đơn"
       />
     ),
@@ -24,6 +25,7 @@ export const orderRoutes = [
       <OrderListPage
         orderStatuses={[OrderStatus.LANDED]}
         key="landed"
+        type="landed"
         title="Danh sách đến kho"
       />
     ),
@@ -35,6 +37,7 @@ export const orderRoutes = [
       <OrderListPage
         orderStatuses={[OrderStatus.SHIPPED]}
         key="complete"
+        type="complete"
         title="Danh sách đã giao"
       />
     ),
@@ -46,6 +49,7 @@ export const orderRoutes = [
       <OrderListPage
         orderStatuses={[OrderStatus.CANCELLED]}
         key="canceled"
+        type="canceled"
         title="Danh sách huỷ"
       />
     ),

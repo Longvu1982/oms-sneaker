@@ -21,6 +21,7 @@ interface OrderTableProps {
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
   onReload?: () => Promise<void>;
+  onChangeOrderCheckBox?: (id: string, checked: boolean) => void;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
@@ -35,6 +36,7 @@ const OrderTable: FC<OrderTableProps> = ({
   manualPagination = true,
   excludeColumns = [],
   onReload,
+  onChangeOrderCheckBox,
 }) => {
   const columns = useGetOrderColumns({
     onStatusChange,
@@ -54,6 +56,7 @@ const OrderTable: FC<OrderTableProps> = ({
         selectedRows={selectedRows}
         onRowSelectionChange={onRowSelectionChange}
         onPaginationChange={onPaginationChange}
+        meta={{ onChangeOrderCheckBox }}
       />
     </div>
   );

@@ -15,6 +15,7 @@ import { Edit, Trash } from "lucide-react";
 import { useMemo } from "react";
 import { orderStatusObject } from "./order-list-utils";
 import { EditableDeliveryCode } from "./components/EditableDeliveryCode";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
@@ -164,6 +165,24 @@ export const useGetOrderColumns: (
                     orderStatusObject[option.value as OrderStatus] ?? {};
                   return renderBadge(props.color, option.label);
                 }}
+              />
+            );
+          },
+        },
+        {
+          id: "checkBox",
+          accessorKey: "checkBox",
+          header: "Hộp kiểm",
+          cell: ({ getValue, table, row }) => {
+            const onChangeOrderCheckBox =
+              table.options.meta?.onChangeOrderCheckBox;
+            const isChecked = Boolean(getValue() as boolean);
+            return (
+              <Checkbox
+                checked={isChecked}
+                onCheckedChange={(checked) =>
+                  onChangeOrderCheckBox?.(row.original.id, checked as boolean)
+                }
               />
             );
           },
