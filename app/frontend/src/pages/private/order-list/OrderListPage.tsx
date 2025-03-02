@@ -128,6 +128,7 @@ const OrderListPage = ({
       sources: [],
       shippingStores: [],
       statuses: [],
+      deliveryCodeStatuses: [],
     },
   });
 
