@@ -73,7 +73,11 @@ export const listUsersDetail = async (
     where: {},
     orderBy: {},
     include: {
-      orders: true,
+      orders: {
+        where: {
+          status: OrderStatus.ONGOING,
+        },
+      },
       transfers: true,
       account: {
         select: {

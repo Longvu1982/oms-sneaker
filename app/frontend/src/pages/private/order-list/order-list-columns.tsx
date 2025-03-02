@@ -132,6 +132,12 @@ export const useGetOrderColumns: (
           cell: ({ getValue }) => formatAmount(getValue() as number),
         },
         {
+          id: "secondShippingFee",
+          accessorKey: "secondShippingFee",
+          header: "Cước VC 2",
+          cell: ({ getValue }) => formatAmount(getValue() as number),
+        },
+        {
           id: "shippingStore",
           accessorKey: "shippingStore",
           header: "Kho VC",

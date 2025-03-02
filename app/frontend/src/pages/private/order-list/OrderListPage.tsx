@@ -102,8 +102,7 @@ const OrderListPage = ({
         acc +
         (item.totalPrice ?? 0) -
         (item.deposit ?? 0) +
-        (item.shippingFee ?? 0) +
-        (item.secondShippingFee ?? 0)
+        (item.shippingFee ?? 0)
       );
     }, 0);
   }, [orderList, selectedRowsId]);
@@ -139,8 +138,10 @@ const OrderListPage = ({
 
   const excludeColumns = useMemo(() => {
     const result = [];
-    if (type === "list" || type === "canceled") result.push("statusChangeDate");
+    if (type === "list" || type === "canceled")
+      result.push("statusChangeDate", "shippingFee");
     if (type !== "landed") result.push("checkBox");
+    if (type !== "list") result.push("secondShippingFee");
     return result;
   }, [type]);
 
@@ -396,14 +397,6 @@ const OrderListPage = ({
             toast.success("Chỉnh sửa thành công.");
             await getOrderList(queryParams);
 
-            // setSelectedRows((prev) => {
-            //   const clone = { ...prev };
-            //   selectedRowsId.forEach((id) => {
-            //     delete clone[id];
-            //   });
-
-            //   return clone;
-            // });
             setTargetStatus("");
             closeModal();
           }
