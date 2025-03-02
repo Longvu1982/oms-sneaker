@@ -20,7 +20,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RowSelectionState } from "@tanstack/react-table";
 import { FilterIcon, PlusCircle, Trash, TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import FilterPanel, {
@@ -30,6 +30,8 @@ import FilterPanel, {
 import { schema } from "./panel/transaction-panel-schema";
 import TransactionPanel from "./panel/TransactionPanel";
 import TransactionTable from "./table/TransactionTable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn, formatAmount } from "@/lib/utils";
 
 const initValues = {
   amount: 0,
@@ -61,6 +63,18 @@ const TransactionListPage = () => {
   const selectedRowsId = Object.entries(selectedRows)
     .filter(([, value]) => value)
     .map(([key]) => key);
+
+  const totalSelectedValues = useMemo(() => {
+    const selectedList = transactionList.filter((item) =>
+      selectedRowsId.includes(item.id)
+    );
+
+    return selectedList.reduce((acc, item) => {
+      const total = item.amount * item.rate;
+      const signedAmount = item.nature === NatureType.IN ? total : -total;
+      return acc + signedAmount;
+    }, 0);
+  }, [transactionList, selectedRowsId]);
 
   const { triggerLoading } = useTriggerLoading();
   const { openConfirmModal } = useGlobalModal();
@@ -295,6 +309,29 @@ const TransactionListPage = () => {
       <p className="mb-4">
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
       </p>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Đã chọn:{" "}
+              <strong className="text-red-500">{selectedRowsId.length}</strong>{" "}
+              đơn
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <span
+                className={cn(
+                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600"
+                )}
+              >
+                {formatAmount(totalSelectedValues)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <TransactionTable
         queryParams={queryParams}

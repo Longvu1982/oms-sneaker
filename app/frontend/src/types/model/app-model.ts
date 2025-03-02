@@ -121,7 +121,7 @@ export type QueryDataModel = {
 export const initQueryParams: QueryDataModel = {
   searchText: "",
   pagination: {
-    pageSize: 100,
+    pageSize: 200,
     pageIndex: 0,
     totalCount: 0,
   },

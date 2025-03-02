@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount } from "@/lib/utils";
 import {
   apiAddTransactionBalance,
   apiGetTransactionBalanceByDate,
@@ -15,9 +15,10 @@ import { TransactionBalanceItem } from "@/types/model/app-model";
 import { addDays, format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import TransactionBalanceTable from "./TransactionBalanceTable";
 import { BalanceNatureType } from "@/types/enum/app-enum";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const defaultTransactionBalance = [
   { id: "1", name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
@@ -55,6 +56,14 @@ const TransactionBalancePage = () => {
   const [data, setData] = useState<TransactionBalanceItem[]>(
     defaultTransactionBalance
   );
+
+  const totalSelectedValues = useMemo(() => {
+    return data
+      .filter((item) => item.nature !== BalanceNatureType.PENDING)
+      .reduce((acc, item) => {
+        return acc + (item.amount ?? 0) * (item.rate ?? 0);
+      }, 0);
+  }, [data]);
 
   const onApply = () => {
     triggerLoading(async () => {
@@ -135,6 +144,25 @@ const TransactionBalancePage = () => {
           <MonthPicker onMonthSelect={onMonthSelect} selectedMonth={date} />
         </PopoverContent>
       </Popover>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Số dư</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <span
+                className={cn(
+                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600"
+                )}
+              >
+                {formatAmount(totalSelectedValues)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <TransactionBalanceTable data={data} setData={setData} isEdit={isEdit} />
       {!isEdit ? (

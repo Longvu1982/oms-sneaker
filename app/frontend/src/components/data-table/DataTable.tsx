@@ -64,7 +64,7 @@ export function DataTable<TData extends DefaultData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [internalPagination, setInternalPagination] = useState({
     pageIndex: 0, //initial page index
-    pageSize: 100, //default page size
+    pageSize: 200, //default page size
     totalCount: undefined,
   });
 
