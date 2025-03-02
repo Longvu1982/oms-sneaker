@@ -73,11 +73,7 @@ export const listUsersDetail = async (
     where: {},
     orderBy: {},
     include: {
-      orders: {
-        where: {
-          status: OrderStatus.ONGOING,
-        },
-      },
+      orders: true,
       transfers: true,
       account: {
         select: {
@@ -145,7 +141,7 @@ const userWithBalance = (u: any) => {
 
   return {
     ...u,
-    orderCount: u.orders.length,
+    orderCount: u.orders.filter((item: Order) => item.status === OrderStatus.ONGOING).length,
     transfered: totalTransfered,
     balance: totalTransfered - totalPrice,
   };

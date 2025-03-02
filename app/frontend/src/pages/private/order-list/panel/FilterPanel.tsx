@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import useAuthStore from "@/store/auth";
 import { OrderStatus, Role } from "@/types/enum/app-enum";
+import { deliveryCodeStatusOptions } from "@/types/model/app-model";
 import { FC } from "react";
 import { DateRange } from "react-day-picker";
 import { UseFormReturn } from "react-hook-form";
@@ -23,6 +24,7 @@ export const countActiveFilters = (values: FilterFormValues): number => {
   if (values.users?.length) count++;
   if (values.sources?.length) count++;
   if (values.shippingStores?.length) count++;
+  if (values.deliveryCodeStatuses?.length) count++;
   if (values.orderDate?.from || values.orderDate?.to) count++;
   if (values.statusChangeDate?.from || values.statusChangeDate?.to) count++;
   return count;
@@ -34,6 +36,7 @@ export type FilterFormValues = {
   sources: Option[];
   shippingStores: Option[];
   statuses: Option[];
+  deliveryCodeStatuses: Option[];
   orderDate: DateRange | null;
   statusChangeDate: DateRange | null;
 };
@@ -138,6 +141,23 @@ const FilterPanel: FC<FilterPanelProps> = ({
                       <MultipleSelector
                         placeholder="Chọn kho VC"
                         options={shippingStoreList}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="deliveryCodeStatuses"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trạng thái MVĐ</FormLabel>
+                    <FormControl>
+                      <MultipleSelector
+                        placeholder="Chọn trạng thái MVĐ"
+                        options={deliveryCodeStatusOptions}
                         {...field}
                       />
                     </FormControl>

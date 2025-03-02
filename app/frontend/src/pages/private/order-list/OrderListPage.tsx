@@ -183,6 +183,10 @@ const OrderListPage = ({
         { column: "orderDate", value: data.orderDate },
         { column: "statusChangeDate", value: data.statusChangeDate },
         { column: "status", value: orderStatuses },
+        {
+          column: "deliveryCodeStatus",
+          value: data.deliveryCodeStatuses.map((dcs) => dcs.value),
+        },
       ],
     };
     triggerLoading(async () => {
