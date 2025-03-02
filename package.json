@@ -5,11 +5,15 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "backend": "npm run dev -w app/backend",
-  "frontend": "npm run dev -w app/frontend",
-  "start": "concurrently \"npm run backend\" \"npm run frontend\""
-},
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "backend": "npm run dev -w app/backend",
+    "frontend": "npm run dev -w app/frontend",
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "npm run build -w app/backend && npm run build -w app/frontend",
+    "start:prod": "concurrently \"npm run start:be\" \"npm run start:fe\"",
+    "start:be": "npm run start -w app/backend",
+    "start:fe": "npm run preview -w app/frontend"
+  },
   "author": "Kris",
   "license": "ISC",
   "workspaces": ["app/backend", "app/frontend"],
