@@ -25,4 +25,5 @@ export const schema = z.object({
     errorMap: () => ({ message: "Tính chất không hợp lệ." }),
   }),
   userId: z.string().optional(),
+  description: z.string().optional(),
 });

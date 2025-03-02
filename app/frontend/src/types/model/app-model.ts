@@ -69,6 +69,7 @@ export type Transaction = {
   rate: number;
   type: TransactionType;
   nature: NatureType;
+  description?: string;
   userId?: string;
   createdAt: Date;
   updatedAt: Date;

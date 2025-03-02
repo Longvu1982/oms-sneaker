@@ -13,7 +13,7 @@ export const listTransactions = async (
   const query: Prisma.TransactionFindManyArgs = {
     include: { user: true },
     where: {}, // Filtering conditions will be added dynamically
-    orderBy: { transactionDate: 'desc' }, // Sorting conditions will be added dynamically
+    orderBy: [{ transactionDate: 'desc' }, { amount: 'desc' }], // Sorting conditions will be added dynamically
   };
 
   if (pageSize) {

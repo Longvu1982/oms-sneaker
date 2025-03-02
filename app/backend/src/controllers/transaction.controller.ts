@@ -40,7 +40,7 @@ export const updateTransaction = async (request: Request, response: Response, ne
   try {
     const id = request.params.id as UUID;
     const existingTransaction = await TransactionService.getTransaction(id);
-    if (!existingTransaction) return sendNotFoundResponse(response, 'Giao dịch tồn tại hoặc đã bị xoá.');
+    if (!existingTransaction) return sendNotFoundResponse(response, 'Giao dịch không tồn tại hoặc đã bị xoá.');
 
     const updatedTransaction = await TransactionService.updateTransaction(request.body);
     return sendSuccessResponse(response, updatedTransaction);
@@ -63,7 +63,7 @@ export const deleteTransaction = async (request: Request, response: Response, ne
   try {
     const id = request.body.id;
     const deletedTransaction = await TransactionService.deleteTransaction(id);
-    if (!deletedTransaction) return sendNotFoundResponse(response, 'Giao dịch tồn tại hoặc đã bị xoá.');
+    if (!deletedTransaction) return sendNotFoundResponse(response, 'Giao dịch không tồn tại hoặc đã bị xoá.');
     return sendSuccessNoDataResponse(response, 'Xoá giao dịch thành công');
   } catch (e) {
     next(e);

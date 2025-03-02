@@ -25,7 +25,9 @@ export async function apiCreateTransaction(
   });
 }
 
-export async function apiUpdateTransaction(data: TransactionFormValues) {
+export async function apiUpdateTransaction(
+  data: Partial<TransactionFormValues>
+) {
   return ApiService.fetchData<{
     success: boolean;
     data: Transaction;

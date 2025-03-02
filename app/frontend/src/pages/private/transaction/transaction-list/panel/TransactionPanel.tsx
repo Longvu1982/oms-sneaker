@@ -117,6 +117,20 @@ const TransactionPanel: FC<TransactionPanelProps> = ({
             label="Khách hàng"
             options={userList}
           />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ghi chú</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nhập ghi chú" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </form>
       </Form>
     </Panel>

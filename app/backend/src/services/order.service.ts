@@ -117,12 +117,12 @@ export const bulkCreateOrder = async (orders: TBulkOrderWrite[]): Promise<Prisma
   const sources = await db.source.findMany({ select: { id: true, name: true } });
 
   const mappedOrders: (TOrderWrite & { id: UUID })[] = orders.map((item) => {
-    const { userName, shippingStoreName, sourceName, ...rest } = item;
+    const { userName, shippingStoreName, sourceName, secondShippingFee, ...rest } = item;
     return {
       ...rest,
       id: v4() as UUID,
       statusChangeDate: item.status !== OrderStatus.ONGOING ? new Date() : null,
-      secondShippingFee: 0,
+      secondShippingFee: secondShippingFee ?? 0,
       userId: users.find((u) => u.fullName.trim().toLowerCase() === item.userName.trim().toLowerCase())?.id ?? '',
       sourceId: sources.find((u) => u.name.trim().toLowerCase() === item.sourceName.trim().toLowerCase())?.id ?? '',
       shippingStoreId:

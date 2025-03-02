@@ -41,10 +41,12 @@ export const updateOrder = async (request: Request, response: Response, next: Ne
     let currentStatus = existingOrder.status;
     const newStatus = request.body.status;
 
-    if (currentStatus !== OrderStatus.ONGOING && newStatus === OrderStatus.ONGOING) {
-      request.body.statusChangeDate = null;
-    } else {
-      request.body.statusChangeDate = new Date();
+    if (newStatus !== currentStatus) {
+      if (newStatus === OrderStatus.ONGOING) {
+        request.body.statusChangeDate = null;
+      } else {
+        request.body.statusChangeDate = new Date();
+      }
     }
 
     const updatedOrder = await OrderSevice.updateOrder(request.body);

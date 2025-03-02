@@ -300,10 +300,13 @@ const TransactionListPage = () => {
         queryParams={queryParams}
         transactionList={transactionList}
         onPaginationChange={onPaginationChange}
-        onEditTransactionClick={onEditTransactionClick}
-        onDeleteTransactionClick={onDeleteTransactionClick}
         selectedRows={selectedRows}
         onRowSelectionChange={setSelectedRows}
+        meta={{
+          onEditTransactionClick,
+          onDeleteTransactionClick,
+          onReload: () => getTransactionList(queryParams),
+        }}
       />
       <FilterPanel
         isOpenFilter={isOpenFilter}

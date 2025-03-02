@@ -9,6 +9,7 @@ import { natureObject, transactionTypeObject } from "../transaction-utils";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
 import { RowSelectionState } from "@tanstack/react-table";
+import { EditableDescription } from "../components/EditableDescription";
 
 const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
   {
@@ -76,6 +77,17 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     },
   },
   {
+    id: "description",
+    accessorKey: "description",
+    header: "Ghi chú",
+    cell: ({ row, table }) => {
+      const onReload = table.options.meta?.onReload;
+      return (
+        <EditableDescription transaction={row.original} onReload={onReload} />
+      );
+    },
+  },
+  {
     id: "actions",
     fixed: true,
     cell: ({ table, row }) => {
@@ -113,23 +125,25 @@ interface TransactionTableProps {
     pageIndex: number;
     pageSize: number;
   }) => void;
-  onEditTransactionClick?: (data: TransactionWithExtra) => void;
-  onDeleteTransactionClick?: (id: string) => void;
   selectedRows?: RowSelectionState;
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
   excludeColumns?: string[];
+  meta?: {
+    onEditTransactionClick?: (data: TransactionWithExtra) => void;
+    onDeleteTransactionClick?: (id: string) => void;
+    onReload?: () => Promise<void>;
+  };
 }
 
 const TransactionTable: FC<TransactionTableProps> = ({
   transactionList,
   queryParams,
   onPaginationChange,
-  onEditTransactionClick,
-  onDeleteTransactionClick,
   selectedRows,
   onRowSelectionChange,
   excludeColumns = [],
   manualPagination = true,
+  meta,
 }) => {
   const filteredColumns = useMemo(() => {
     return columns.filter(
@@ -144,7 +158,7 @@ const TransactionTable: FC<TransactionTableProps> = ({
       manualPagination={manualPagination}
       pagination={queryParams?.pagination}
       onPaginationChange={onPaginationChange}
-      meta={{ onEditTransactionClick, onDeleteTransactionClick }}
+      meta={meta}
       selectedRows={selectedRows}
       onRowSelectionChange={onRowSelectionChange}
     />
