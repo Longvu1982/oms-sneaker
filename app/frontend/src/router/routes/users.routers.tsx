@@ -14,11 +14,11 @@ export const userRoutes = [
   {
     path: "/user-list",
     element: <UserListPage />,
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.USER],
   },
   {
     path: "/user-list/:userId",
     element: <UserDetailsPage />,
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.USER],
   },
 ];

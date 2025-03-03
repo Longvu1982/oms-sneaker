@@ -55,7 +55,7 @@ const menus: TMenuItem[] = [
     type: "single",
     title: "Quản lý users",
     link: "/user-list",
-    role: [Role.ADMIN],
+    role: [Role.ADMIN, Role.USER],
   },
 ];
 

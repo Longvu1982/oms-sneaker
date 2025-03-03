@@ -87,7 +87,15 @@ const columns: EnhancedColumnDef<User>[] = [
   {
     accessorKey: "transfered",
     header: "Tiền đã chuyển",
-    cell: ({ getValue }) => formatAmount(getValue() as number),
+    cell: ({ getValue }) => (
+      <span
+        className={cn(
+          (getValue() as number) < 0 ? "text-red-500" : "text-green-600"
+        )}
+      >
+        {formatAmount(getValue() as number)}
+      </span>
+    ),
   },
   {
     accessorKey: "balance",
@@ -202,7 +210,9 @@ const UserListPage = () => {
     useState<QueryDataModel>(initQueryParams);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
 
-  const currentUserId = useAuthStore((s) => s.user?.id);
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserId = currentUser?.id;
+  const currentUserRole = currentUser?.account?.role;
 
   const selectedRowsId = Object.entries(selectedRows)
     .filter(([, value]) => value)
@@ -231,7 +241,9 @@ const UserListPage = () => {
       }));
     }
   };
+
   const onClickFullname = (userId: string) => navigate(`/user-list/${userId}`);
+
   const onClickEditUser = (user: User) => {
     setUserPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
     setHasAccount(!!user.account?.username);
@@ -368,10 +380,14 @@ const UserListPage = () => {
 
   useEffect(() => {
     triggerLoading(async () => {
-      await getUserList(initQueryParams);
+      const params = structuredClone(initQueryParams);
+      if (currentUserRole === Role.USER) {
+        params.filter = [{ column: "id", value: [currentUserId] }];
+      }
+      await getUserList(params);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUserRole]);
 
   return (
     <>
@@ -381,26 +397,32 @@ const UserListPage = () => {
         </h3>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <Button
-          size="sm"
-          onClick={() => {
-            setUserPanel((prev) => ({ ...prev, type: "create", isOpen: true }));
-            userForm.reset({ ...initFormValues });
-          }}
-        >
-          <PlusCircle /> Thêm user
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="bg-red-500 hover:bg-red-500 hover:opacity-75"
-          disabled={!selectedRowsId.length}
-          onClick={onBulkDeleteClick}
-        >
-          <Trash className="text-white" />
-        </Button>
-      </div>
+      {[Role.ADMIN].includes(currentUserRole as Role) && (
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            size="sm"
+            onClick={() => {
+              setUserPanel((prev) => ({
+                ...prev,
+                type: "create",
+                isOpen: true,
+              }));
+              userForm.reset({ ...initFormValues });
+            }}
+          >
+            <PlusCircle /> Thêm user
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-red-500 hover:bg-red-500 hover:opacity-75"
+            disabled={!selectedRowsId.length}
+            onClick={onBulkDeleteClick}
+          >
+            <Trash className="text-white" />
+          </Button>
+        </div>
+      )}
 
       <p className="mb-4">
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
@@ -427,7 +449,9 @@ const UserListPage = () => {
 
       <div className="overflow-x-auto">
         <DataTable
-          columns={columns}
+          columns={columns.filter((col) =>
+            currentUserRole === Role.USER ? col.id !== "actions" : true
+          )}
           data={userList}
           manualPagination
           pagination={queryParams.pagination}

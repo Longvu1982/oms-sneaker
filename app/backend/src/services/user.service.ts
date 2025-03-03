@@ -85,14 +85,6 @@ export const listUsersDetail = async (
     },
   };
 
-  const allUsers = await db.user.findMany(baseQuery);
-  const totalBalance = allUsers.reduce((sum, user) => sum + userWithBalance(user).balance, 0);
-
-  if (pageSize) {
-    baseQuery.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    baseQuery.take = pageSize; // Paging: Limit to the page size
-  }
-
   // Filtering
   if (filter?.length) {
     baseQuery.where = {
@@ -101,6 +93,14 @@ export const listUsersDetail = async (
         [column]: Array.isArray(value) ? { in: value } : value,
       })),
     };
+  }
+
+  const allUsers = await db.user.findMany(baseQuery);
+  const totalBalance = allUsers.reduce((sum, user) => sum + userWithBalance(user).balance, 0);
+
+  if (pageSize) {
+    baseQuery.skip = pageIndex * pageSize; // Paging: Calculate the offset
+    baseQuery.take = pageSize; // Paging: Limit to the page size
   }
 
   // Searching
