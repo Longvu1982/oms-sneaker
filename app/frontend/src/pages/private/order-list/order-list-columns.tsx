@@ -39,18 +39,6 @@ export const useGetOrderColumns: (
     () =>
       [
         {
-          id: "orderDate",
-          accessorKey: "orderDate",
-          header: "Ngày order",
-          cell: ({ getValue }) => {
-            return (
-              <div className="whitespace-nowrap">
-                {format(getValue() as string, "dd/MM/yyyy")}
-              </div>
-            );
-          },
-        },
-        {
           id: "statusChangeDate",
           accessorKey: "statusChangeDate",
           header: () => (
@@ -64,6 +52,18 @@ export const useGetOrderColumns: (
             return (
               <div className="whitespace-nowrap min-w-[120px]">
                 {getValue() ? format(getValue() as string, "dd/MM/yyyy") : ""}
+              </div>
+            );
+          },
+        },
+        {
+          id: "orderDate",
+          accessorKey: "orderDate",
+          header: "Ngày order",
+          cell: ({ getValue }) => {
+            return (
+              <div className="whitespace-nowrap">
+                {format(getValue() as string, "dd/MM/yyyy")}
               </div>
             );
           },
