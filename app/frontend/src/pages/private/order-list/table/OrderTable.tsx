@@ -2,7 +2,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { OrderWithExtra } from "@/services/main/orderServices";
 import { OrderStatus } from "@/types/enum/app-enum";
 import { QueryDataModel } from "@/types/model/app-model";
-import { FC } from "react";
+import { FC, memo } from "react";
 import { useGetOrderColumns } from "../order-list-columns";
 import { RowSelectionState } from "@tanstack/react-table";
 
@@ -62,4 +62,4 @@ const OrderTable: FC<OrderTableProps> = ({
   );
 };
 
-export default OrderTable;
+export default memo(OrderTable);
