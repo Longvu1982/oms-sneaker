@@ -175,7 +175,11 @@ const OrderListPage = ({
       },
       searchText: data.searchText,
       filter: [
-        { column: "userId", value: data.users.map((u) => u.value) },
+        {
+          column: "userId",
+          value:
+            role === Role.USER ? [user?.id] : data.users.map((u) => u.value),
+        },
         { column: "sourceId", value: data.sources.map((s) => s.value) },
         {
           column: "shippingStoreId",
