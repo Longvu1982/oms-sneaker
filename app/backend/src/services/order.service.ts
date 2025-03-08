@@ -1,28 +1,25 @@
-import { Order, OrderStatus, Prisma, Role } from '@prisma/client';
+import { Order, OrderStatus, Prisma, Role, User } from '@prisma/client';
 import { UUID } from 'node:crypto';
 import { v4 } from 'uuid';
 import { QueryDataModel, TBulkOrderWrite, TOrderWrite } from '../types/general';
 import { db } from '../utils/db.server';
 import { RequestUser } from '../types/express';
-export const listOrders = async (
-  model: QueryDataModel,
-  requestUser?: RequestUser
-): Promise<{ totalCount: number; orders: Order[] }> => {
+
+const buildOrderQuery = (model: QueryDataModel, requestUser?: RequestUser): Prisma.OrderFindManyArgs => {
   const { pagination, searchText, sort, filter } = model;
   const { id } = requestUser ?? {};
   const { role } = requestUser?.account ?? {};
-
   const { pageSize, pageIndex } = pagination;
-  // Infer query type from Prisma
+
   const query: Prisma.OrderFindManyArgs = {
     include: { user: true, shippingStore: true, source: true },
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: [{ orderDate: 'desc' }, { totalPrice: 'desc' }], // Sorting conditions will be added dynamically
+    where: {},
+    orderBy: [{ orderDate: 'desc' }, { totalPrice: 'desc' }],
   };
 
   if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+    query.skip = pageIndex * pageSize;
+    query.take = pageSize;
   }
 
   const filterData = filter?.map((item) => {
@@ -31,8 +28,6 @@ export const listOrders = async (
     }
     return item;
   });
-
-  console.log(filterData);
 
   // Filtering
   if (filterData?.length) {
@@ -44,9 +39,7 @@ export const listOrders = async (
           const fromDate = new Date(value.from);
           const toDate = new Date(value.to);
 
-          // Check if dates are the same (same day query)
           if (fromDate.toDateString() === toDate.toDateString()) {
-            // Set range for the entire day
             dateFilter.gte = new Date(fromDate.setHours(0, 0, 0, 0));
             dateFilter.lte = new Date(toDate.setHours(23, 59, 59, 999));
           } else {
@@ -99,13 +92,30 @@ export const listOrders = async (
     };
   }
 
-  const [totalCount, orders] = await Promise.all([
-    db.order.count({ where: query.where }), // Count the total number of matching orders
-    db.order.findMany(query), // Fetch the orders with pagination, sorting, and filtering
-  ]);
+  return query;
+};
 
-  // Return the totalCount and orders
-  return { totalCount, orders };
+export const listOrders = async (
+  model: QueryDataModel,
+  requestUser?: RequestUser
+): Promise<{ totalCount: number; orders: Order[]; groupedOrders: any[] }> => {
+  const query = buildOrderQuery(model, requestUser);
+
+  const [totalCount, orders] = await Promise.all([db.order.count({ where: query.where }), db.order.findMany(query)]);
+  return { totalCount, orders, groupedOrders: groupOrdersByUser(orders as any) };
+};
+
+export const groupOrdersByUser = (orders: (Order & { user: User })[]) => {
+  const groupedOrders = orders.reduce((acc, order) => {
+    const { userId } = order;
+    if (!acc[userId]) acc[userId] = [order];
+    else acc[userId].push(order);
+    return acc;
+  }, {} as Record<string, (Order & { user: User })[]>);
+
+  return Object.entries(groupedOrders)
+    .map(([userId, data]) => ({ userId, fullName: data[0].user.fullName, data }))
+    .sort((a, b) => b.data.length - a.data.length);
 };
 
 export const getOrder = async (id: UUID): Promise<Order | null> => {

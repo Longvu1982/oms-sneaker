@@ -18,7 +18,15 @@ export type OrderWithExtra = Order & {
 export async function apiGetOrderList(data: QueryDataModel) {
   return ApiService.fetchData<{
     success: boolean;
-    data: { orders: OrderWithExtra[]; totalCount: number };
+    data: {
+      orders: OrderWithExtra[];
+      totalCount: number;
+      groupedOrders: {
+        userId: string;
+        fullName: string;
+        data: OrderWithExtra[];
+      }[];
+    };
   }>({
     url: "/orders/list",
     method: "post",

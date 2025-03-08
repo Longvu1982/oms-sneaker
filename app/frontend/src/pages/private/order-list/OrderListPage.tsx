@@ -1,6 +1,9 @@
 import ComboBox from "@/components/combo-box/ComboBox";
 import { Option } from "@/components/multi-select/MutipleSelect";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
 import {
@@ -24,8 +27,12 @@ import {
   QueryDataModel,
 } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckedState } from "@radix-ui/react-checkbox";
 import { RowSelectionState } from "@tanstack/react-table";
 import {
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
   FilterIcon,
   PlusCircle,
   Trash,
@@ -37,14 +44,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { orderStatusObject } from "./order-list-utils";
 import FilterPanel, {
-  FilterFormValues,
   countActiveFilters,
+  FilterFormValues,
 } from "./panel/FilterPanel";
 import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const initOrderFormValues = {
   SKU: "",
@@ -83,6 +89,30 @@ const OrderListPage = ({
   const [appliedFilters, setAppliedFilters] = useState<FilterFormValues | null>(
     null
   );
+  const [showGroupUser, setShowGroupUser] = useState<CheckedState>(true);
+  const [expandedUsers, setExpandedUsers] = useState<string[]>([]);
+  const [groupedOrders, setGroupedOrders] = useState<
+    {
+      userId: string;
+      fullName: string;
+      data: OrderWithExtra[];
+    }[]
+  >([]);
+
+  const toggleUserExpanded = (userId: string) => {
+    setExpandedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const hasFilterStatusChangeDate = useMemo(() => {
+    return (
+      appliedFilters?.statusChangeDate?.from ||
+      appliedFilters?.statusChangeDate?.to
+    );
+  }, [appliedFilters]);
 
   const selectedRowsId = useMemo(
     () =>
@@ -240,6 +270,8 @@ const OrderListPage = ({
     const { data } = await apiGetOrderList(params);
     if (data.success) {
       setOrderList(data.data.orders ?? []);
+      setGroupedOrders(data.data.groupedOrders ?? []);
+      setExpandedUsers([]);
       setQueryParams((prev) => ({
         ...prev,
         ...params,
@@ -411,6 +443,11 @@ const OrderListPage = ({
         }),
     });
   };
+  const getCardColor = (length: number) => {
+    if (length <= 2) return "bg-green-100/40";
+    if (length <= 10 && length > 2) return "bg-orange-100/40";
+    return "bg-rose-100/40";
+  };
 
   return (
     <>
@@ -509,6 +546,105 @@ const OrderListPage = ({
           </CardContent>
         </Card>
       </div>
+
+      {role === Role.ADMIN &&
+        hasFilterStatusChangeDate &&
+        groupedOrders.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 py-2 mb-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={showGroupUser}
+                  onCheckedChange={setShowGroupUser}
+                />
+                <span>Hiển thị nhóm user</span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={() => {
+                  if (expandedUsers.length === groupedOrders.length) {
+                    setExpandedUsers([]);
+                  } else {
+                    setExpandedUsers(
+                      groupedOrders.map((group) => group.userId)
+                    );
+                  }
+                }}
+              >
+                <ChevronsUpDown className="h-4 w-4" />
+                {expandedUsers.length !== groupedOrders.length
+                  ? "Mở tất cả"
+                  : "Đóng tất cả"}
+              </Button>
+            </div>
+
+            {showGroupUser && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {groupedOrders.map((group) => (
+                  <Card key={group.userId} className="overflow-hidden h-fit">
+                    <CardHeader
+                      className={cn(
+                        " cursor-pointer hover:bg-muted/60 transition-colors",
+                        getCardColor(group.data.length)
+                      )}
+                      onClick={() => toggleUserExpanded(group.userId)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+                            {group.fullName}
+                            <Badge variant="outline">
+                              {group.data.length} đơn hàng
+                            </Badge>
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {/* Total spent: ${group.totalSpent} */}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="ml-2">
+                          {!expandedUsers.includes(group.userId) ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardHeader>
+
+                    {expandedUsers.includes(group.userId) && (
+                      <CardContent className="p-0">
+                        <div className="max-h-[600px] overflow-auto">
+                          <OrderTable
+                            queryParams={queryParams}
+                            excludeColumns={[
+                              "statusChangeDate",
+                              "shippingFee",
+                              "orderDate",
+                              "deposit",
+                              "secondShippingFee",
+                              "user",
+                              "actions",
+                              "checkBox",
+                              "orderNumber",
+                              "source",
+                              "shippingStore",
+                              "status",
+                            ]}
+                            orderList={group.data}
+                            showPagination={false}
+                          />
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
 
       <OrderTable
         onEditClick={onEditClick}
