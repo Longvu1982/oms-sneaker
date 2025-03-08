@@ -16,7 +16,8 @@ export const listUsers = async (request: Request, response: Response, next: Next
 export const listUsersDetail = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
-    const orders = await UserService.listUsersDetail(query);
+    const user = request.user;
+    const orders = await UserService.listUsersDetail(query, user);
     return sendSuccessResponse(response, orders);
   } catch (error: any) {
     next(error);

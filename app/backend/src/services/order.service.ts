@@ -1,10 +1,16 @@
-import { Order, OrderStatus, Prisma } from '@prisma/client';
+import { Order, OrderStatus, Prisma, Role } from '@prisma/client';
 import { UUID } from 'node:crypto';
 import { v4 } from 'uuid';
 import { QueryDataModel, TBulkOrderWrite, TOrderWrite } from '../types/general';
 import { db } from '../utils/db.server';
-export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: number; orders: Order[] }> => {
+import { RequestUser } from '../types/express';
+export const listOrders = async (
+  model: QueryDataModel,
+  requestUser?: RequestUser
+): Promise<{ totalCount: number; orders: Order[] }> => {
   const { pagination, searchText, sort, filter } = model;
+  const { id } = requestUser ?? {};
+  const { role } = requestUser?.account ?? {};
 
   const { pageSize, pageIndex } = pagination;
   // Infer query type from Prisma
@@ -19,10 +25,19 @@ export const listOrders = async (model: QueryDataModel): Promise<{ totalCount: n
     query.take = pageSize; // Paging: Limit to the page size
   }
 
+  const filterData = filter?.map((item) => {
+    if (item.column === 'userId') {
+      return { ...item, value: role === Role.USER ? [id] : item.value };
+    }
+    return item;
+  });
+
+  console.log(filterData);
+
   // Filtering
-  if (filter?.length) {
+  if (filterData?.length) {
     const filterArray: any = [];
-    filter.forEach(({ column, value }) => {
+    filterData.forEach(({ column, value }) => {
       if (['orderDate', 'statusChangeDate'].includes(column)) {
         const dateFilter: Record<string, Date> = {};
         if (value?.from && value?.to) {

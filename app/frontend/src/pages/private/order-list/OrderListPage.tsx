@@ -177,8 +177,7 @@ const OrderListPage = ({
       filter: [
         {
           column: "userId",
-          value:
-            role === Role.USER ? [user?.id] : data.users.map((u) => u.value),
+          value: data.users.map((u) => u.value),
         },
         { column: "sourceId", value: data.sources.map((s) => s.value) },
         {
@@ -222,14 +221,11 @@ const OrderListPage = ({
   useEffect(() => {
     triggerLoading(async () => {
       const initParams = { ...initQueryParams };
-      if (role === Role.USER) {
-        initParams.filter = [
-          { column: "userId", value: [user?.id] },
-          { column: "status", value: orderStatuses },
-        ];
-      } else {
-        initParams.filter = [{ column: "status", value: orderStatuses }];
-      }
+
+      initParams.filter = [
+        { column: "status", value: orderStatuses },
+        { column: "userId", value: role === Role.USER ? [user?.id] : [] },
+      ];
       await Promise.all([
         getOrderList(initParams),
         getUserList(),
@@ -256,6 +252,7 @@ const OrderListPage = ({
   };
 
   const getUserList = async () => {
+    if (role !== Role.ADMIN) return;
     const { data } = await apiGetUsersList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },
@@ -271,6 +268,7 @@ const OrderListPage = ({
   };
 
   const getSourceList = async () => {
+    if (role !== Role.ADMIN) return;
     const { data } = await apiSourcesList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },
@@ -287,6 +285,7 @@ const OrderListPage = ({
   };
 
   const getShippingStoreList = async () => {
+    if (role !== Role.ADMIN) return;
     const { data } = await apiShippingStoresList({
       ...initQueryParams,
       pagination: { ...initQueryParams.pagination, pageSize: 0 },

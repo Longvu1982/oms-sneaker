@@ -1,9 +1,10 @@
-import { Account, Order, OrderStatus, Prisma, Transfered, User } from '@prisma/client';
+import { Account, Order, OrderStatus, Prisma, Role, Transfered, User } from '@prisma/client';
 import { QueryDataModel, TloginRequest } from '../types/general';
 import { db } from '../utils/db.server';
 import { TuserUpdateSchema } from './../types/zod';
 import { v4 } from 'uuid';
 import { hashPassword } from '../utils/bcryptHandler';
+import { RequestUser } from '../types/express';
 
 export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: number; users: User[] }> => {
   const { pagination, searchText, sort, filter } = model;
@@ -63,9 +64,13 @@ export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: nu
 };
 
 export const listUsersDetail = async (
-  model: QueryDataModel
+  model: QueryDataModel,
+  requestUser?: RequestUser
 ): Promise<{ totalCount: number; users: User[]; totalBalance: number }> => {
   const { pagination, searchText, sort, filter } = model;
+
+  const { id } = requestUser ?? {};
+  const { role } = requestUser?.account ?? {};
 
   const { pageSize, pageIndex } = pagination;
   // Infer query type from Prisma
@@ -85,11 +90,18 @@ export const listUsersDetail = async (
     },
   };
 
+  const filterData = filter?.map((item) => {
+    if (item.column === 'id') {
+      return { ...item, value: role === Role.USER ? [id] : item.value };
+    }
+    return item;
+  });
+
   // Filtering
-  if (filter?.length) {
+  if (filterData?.length) {
     baseQuery.where = {
       ...baseQuery.where,
-      AND: filter.map(({ column, value }) => ({
+      AND: filterData.map(({ column, value }) => ({
         [column]: Array.isArray(value) ? { in: value } : value,
       })),
     };

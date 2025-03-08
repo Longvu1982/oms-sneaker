@@ -17,7 +17,7 @@ const menus: TMenuItem[] = [
     type: "collapsible",
     title: "Quản lý đơn hàng",
     items: [
-      { title: "Danh sách đơn", link: "/order-list" },
+      { title: "Đơn đang giao", link: "/order-list" },
       { title: "Đơn đến kho", link: "/landed-order-list" },
       { title: "Đơn đã giao", link: "/complete-order-list" },
       { title: "Đơn đã huỷ", link: "/cancel-order-list" },

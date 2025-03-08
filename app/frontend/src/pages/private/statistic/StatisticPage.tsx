@@ -178,7 +178,6 @@ const StatisticPage = () => {
             </div>
           </CardContent>
         </Card>
-        {/* Add more summary cards here (e.g., Average Order Value, Total Orders, etc.) */}
       </div>
 
       <Tabs defaultValue="order" className="mt-6">

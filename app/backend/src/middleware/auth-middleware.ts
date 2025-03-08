@@ -1,8 +1,9 @@
 import * as UserService from '../services/user.service';
 import { NextFunction, Request, Response } from 'express';
-import { sendBadRequestResponse } from '../utils/responseHandler';
+import { sendBadRequestResponse, sendForbiddenResponse } from '../utils/responseHandler';
 import { verifyToken } from '../utils/jwtHandler';
 import { TloginRequest } from '../types/general';
+import { Role } from '@prisma/client';
 
 const protectAuth = async (request: Request, response: Response, next: NextFunction) => {
   const allCookies = request.cookies;
@@ -37,4 +38,13 @@ const protectAuth = async (request: Request, response: Response, next: NextFunct
   }
 };
 
-export { protectAuth };
+const protectRoles = (roles: Role[]) => {
+  return (request: Request, response: Response, next: NextFunction) => {
+    const user = request.user;
+    if (roles.length > 0 && !roles.includes(user?.account?.role)) {
+      return sendForbiddenResponse(response, 'Không có quyền thực hiện tác vụ');
+    }
+    next();
+  };
+};
+export { protectAuth, protectRoles };

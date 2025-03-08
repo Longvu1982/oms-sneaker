@@ -15,7 +15,8 @@ import {
 export const listOrders = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
-    const orders = await OrderSevice.listOrders(query);
+    const user = request.user;
+    const orders = await OrderSevice.listOrders(query, user);
     return sendSuccessResponse(response, orders);
   } catch (error: any) {
     next(error);

@@ -14,7 +14,7 @@ export const orderRoutes = [
         orderStatuses={[OrderStatus.ONGOING]}
         key="list"
         type="list"
-        title="Danh sách đơn"
+        title="Danh sách đang giao"
       />
     ),
     roles: [Role.ADMIN, Role.USER],
