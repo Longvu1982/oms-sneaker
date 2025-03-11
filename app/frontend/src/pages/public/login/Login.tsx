@@ -64,7 +64,7 @@ export default function Login() {
               <Avatar className="size-8">
                 <AvatarImage src={logo} />
               </Avatar>
-              <span className="font-semibold italic">Viet Sneaker</span>
+              <span className="font-semibold italic">Viet Deli</span>
             </div>
           </div>
           <FormField

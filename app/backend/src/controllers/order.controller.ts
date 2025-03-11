@@ -42,7 +42,7 @@ export const updateOrder = async (request: Request, response: Response, next: Ne
     let currentStatus = existingOrder.status;
     const newStatus = request.body.status;
 
-    if (newStatus !== currentStatus) {
+    if (newStatus && currentStatus && newStatus !== currentStatus) {
       if (newStatus === OrderStatus.ONGOING) {
         request.body.statusChangeDate = null;
       } else {

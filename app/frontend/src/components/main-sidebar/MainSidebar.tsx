@@ -69,7 +69,7 @@ const MainSidebar = () => {
         <Avatar className="size-8">
           <AvatarImage src={logo} />
         </Avatar>
-        <span className="font-semibold italic">Viet Sneaker</span>
+        <span className="font-semibold italic">Viet Deli</span>
       </div>
       <SidebarContent>
         <SidebarGroup className="space-y-1">
