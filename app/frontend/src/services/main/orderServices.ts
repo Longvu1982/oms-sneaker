@@ -24,6 +24,7 @@ export async function apiGetOrderList(data: QueryDataModel) {
       groupedOrders: {
         userId: string;
         fullName: string;
+        totalAmount: number;
         data: OrderWithExtra[];
       }[];
     };

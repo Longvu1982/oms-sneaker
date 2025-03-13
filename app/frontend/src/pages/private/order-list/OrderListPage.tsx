@@ -95,6 +95,7 @@ const OrderListPage = ({
     {
       userId: string;
       fullName: string;
+      totalAmount: number;
       data: OrderWithExtra[];
     }[]
   >([]);
@@ -106,13 +107,6 @@ const OrderListPage = ({
         : [...prev, userId]
     );
   };
-
-  const hasFilterStatusChangeDate = useMemo(() => {
-    return (
-      appliedFilters?.statusChangeDate?.from ||
-      appliedFilters?.statusChangeDate?.to
-    );
-  }, [appliedFilters]);
 
   const selectedRowsId = useMemo(
     () =>
@@ -547,104 +541,103 @@ const OrderListPage = ({
         </Card>
       </div>
 
-      {role === Role.ADMIN &&
-        hasFilterStatusChangeDate &&
-        groupedOrders.length > 0 && (
-          <>
-            <div className="flex items-center gap-2 py-2 mb-4">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={showGroupUser}
-                  onCheckedChange={setShowGroupUser}
-                />
-                <span>Hiển thị nhóm user</span>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={() => {
-                  if (expandedUsers.length === groupedOrders.length) {
-                    setExpandedUsers([]);
-                  } else {
-                    setExpandedUsers(
-                      groupedOrders.map((group) => group.userId)
-                    );
-                  }
-                }}
-              >
-                <ChevronsUpDown className="h-4 w-4" />
-                {expandedUsers.length !== groupedOrders.length
-                  ? "Mở tất cả"
-                  : "Đóng tất cả"}
-              </Button>
+      {role === Role.ADMIN && type === "landed" && groupedOrders.length > 0 && (
+        <>
+          <div className="flex items-center gap-2 py-2 mb-4">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={showGroupUser}
+                onCheckedChange={setShowGroupUser}
+              />
+              <span>Hiển thị nhóm user</span>
             </div>
 
-            {showGroupUser && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {groupedOrders.map((group) => (
-                  <Card key={group.userId} className="overflow-hidden h-fit">
-                    <CardHeader
-                      className={cn(
-                        " cursor-pointer hover:bg-muted/60 transition-colors",
-                        getCardColor(group.data.length)
-                      )}
-                      onClick={() => toggleUserExpanded(group.userId)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
-                            {group.fullName}
-                            <Badge variant="outline">
-                              {group.data.length} đơn hàng
-                            </Badge>
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {/* Total spent: ${group.totalSpent} */}
-                          </p>
-                        </div>
-                        <Button variant="ghost" size="icon" className="ml-2">
-                          {!expandedUsers.includes(group.userId) ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </CardHeader>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={() => {
+                if (expandedUsers.length === groupedOrders.length) {
+                  setExpandedUsers([]);
+                } else {
+                  setExpandedUsers(groupedOrders.map((group) => group.userId));
+                }
+              }}
+            >
+              <ChevronsUpDown className="h-4 w-4" />
+              {expandedUsers.length !== groupedOrders.length
+                ? "Mở tất cả"
+                : "Đóng tất cả"}
+            </Button>
+          </div>
 
-                    {expandedUsers.includes(group.userId) && (
-                      <CardContent className="p-0">
-                        <div className="max-h-[600px] overflow-auto">
-                          <OrderTable
-                            queryParams={queryParams}
-                            excludeColumns={[
-                              "statusChangeDate",
-                              "shippingFee",
-                              "orderDate",
-                              "deposit",
-                              "secondShippingFee",
-                              "user",
-                              "actions",
-                              "checkBox",
-                              "orderNumber",
-                              "source",
-                              "shippingStore",
-                              "status",
-                            ]}
-                            orderList={group.data}
-                            showPagination={false}
-                          />
-                        </div>
-                      </CardContent>
+          {showGroupUser && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groupedOrders.map((group) => (
+                <Card key={group.userId} className="overflow-hidden h-fit">
+                  <CardHeader
+                    className={cn(
+                      "cursor-pointer hover:opacity-65 transition-opacity",
+                      getCardColor(group.data.length)
                     )}
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+                    onClick={() => toggleUserExpanded(group.userId)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+                          {group.fullName}
+                          <Badge variant="outline">
+                            {group.data.length} đơn hàng
+                          </Badge>
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Tổng:{" "}
+                          <span className="font-bold text-green-600">
+                            {formatAmount(group.totalAmount)}
+                          </span>
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="ml-2">
+                        {expandedUsers.includes(group.userId) ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  {expandedUsers.includes(group.userId) && (
+                    <CardContent className="p-0">
+                      <div className="max-h-[600px] overflow-auto">
+                        <OrderTable
+                          queryParams={queryParams}
+                          excludeColumns={[
+                            "statusChangeDate",
+                            "shippingFee",
+                            "orderDate",
+                            "deposit",
+                            "secondShippingFee",
+                            "user",
+                            "actions",
+                            "checkBox",
+                            "orderNumber",
+                            "source",
+                            "shippingStore",
+                            "status",
+                          ]}
+                          orderList={group.data}
+                          showPagination={false}
+                        />
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
       <OrderTable
         onEditClick={onEditClick}

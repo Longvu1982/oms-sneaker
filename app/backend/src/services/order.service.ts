@@ -114,7 +114,14 @@ export const groupOrdersByUser = (orders: (Order & { user: User })[]) => {
   }, {} as Record<string, (Order & { user: User })[]>);
 
   return Object.entries(groupedOrders)
-    .map(([userId, data]) => ({ userId, fullName: data[0].user.fullName, data }))
+    .map(([userId, data]) => ({
+      userId,
+      fullName: data[0].user.fullName,
+      totalAmount: data.reduce((acc, item) => {
+        return acc + (item.totalPrice ?? 0) - (item.deposit ?? 0) + (item.shippingFee ?? 0);
+      }, 0),
+      data,
+    }))
     .sort((a, b) => b.data.length - a.data.length);
 };
 

@@ -51,7 +51,6 @@ interface FilterPanelProps {
     sourceList: Option[];
     shippingStoreList: Option[];
   };
-  isCompletedStatus?: boolean;
   orderStatuses: OrderStatus[];
 }
 const FilterPanel: FC<FilterPanelProps> = ({
@@ -59,6 +58,7 @@ const FilterPanel: FC<FilterPanelProps> = ({
   isOpenFilter,
   setIsOpenFilter,
   onSubmit,
+  orderStatuses,
   options: { userList, sourceList, shippingStoreList },
 }) => {
   const role = useAuthStore((s) => s.user?.account.role);
@@ -78,11 +78,13 @@ const FilterPanel: FC<FilterPanelProps> = ({
         >
           <DateRangeForm form={form} label="Ngày order" name="orderDate" />
 
-          <DateRangeForm
-            form={form}
-            label="Ngày chuyển trạng thái"
-            name="statusChangeDate"
-          />
+          {orderStatuses.includes(OrderStatus.LANDED) && (
+            <DateRangeForm
+              form={form}
+              label="Ngày chuyển trạng thái"
+              name="statusChangeDate"
+            />
+          )}
 
           <FormField
             control={form.control}
