@@ -12,26 +12,41 @@ export const useCopyToClipboard = (): [CopiedValue, CopyFn] => {
   const [copiedText, setCopiedText] = useState<CopiedValue>(null);
 
   const copy: CopyFn = useCallback(async (text, succcessMessage) => {
-    if (!navigator?.clipboard) {
-      console.warn("Clipboard not supported");
-      toast.error("Thiết bị không hỗ trợ clipboard");
-
-      return false;
-    }
-
-    // Try to save to clipboard then save it in the state if worked
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedText(text);
-      if (succcessMessage) {
+    // Navigator clipboard api needs a secure context (https)
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
         toast.success(succcessMessage);
+        setCopiedText(text);
+        return true;
+      } catch {
+        toast.error("Có lỗi xảy ra hoặc thiết bị không hỗ trợ Clipboard");
+        return false;
       }
-      return true;
-    } catch (error) {
-      console.warn("Copy failed", error);
-      setCopiedText(null);
-      toast.error("Có lỗi xảy ra");
-      return false;
+    } else {
+      // Use the 'out of viewport hidden text area' trick
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Move textarea out of the viewport so it's not visible
+      textArea.style.position = "absolute";
+      textArea.style.left = "-999999px";
+
+      document.body.prepend(textArea);
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        toast.success(succcessMessage);
+        setCopiedText(text);
+        return true;
+      } catch (error) {
+        console.error(error);
+        toast.error("Có lỗi xảy ra hoặc thiết bị không hỗ trợ Clipboard");
+        return false;
+      } finally {
+        textArea.remove();
+      }
     }
   }, []);
 
