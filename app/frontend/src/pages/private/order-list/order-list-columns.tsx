@@ -1,6 +1,13 @@
 import ComboBox from "@/components/combo-box/ComboBox";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatAmount, renderBadge } from "@/lib/utils";
 import { OrderWithExtra } from "@/services/main/orderServices";
 import useAuthStore from "@/store/auth";
@@ -13,9 +20,8 @@ import {
 import { format } from "date-fns/format";
 import { Edit, Trash } from "lucide-react";
 import { useMemo } from "react";
-import { orderStatusObject } from "./order-list-utils";
 import { EditableDeliveryCode } from "./components/EditableDeliveryCode";
-import { Checkbox } from "@/components/ui/checkbox";
+import { orderStatusObject } from "./order-list-utils";
 
 type getOrdercolumnsProps = {
   onStatusChange?: (id: string, status: OrderStatus) => Promise<A>;
@@ -72,11 +78,53 @@ export const useGetOrderColumns: (
           id: "SKU",
           accessorKey: "SKU",
           header: "SKU",
+          cell: ({ getValue, table }) => {
+            const value = getValue() as string;
+            const copyToClipBoard = table.options.meta?.copyToClipBoard;
+            return (
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger
+                    asChild
+                    onClick={() =>
+                      copyToClipBoard?.(value, "Copy SKU thành công")
+                    }
+                  >
+                    <p className="cursor-pointer hover:opacity-55 active:opacity-75">
+                      {value}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>Click để copy</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          },
         },
         {
           id: "size",
           accessorKey: "size",
           header: "Size",
+          cell: ({ getValue, table }) => {
+            const value = getValue() as string;
+            const copyToClipBoard = table.options.meta?.copyToClipBoard;
+            return (
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger
+                    asChild
+                    onClick={() =>
+                      copyToClipBoard?.(value, "Copy Size thành công")
+                    }
+                  >
+                    <p className="cursor-pointer hover:opacity-55 active:opacity-75">
+                      {value}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>Click để copy</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          },
         },
         {
           id: "deposit",

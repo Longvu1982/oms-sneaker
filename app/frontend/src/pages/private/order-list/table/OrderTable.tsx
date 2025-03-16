@@ -5,6 +5,7 @@ import { QueryDataModel } from "@/types/model/app-model";
 import { FC, memo } from "react";
 import { useGetOrderColumns } from "../order-list-columns";
 import { RowSelectionState } from "@tanstack/react-table";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 interface OrderTableProps {
   orderList: OrderWithExtra[];
@@ -48,6 +49,8 @@ const OrderTable: FC<OrderTableProps> = ({
     onReload,
   });
 
+  const [, copyToClipBoard] = useCopyToClipboard();
+
   return (
     <div>
       <DataTable
@@ -58,7 +61,7 @@ const OrderTable: FC<OrderTableProps> = ({
         selectedRows={selectedRows}
         onRowSelectionChange={onRowSelectionChange}
         onPaginationChange={onPaginationChange}
-        meta={{ onChangeOrderCheckBox }}
+        meta={{ onChangeOrderCheckBox, copyToClipBoard }}
         showPagination={showPagination}
       />
     </div>
