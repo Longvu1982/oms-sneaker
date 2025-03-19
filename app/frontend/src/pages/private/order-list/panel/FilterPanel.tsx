@@ -78,7 +78,9 @@ const FilterPanel: FC<FilterPanelProps> = ({
         >
           <DateRangeForm form={form} label="Ngày order" name="orderDate" />
 
-          {orderStatuses.includes(OrderStatus.LANDED) && (
+          {orderStatuses.some((item) =>
+            [OrderStatus.LANDED, OrderStatus.SHIPPED].includes(item)
+          ) && (
             <DateRangeForm
               form={form}
               label="Ngày chuyển trạng thái"

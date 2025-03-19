@@ -3,8 +3,8 @@ import { Option } from "@/components/multi-select/MutipleSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
 import {
   apiBulkDeleteOrder,
@@ -29,10 +29,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { RowSelectionState } from "@tanstack/react-table";
+import { format } from "date-fns";
 import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
+  Download,
   FilterIcon,
   PlusCircle,
   Trash,
@@ -42,6 +44,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import { orderStatusObject } from "./order-list-utils";
 import FilterPanel, {
   countActiveFilters,
@@ -443,6 +446,53 @@ const OrderListPage = ({
     return "bg-rose-100/40";
   };
 
+  const handleExportExcel = () => {
+    // Convert JSON data to a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(
+      orderList.map((order) => ({
+        ["Ngày order"]: order.orderDate
+          ? format(order.orderDate, "dd/MM/yyyy")
+          : "",
+        ["Ngày chuyển TT"]: order.statusChangeDate
+          ? format(order.statusChangeDate, "dd/MM/yyyy")
+          : "",
+        SKU: order.SKU,
+        size: order.size,
+        ["Giá"]: formatAmount(order.totalPrice),
+        ["Trạng thái"]: orderStatusObject[order.status].text,
+      }))
+    );
+
+    // Create a new workbook and append the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // Write the workbook to a Blob
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // Convert the Blob to a file and trigger download
+    const blobXLSX = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    // Create and trigger download
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blobXLSX);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `order__${format(new Date(), "dd-mm-yy")}__${orderList.length} of ${
+        queryParams.pagination.totalCount
+      }.xlsx`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -466,25 +516,32 @@ const OrderListPage = ({
         </div>
       </div>
 
-      {role === Role.ADMIN && (
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={() => {
-                setOrderPanel({
-                  type: "create",
-                  isOpen: true,
-                });
-                orderForm.reset({ ...initOrderFormValues });
-              }}
-            >
-              <PlusCircle /> Thêm đơn hàng
-            </Button>
-            <Button size="sm" onClick={() => setOpenUploadModal(true)}>
-              <Upload /> Tải Excel
-            </Button>
-          </div>
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div className="flex gap-2 flex-wrap">
+          {role === Role.ADMIN && (
+            <>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setOrderPanel({
+                    type: "create",
+                    isOpen: true,
+                  });
+                  orderForm.reset({ ...initOrderFormValues });
+                }}
+              >
+                <PlusCircle /> Thêm đơn hàng
+              </Button>
+              <Button size="sm" onClick={() => setOpenUploadModal(true)}>
+                <Upload /> Tải Excel
+              </Button>
+            </>
+          )}
+          <Button size="sm" onClick={handleExportExcel}>
+            <Download className="mr-2" /> Xuất Excel
+          </Button>
+        </div>
+        {role === Role.ADMIN && (
           <div className="flex items-center gap-2">
             <ComboBox
               value={targetStatus}
@@ -511,8 +568,8 @@ const OrderListPage = ({
               <Trash className="text-white" />
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <p className="mb-4">
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
@@ -541,103 +598,107 @@ const OrderListPage = ({
         </Card>
       </div>
 
-      {role === Role.ADMIN && type === "landed" && groupedOrders.length > 0 && (
-        <>
-          <div className="flex items-center gap-2 py-2 mb-4">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={showGroupUser}
-                onCheckedChange={setShowGroupUser}
-              />
-              <span>Hiển thị nhóm user</span>
+      {role === Role.ADMIN &&
+        ["landed", "complete"].includes(type) &&
+        groupedOrders.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 py-2 mb-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={showGroupUser}
+                  onCheckedChange={setShowGroupUser}
+                />
+                <span>Hiển thị nhóm user</span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={() => {
+                  if (expandedUsers.length === groupedOrders.length) {
+                    setExpandedUsers([]);
+                  } else {
+                    setExpandedUsers(
+                      groupedOrders.map((group) => group.userId)
+                    );
+                  }
+                }}
+              >
+                <ChevronsUpDown className="h-4 w-4" />
+                {expandedUsers.length !== groupedOrders.length
+                  ? "Mở tất cả"
+                  : "Đóng tất cả"}
+              </Button>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={() => {
-                if (expandedUsers.length === groupedOrders.length) {
-                  setExpandedUsers([]);
-                } else {
-                  setExpandedUsers(groupedOrders.map((group) => group.userId));
-                }
-              }}
-            >
-              <ChevronsUpDown className="h-4 w-4" />
-              {expandedUsers.length !== groupedOrders.length
-                ? "Mở tất cả"
-                : "Đóng tất cả"}
-            </Button>
-          </div>
+            {showGroupUser && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {groupedOrders.map((group) => (
+                  <Card key={group.userId} className="overflow-hidden h-fit">
+                    <CardHeader
+                      className={cn(
+                        "cursor-pointer hover:opacity-65 transition-opacity",
+                        getCardColor(group.data.length)
+                      )}
+                      onClick={() => toggleUserExpanded(group.userId)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+                            {group.fullName}
+                            <Badge variant="outline">
+                              {group.data.length} đơn hàng
+                            </Badge>
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Tổng:{" "}
+                            <span className="font-bold text-green-600">
+                              {formatAmount(group.totalAmount)}
+                            </span>
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="ml-2">
+                          {expandedUsers.includes(group.userId) ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardHeader>
 
-          {showGroupUser && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {groupedOrders.map((group) => (
-                <Card key={group.userId} className="overflow-hidden h-fit">
-                  <CardHeader
-                    className={cn(
-                      "cursor-pointer hover:opacity-65 transition-opacity",
-                      getCardColor(group.data.length)
+                    {expandedUsers.includes(group.userId) && (
+                      <CardContent className="p-0">
+                        <div className="max-h-[600px] overflow-auto">
+                          <OrderTable
+                            queryParams={queryParams}
+                            excludeColumns={[
+                              "statusChangeDate",
+                              "shippingFee",
+                              "orderDate",
+                              "deposit",
+                              "secondShippingFee",
+                              "user",
+                              "actions",
+                              "checkBox",
+                              "orderNumber",
+                              "source",
+                              "shippingStore",
+                              "status",
+                            ]}
+                            orderList={group.data}
+                            showPagination={false}
+                          />
+                        </div>
+                      </CardContent>
                     )}
-                    onClick={() => toggleUserExpanded(group.userId)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
-                          {group.fullName}
-                          <Badge variant="outline">
-                            {group.data.length} đơn hàng
-                          </Badge>
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Tổng:{" "}
-                          <span className="font-bold text-green-600">
-                            {formatAmount(group.totalAmount)}
-                          </span>
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="icon" className="ml-2">
-                        {expandedUsers.includes(group.userId) ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-
-                  {expandedUsers.includes(group.userId) && (
-                    <CardContent className="p-0">
-                      <div className="max-h-[600px] overflow-auto">
-                        <OrderTable
-                          queryParams={queryParams}
-                          excludeColumns={[
-                            "statusChangeDate",
-                            "shippingFee",
-                            "orderDate",
-                            "deposit",
-                            "secondShippingFee",
-                            "user",
-                            "actions",
-                            "checkBox",
-                            "orderNumber",
-                            "source",
-                            "shippingStore",
-                            "status",
-                          ]}
-                          orderList={group.data}
-                          showPagination={false}
-                        />
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
 
       <OrderTable
         onEditClick={onEditClick}
