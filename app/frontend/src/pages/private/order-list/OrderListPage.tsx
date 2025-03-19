@@ -54,6 +54,13 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FileSpreadsheet, FileText } from "lucide-react";
 
 const initOrderFormValues = {
   SKU: "",
@@ -446,48 +453,58 @@ const OrderListPage = ({
     return "bg-rose-100/40";
   };
 
-  const handleExportExcel = () => {
-    // Convert JSON data to a worksheet
-    const worksheet = XLSX.utils.json_to_sheet(
-      orderList.map((order) => ({
-        ["Ngày order"]: order.orderDate
-          ? format(order.orderDate, "dd/MM/yyyy")
-          : "",
-        ["Ngày chuyển TT"]: order.statusChangeDate
-          ? format(order.statusChangeDate, "dd/MM/yyyy")
-          : "",
-        SKU: order.SKU,
-        size: order.size,
-        ["Giá"]: formatAmount(order.totalPrice),
-        ["Trạng thái"]: orderStatusObject[order.status].text,
-      }))
-    );
+  const handleExportData = (type: "excel" | "csv") => {
+    // Prepare the data
+    const data = orderList.map((order) => ({
+      ["Ngày order"]: order.orderDate
+        ? format(order.orderDate, "dd/MM/yyyy")
+        : "",
+      ["Ngày chuyển TT"]: order.statusChangeDate
+        ? format(order.statusChangeDate, "dd/MM/yyyy")
+        : "",
+      SKU: order.SKU,
+      size: order.size,
+      ["Giá"]: formatAmount(order.totalPrice),
+      ["Trạng thái"]: orderStatusObject[order.status].text,
+    }));
 
-    // Create a new workbook and append the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    if (type === "excel") {
+      // Excel export logic
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blobXLSX = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      });
+      const fileName = `order__${format(new Date(), "dd-MM-yyyy")}__${
+        orderList.length
+      } of ${queryParams.pagination.totalCount}.xlsx`;
 
-    // Write the workbook to a Blob
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      downloadFile(blobXLSX, fileName);
+    } else {
+      // CSV export logic
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+      const blobCSV = new Blob([csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const fileName = `order__${format(new Date(), "dd-MM-yyyy")}__${
+        orderList.length
+      } of ${queryParams.pagination.totalCount}.csv`;
 
-    // Convert the Blob to a file and trigger download
-    const blobXLSX = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
+      downloadFile(blobCSV, fileName);
+    }
+  };
 
-    // Create and trigger download
+  const downloadFile = (blob: Blob, fileName: string) => {
     const link = document.createElement("a");
-    const url = URL.createObjectURL(blobXLSX);
+    const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `order__${format(new Date(), "dd-MM-yyyy")}__${orderList.length} of ${
-        queryParams.pagination.totalCount
-      }.xlsx`
-    );
+    link.setAttribute("download", fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -537,9 +554,27 @@ const OrderListPage = ({
               </Button>
             </>
           )}
-          <Button size="sm" onClick={handleExportExcel}>
-            <Download className="mr-2" /> Xuất Excel
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm">
+                <Download className="mr-[2px]" /> Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExportData("excel")}>
+                <FileSpreadsheet className="mr-[2px] h-4 w-4" />
+                <span>
+                  Export file <strong className="text-green-600">Excel</strong>
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExportData("csv")}>
+                <FileText className="mr-[2px] h-4 w-4" />
+                <span>
+                  Export file <strong className="text-blue-600">CSV</strong>
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {role === Role.ADMIN && (
           <div className="flex items-center gap-2">
