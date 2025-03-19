@@ -484,7 +484,7 @@ const OrderListPage = ({
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `order__${format(new Date(), "dd-mm-yy")}__${orderList.length} of ${
+      `order__${format(new Date(), "dd-MM-yyyy")}__${orderList.length} of ${
         queryParams.pagination.totalCount
       }.xlsx`
     );
