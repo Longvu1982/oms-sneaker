@@ -471,6 +471,16 @@ const OrderListPage = ({
     if (type === "excel") {
       // Excel export logic
       const worksheet = XLSX.utils.json_to_sheet(data);
+
+      worksheet["!cols"] = [
+        { width: 15 },
+        { width: 15 },
+        { width: 25 },
+        { width: 10 },
+        { width: 15 },
+        { width: 15 },
+      ]; //set col. widths
+
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
       const excelBuffer = XLSX.write(workbook, {
