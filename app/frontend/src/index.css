@@ -84,3 +84,7 @@
     color: #ddd !important;
   }
 }
+
+body {
+  @apply h-screen overflow-y-hidden;
+}

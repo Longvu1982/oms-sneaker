@@ -19,6 +19,9 @@ export type Payment = {
   email: string;
 };
 
+import { ReactNode } from "react";
+import { ViewportList } from "react-viewport-list";
+
 import {
   Table,
   TableBody,
@@ -27,8 +30,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useMediaQuery from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
-import { useMemo, useState, useEffect } from "react";
+import useMainStore from "@/store/main";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import { DataTablePagination } from "./DataTablePagination";
@@ -61,6 +66,8 @@ export function DataTable<TData extends DefaultData, TValue>({
   meta,
   enableRowSelection,
 }: DataTableProps<TData, TValue>) {
+  const isMedium = useMediaQuery(768);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [internalPagination, setInternalPagination] = useState({
     pageIndex: 0, //initial page index
@@ -188,82 +195,88 @@ export function DataTable<TData extends DefaultData, TValue>({
         </div>
       )}
 
-      <div className="rounded-md border hidden md:block">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const fixed = (header.column.columnDef as A).fixed as boolean;
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        "border-l-[1px] border-r-[1px]",
-                        fixed
-                          ? "sticky right-0 bg-background shadow-md hover:bg-muted/50"
-                          : ""
-                      )}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => {
-                return (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const fixed = (cell.column.columnDef as A)
-                        .fixed as boolean;
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className={cn(
-                            "border-l-[1px] border-r-[1px]",
-                            fixed
-                              ? "sticky right-0 bg-background shadow-md"
-                              : ""
-                          )}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Không có dữ liệu
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {isMedium && (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const fixed = (header.column.columnDef as A)
+                      .fixed as boolean;
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className={cn(
+                          "border-l-[1px] border-r-[1px]",
+                          fixed
+                            ? "sticky right-0 bg-background shadow-md hover:bg-muted/50"
+                            : ""
+                        )}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
 
-      <div className="md:hidden space-y-4">
-        {table.getRowModel().rows.map((row) => {
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                <ItemList
+                  items={table.getRowModel().rows}
+                  onRenderItem={(row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const fixed = (cell.column.columnDef as A)
+                          .fixed as boolean;
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            className={cn(
+                              "border-l-[1px] border-r-[1px]",
+                              fixed
+                                ? "sticky right-0 bg-background shadow-md"
+                                : ""
+                            )}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  )}
+                />
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Không có dữ liệu
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {!isMedium && (
+        <div className="space-y-4">
+          {/* {table.getRowModel().rows.map((row) => {
           const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
 
           return (
@@ -297,8 +310,51 @@ export function DataTable<TData extends DefaultData, TValue>({
               </CardContent>
             </Card>
           );
-        })}
-      </div>
+        })} */}
+
+          <ItemList
+            items={table.getRowModel().rows}
+            onRenderItem={(row) => {
+              const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
+
+              return (
+                <Card
+                  key={row.id}
+                  className="shadow-md border-[1px] border-black"
+                >
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      {row.getVisibleCells().map((cell) => {
+                        const header = headers.find(
+                          (item) => item.id === cell.column.id
+                        );
+                        return (
+                          <div key={cell.id} className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">
+                              {header?.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header?.column.columnDef.header,
+                                    header?.getContext?.() as A
+                                  )}
+                            </p>
+                            <div className="text-sm">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }}
+          />
+        </div>
+      )}
 
       <div className="flex items-center justify-end space-x-2 py-4">
         {showPagination && <DataTablePagination table={table} />}
@@ -306,3 +362,26 @@ export function DataTable<TData extends DefaultData, TValue>({
     </div>
   );
 }
+
+const ItemList = <TData,>({
+  items,
+  onRenderItem,
+}: {
+  items: TData[];
+  onRenderItem: (item: TData) => ReactNode;
+}) => {
+  const mainRef = useMainStore((state) => state.mainRef);
+
+  return (
+    <ViewportList
+      viewportRef={mainRef}
+      items={items}
+      initialPrerender={25}
+      scrollThreshold={9999}
+    >
+      {(item) => onRenderItem(item)}
+    </ViewportList>
+  );
+};
+
+export { ItemList };

@@ -16,8 +16,12 @@
   },
   "author": "Kris",
   "license": "ISC",
-  "workspaces": ["app/backend", "app/frontend"],
+  "workspaces": [
+    "app/backend",
+    "app/frontend"
+  ],
   "devDependencies": {
     "concurrently": "^9.1.1"
   }
+  
 }
