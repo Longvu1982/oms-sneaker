@@ -373,12 +373,7 @@ const ItemList = <TData,>({
   const mainRef = useMainStore((state) => state.mainRef);
 
   return (
-    <ViewportList
-      viewportRef={mainRef}
-      items={items}
-      initialPrerender={25}
-      scrollThreshold={9999}
-    >
+    <ViewportList viewportRef={mainRef} items={items} initialPrerender={25}>
       {(item) => onRenderItem(item)}
     </ViewportList>
   );
