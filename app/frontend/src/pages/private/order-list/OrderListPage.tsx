@@ -61,6 +61,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FileSpreadsheet, FileText } from "lucide-react";
+import { CommandSearch } from "@/components/command-search/CommandSearch";
 
 const initOrderFormValues = {
   SKU: "",
@@ -781,6 +782,15 @@ const OrderListPage = ({
         open={openUploadModal}
         onOpenChange={setOpenUploadModal}
         getList={async () => await getOrderList(queryParams)}
+      />
+
+      <CommandSearch
+        value={filterForm.watch("searchText")}
+        onValueChange={(value) => {
+          console.log(value);
+          filterForm.setValue("searchText", value);
+        }}
+        onSearch={() => onFilter(filterForm.getValues())}
       />
     </>
   );
