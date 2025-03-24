@@ -319,13 +319,16 @@ export function DataTable<TData extends DefaultData, TValue>({
           <ItemList
             ref={viewportRef}
             items={table.getRowModel().rows}
-            onRenderItem={(row: Row<TData>) => {
+            onRenderItem={(row: Row<TData>, index, selectedIndex) => {
               const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
 
               return (
                 <Card
                   key={row.id}
-                  className="shadow-md border-[1px] border-black"
+                  className={cn(
+                    "shadow-md border-[1px] border-black",
+                    index === selectedIndex && "animate-blink"
+                  )}
                 >
                   <CardContent className="p-4">
                     <div className="grid grid-cols-2 gap-4">
