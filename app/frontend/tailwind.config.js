@@ -63,7 +63,16 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
-  		}
+  		},
+		keyframes: {
+			blink: {
+				'0%, 100%': { background: 'current-color' },
+				'50%': { background: '#FFA8AB' },
+			  }
+		},
+		animation: {
+			blink: 'blink 0.25s 2 ease-in-out',
+		  }
   	}
   },
   plugins: [require("tailwindcss-animate")],

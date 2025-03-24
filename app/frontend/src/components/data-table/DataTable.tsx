@@ -19,8 +19,8 @@ export type Payment = {
   email: string;
 };
 
-import { ReactNode } from "react";
-import { ViewportList } from "react-viewport-list";
+import { forwardRef, ReactNode, useImperativeHandle, useRef } from "react";
+import { ViewportList, ViewportListRef } from "react-viewport-list";
 
 import {
   Table,
@@ -49,6 +49,7 @@ interface DataTableProps<TData, TValue> {
   onRowSelectionChange?: (newSelection: RowSelectionState) => void;
   meta?: A;
   enableRowSelection?: (row: Row<TData>) => boolean;
+  viewportRef?: React.RefObject<ViewportListRef>;
 }
 interface DefaultData {
   id?: string;
@@ -65,6 +66,7 @@ export function DataTable<TData extends DefaultData, TValue>({
   onRowSelectionChange,
   meta,
   enableRowSelection,
+  viewportRef,
 }: DataTableProps<TData, TValue>) {
   const isMedium = useMediaQuery(768);
 
@@ -230,11 +232,13 @@ export function DataTable<TData extends DefaultData, TValue>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 <ItemList
+                  ref={viewportRef}
                   items={table.getRowModel().rows}
-                  onRenderItem={(row) => (
+                  onRenderItem={(row: Row<TData>, index, selectedIndex) => (
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
+                      className={cn(index === selectedIndex && "animate-blink")}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const fixed = (cell.column.columnDef as A)
@@ -313,8 +317,9 @@ export function DataTable<TData extends DefaultData, TValue>({
         })} */}
 
           <ItemList
+            ref={viewportRef}
             items={table.getRowModel().rows}
-            onRenderItem={(row) => {
+            onRenderItem={(row: Row<TData>) => {
               const headers = table.getHeaderGroups()?.[0]?.headers ?? [];
 
               return (
@@ -363,20 +368,44 @@ export function DataTable<TData extends DefaultData, TValue>({
   );
 }
 
-const ItemList = <TData,>({
-  items,
-  onRenderItem,
-}: {
-  items: TData[];
-  onRenderItem: (item: TData) => ReactNode;
-}) => {
+const ItemList = forwardRef<
+  ViewportListRef,
+  {
+    items: A[];
+    onRenderItem: (item: A, index: number, selectedIndex?: number) => ReactNode;
+  }
+>(({ items, onRenderItem }, forwardedRef) => {
   const mainRef = useMainStore((state) => state.mainRef);
+  const [selectedIndex, setSelectedIndex] = useState<number>();
+  const ref = useRef<ViewportListRef>(null);
+
+  useImperativeHandle(forwardedRef, () => ({
+    ...(ref.current as ViewportListRef),
+    scrollToIndex(options) {
+      ref.current?.scrollToIndex({
+        ...options,
+        alignToTop: true,
+        offset: -300,
+      });
+      setSelectedIndex(options.index);
+      setTimeout(() => {
+        setSelectedIndex(undefined);
+      }, 500);
+    },
+  }));
 
   return (
-    <ViewportList viewportRef={mainRef} items={items} initialPrerender={25}>
-      {(item) => onRenderItem(item)}
+    <ViewportList
+      ref={ref}
+      viewportRef={mainRef}
+      items={items}
+      initialPrerender={25}
+    >
+      {(item, index) => onRenderItem(item, index, selectedIndex)}
     </ViewportList>
   );
-};
+});
+
+ItemList.displayName = "ItemList";
 
 export { ItemList };

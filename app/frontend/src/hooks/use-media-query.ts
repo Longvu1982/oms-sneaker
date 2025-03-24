@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 
 const useMediaQuery = (minWidth: number) => {
   const [matches, setMatches] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const mediaQuery = window.matchMedia(`(min-width: ${minWidth}px)`);
     const handleChange = () => setMatches(mediaQuery.matches);
 

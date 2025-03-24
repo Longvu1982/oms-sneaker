@@ -1,9 +1,16 @@
 import ComboBox from "@/components/combo-box/ComboBox";
+import { CommandSearch } from "@/components/command-search/CommandSearch";
 import { Option } from "@/components/multi-select/MutipleSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
 import {
@@ -35,14 +42,17 @@ import {
   ChevronsUpDown,
   ChevronUp,
   Download,
+  FileSpreadsheet,
+  FileText,
   FilterIcon,
   PlusCircle,
   Trash,
   TriangleAlert,
   Upload,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ViewportListRef } from "react-viewport-list";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { orderStatusObject } from "./order-list-utils";
@@ -54,14 +64,7 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FileSpreadsheet, FileText } from "lucide-react";
-import { CommandSearch } from "@/components/command-search/CommandSearch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const initOrderFormValues = {
   SKU: "",
@@ -102,6 +105,7 @@ const OrderListPage = ({
   );
   const [showGroupUser, setShowGroupUser] = useState<CheckedState>(true);
   const [expandedUsers, setExpandedUsers] = useState<string[]>([]);
+  const [orderTab, setOrderTab] = useState<"full" | "selected">("full");
   const [groupedOrders, setGroupedOrders] = useState<
     {
       userId: string;
@@ -110,6 +114,8 @@ const OrderListPage = ({
       data: OrderWithExtra[];
     }[]
   >([]);
+
+  const viewportRef = useRef<ViewportListRef>(null);
 
   const toggleUserExpanded = (userId: string) => {
     setExpandedUsers((prev) =>
@@ -126,6 +132,16 @@ const OrderListPage = ({
         .map(([key]) => key),
     [selectedRows]
   );
+
+  const selectedOrders = useMemo(
+    () => orderList.filter((order) => selectedRowsId.includes(order.id)),
+    [orderList, selectedRowsId]
+  );
+
+  const finalOrderList = useMemo(() => {
+    if (orderTab === "selected") return selectedOrders;
+    return orderList;
+  }, [selectedOrders, orderList, orderTab]);
 
   const totalSelectedValues = useMemo(() => {
     const selectedList = orderList.filter((item) =>
@@ -171,6 +187,22 @@ const OrderListPage = ({
     resolver: zodResolver(schema),
     defaultValues: initOrderFormValues,
   });
+
+  const clientSearchOrderResult = useMemo(
+    () =>
+      finalOrderList.filter((order) => {
+        const searchText =
+          filterForm.watch("searchText")?.trim()?.toLowerCase() ?? "";
+        return (
+          order.SKU.toLowerCase().includes(searchText) ||
+          order.orderNumber.toLowerCase().includes(searchText) ||
+          order.size.toLowerCase().includes(searchText) ||
+          order.deliveryCode.toLowerCase().includes(searchText) ||
+          order.user.fullName.toLowerCase().includes(searchText)
+        );
+      }),
+    [filterForm.watch("searchText"), finalOrderList]
+  );
 
   const excludeColumns = useMemo(() => {
     const result = [];
@@ -746,19 +778,51 @@ const OrderListPage = ({
           </>
         )}
 
-      <OrderTable
-        onEditClick={onEditClick}
-        onDeleteClick={onDeleteClick}
-        onPaginationChange={onPaginationChange}
-        onStatusChange={onStatusChange}
-        queryParams={queryParams}
-        excludeColumns={excludeColumns}
-        selectedRows={selectedRows}
-        onRowSelectionChange={setSelectedRows}
-        orderList={orderList}
-        onReload={() => getOrderList(queryParams)}
-        onChangeOrderCheckBox={onChangeOrderCheckBox}
-      />
+      <Tabs
+        className="mt-6"
+        value={orderTab}
+        onValueChange={(value) => setOrderTab(value as "full" | "selected")}
+      >
+        <TabsList>
+          <TabsTrigger value="full">Đơn hàng</TabsTrigger>
+          <TabsTrigger value="selected">Đã chọn</TabsTrigger>
+        </TabsList>
+        <TabsContent value="full">
+          <OrderTable
+            viewportRef={viewportRef}
+            onEditClick={onEditClick}
+            onDeleteClick={onDeleteClick}
+            onPaginationChange={onPaginationChange}
+            onStatusChange={onStatusChange}
+            queryParams={queryParams}
+            excludeColumns={excludeColumns}
+            selectedRows={selectedRows}
+            onRowSelectionChange={setSelectedRows}
+            orderList={orderList}
+            onReload={() => getOrderList(queryParams)}
+            onChangeOrderCheckBox={onChangeOrderCheckBox}
+          />
+        </TabsContent>
+        <TabsContent value="selected">
+          <OrderTable
+            viewportRef={viewportRef}
+            onEditClick={onEditClick}
+            onDeleteClick={onDeleteClick}
+            showPagination={false}
+            onPaginationChange={onPaginationChange}
+            onStatusChange={onStatusChange}
+            queryParams={queryParams}
+            excludeColumns={excludeColumns}
+            selectedRows={selectedRows}
+            onRowSelectionChange={setSelectedRows}
+            orderList={orderList.filter((item) =>
+              selectedRowsId.includes(item.id)
+            )}
+            onReload={() => getOrderList(queryParams)}
+            onChangeOrderCheckBox={onChangeOrderCheckBox}
+          />
+        </TabsContent>
+      </Tabs>
       <FilterPanel
         isOpenFilter={isOpenFilter}
         setIsOpenFilter={setIsOpenFilter}
@@ -787,10 +851,17 @@ const OrderListPage = ({
       <CommandSearch
         value={filterForm.watch("searchText")}
         onValueChange={(value) => {
-          console.log(value);
           filterForm.setValue("searchText", value);
         }}
-        onSearch={() => onFilter(filterForm.getValues())}
+        results={clientSearchOrderResult.map((order) => order.id)}
+        onChangeResult={(result) => {
+          const recordIndex = finalOrderList.findIndex(
+            (order) => order.id === result
+          );
+          if (recordIndex > -1) {
+            viewportRef?.current?.scrollToIndex({ index: recordIndex });
+          }
+        }}
       />
     </>
   );

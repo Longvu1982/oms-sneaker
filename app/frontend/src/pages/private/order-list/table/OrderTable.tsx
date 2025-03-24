@@ -1,11 +1,12 @@
 import { DataTable } from "@/components/data-table/DataTable";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { OrderWithExtra } from "@/services/main/orderServices";
 import { OrderStatus } from "@/types/enum/app-enum";
 import { QueryDataModel } from "@/types/model/app-model";
-import { FC, memo } from "react";
-import { useGetOrderColumns } from "../order-list-columns";
 import { RowSelectionState } from "@tanstack/react-table";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { FC, memo } from "react";
+import { ViewportListRef } from "react-viewport-list";
+import { useGetOrderColumns } from "../order-list-columns";
 
 interface OrderTableProps {
   orderList: OrderWithExtra[];
@@ -24,6 +25,7 @@ interface OrderTableProps {
   onReload?: () => Promise<void>;
   onChangeOrderCheckBox?: (id: string, checked: boolean) => void;
   showPagination?: boolean;
+  viewportRef?: React.RefObject<ViewportListRef>;
 }
 
 const OrderTable: FC<OrderTableProps> = ({
@@ -39,6 +41,7 @@ const OrderTable: FC<OrderTableProps> = ({
   excludeColumns = [],
   onReload,
   onChangeOrderCheckBox,
+  viewportRef,
   showPagination = true,
 }) => {
   const columns = useGetOrderColumns({
@@ -54,6 +57,7 @@ const OrderTable: FC<OrderTableProps> = ({
   return (
     <div>
       <DataTable
+        viewportRef={viewportRef}
         columns={columns}
         data={orderList}
         manualPagination={manualPagination}
