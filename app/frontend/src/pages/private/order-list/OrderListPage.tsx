@@ -11,6 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useDebounce from "@/hooks/use-debounce-value";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
 import {
@@ -64,7 +66,6 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const initOrderFormValues = {
   SKU: "",
@@ -183,6 +184,8 @@ const OrderListPage = ({
     },
   });
 
+  const deferredSearchText = useDebounce(filterForm.watch("searchText"), 300);
+
   const orderForm = useForm<OrderFormValues>({
     resolver: zodResolver(schema),
     defaultValues: initOrderFormValues,
@@ -191,8 +194,7 @@ const OrderListPage = ({
   const clientSearchOrderResult = useMemo(
     () =>
       finalOrderList.filter((order) => {
-        const searchText =
-          filterForm.watch("searchText")?.trim()?.toLowerCase() ?? "";
+        const searchText = deferredSearchText?.trim()?.toLowerCase() ?? "";
         return (
           order.SKU.toLowerCase().includes(searchText) ||
           order.orderNumber.toLowerCase().includes(searchText) ||
@@ -201,7 +203,7 @@ const OrderListPage = ({
           order.user.fullName.toLowerCase().includes(searchText)
         );
       }),
-    [filterForm.watch("searchText"), finalOrderList]
+    [deferredSearchText, finalOrderList]
   );
 
   const excludeColumns = useMemo(() => {

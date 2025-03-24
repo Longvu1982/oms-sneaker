@@ -1,4 +1,6 @@
-import React from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useEffect } from "react";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,8 +9,6 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface CommandSearchProps {
   value: string;
@@ -35,19 +35,29 @@ export function CommandSearch({
 }: CommandSearchProps) {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<string>();
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const currentIndex = selected ? results.indexOf(selected) : 0;
+  const currentIndex = selected ? results.indexOf(selected) : -1;
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "f" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        if (open) {
+          inputRef.current?.focus();
+          inputRef.current?.select();
+        } else {
+          setOpen(true);
+        }
       }
     };
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [open]);
+
+  useEffect(() => {
+    setSelected(undefined);
+  }, [value]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen} modal={false}>
@@ -64,6 +74,7 @@ export function CommandSearch({
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
+              ref={inputRef}
               placeholder={placeholder ?? "Tìm kiếm"}
               value={value}
               onChange={(e) => onValueChange(e.target.value)}
