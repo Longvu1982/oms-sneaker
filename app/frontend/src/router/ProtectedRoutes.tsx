@@ -77,7 +77,7 @@ const ProtectedRoutes = () => {
                             `database_backup_${format(
                               new Date(),
                               "yyyy-MM-dd_HH-mm-ss"
-                            )}.json`
+                            )}.gz`
                           );
                           await getLastBackupTime();
                         })
