@@ -53,6 +53,7 @@ app.use('/api/shippingStores', shippingStoreRouter);
 app.use('/api/transfer', transferRouter);
 app.use('/api/transactions', transactionRouter);
 app.use('/api/transaction-balance', transactionBalanceRouter);
+app.use('/api/database', databaseRouter);
 
 // Not Found Middleware
 app.use(notFoundHandler);
