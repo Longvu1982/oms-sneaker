@@ -39,6 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { RowSelectionState } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { saveAs } from "file-saver";
 import {
   ChevronDown,
   ChevronsUpDown,
@@ -529,7 +530,7 @@ const OrderListPage = ({
         orderList.length
       } of ${queryParams.pagination.totalCount}.xlsx`;
 
-      downloadFile(blobXLSX, fileName);
+      saveAs(blobXLSX, fileName);
     } else {
       // CSV export logic
       const worksheet = XLSX.utils.json_to_sheet(data);
@@ -541,18 +542,8 @@ const OrderListPage = ({
         orderList.length
       } of ${queryParams.pagination.totalCount}.csv`;
 
-      downloadFile(blobCSV, fileName);
+      saveAs(blobCSV, fileName);
     }
-  };
-
-  const downloadFile = (blob: Blob, fileName: string) => {
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (

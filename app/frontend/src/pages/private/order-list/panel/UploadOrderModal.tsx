@@ -18,6 +18,7 @@ import { useGlobalModal } from "@/store/global-modal";
 import { DeliveryCodeStatus, OrderStatus } from "@/types/enum/app-enum";
 import { orderStatusOptions } from "@/types/model/app-model";
 import { addHours } from "date-fns";
+import { saveAs } from "file-saver";
 import { AlertTriangle, Download, Info } from "lucide-react";
 import { FC, useState } from "react";
 import { toast } from "sonner";
@@ -154,12 +155,7 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
             variant="ghost"
             onClick={() => {
               const fileUrl = "/Template-with-second-ship.xlsx";
-              const link = document.createElement("a");
-              link.href = fileUrl;
-              link.download = "Template.xlsx";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
+              saveAs(fileUrl, "Template.xlsx");
             }}
           >
             <Download />

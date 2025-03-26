@@ -107,6 +107,11 @@ model TransactionBalance {
   updatedAt DateTime @updatedAt
 }
 
+model Backup {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   ADMIN
   STAFF

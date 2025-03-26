@@ -3,22 +3,47 @@ import { BackToTop } from "@/components/back-to-top/BackToTop";
 import GlobalModal from "@/components/global-modal/GlobalModal";
 import MainSidebar from "@/components/main-sidebar/MainSidebar";
 import { Spinner } from "@/components/spinner/Spinner";
+import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  apiExportDatabase,
+  apiGetLastBackupTime,
+} from "@/services/main/databaseServices";
 import useAuthStore from "@/store/auth";
 import useMainStore from "@/store/main";
-import { Suspense, useEffect, useRef } from "react";
+import { format } from "date-fns";
+import { DatabaseBackup } from "lucide-react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Sticky from "react-sticky-el";
+import { saveAs } from "file-saver";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { Role } from "@/types/enum/app-enum";
+
 const ProtectedRoutes = () => {
+  const [lastBackupTime, setLastBackupTime] = useState<string>("");
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
+
+  const { triggerLoading } = useTriggerLoading();
 
   const ref = useRef<HTMLElement>(null);
   const setMainRef = useMainStore((state) => state.setMainRef);
 
+  const getLastBackupTime = async () => {
+    const { data } = await apiGetLastBackupTime();
+    if (data.success) {
+      setLastBackupTime(data.data.createdAt);
+    }
+  };
+
   useEffect(() => {
     if (user) setMainRef(ref);
   }, [setMainRef, user]);
+
+  useEffect(() => {
+    getLastBackupTime();
+  }, []);
 
   return user ? (
     <SidebarProvider>
@@ -29,7 +54,41 @@ const ProtectedRoutes = () => {
           <Sticky stickyClassName="z-[2]">
             <div className="h-12 shadow-sm flex items-center justify-between p-2 bg-background">
               <SidebarTrigger />
-              <AvatarMenu />
+              <div className="flex gap-2 items-center">
+                {user.account.role === Role.ADMIN && (
+                  <>
+                    <div className="flex flex-col items-center">
+                      <p className="text-xs italic">Lần backup cuối</p>
+                      <p className="text-sm">
+                        {lastBackupTime
+                          ? format(lastBackupTime, "dd/MM/yyyy")
+                          : "N/A"}
+                      </p>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() =>
+                        triggerLoading(async () => {
+                          const { data } = await apiExportDatabase();
+                          const blob = new Blob([data]);
+                          saveAs(
+                            blob,
+                            `database_backup_${format(
+                              new Date(),
+                              "yyyy-MM-dd_HH-mm-ss"
+                            )}.json`
+                          );
+                          await getLastBackupTime();
+                        })
+                      }
+                    >
+                      <DatabaseBackup />
+                    </Button>
+                  </>
+                )}
+                <AvatarMenu />
+              </div>
             </div>
           </Sticky>
           <main

@@ -12,7 +12,8 @@
     "build": "npm run build -w app/backend && npm run build -w app/frontend",
     "start:prod": "concurrently \"npm run start:be\" \"npm run start:fe\"",
     "start:be": "npm run start -w app/backend",
-    "start:fe": "npm run preview -w app/frontend"
+    "start:fe": "npm run preview -w app/frontend",
+    "generate": "npm run generate -w app/backend"
   },
   "author": "Kris",
   "license": "ISC",
@@ -23,5 +24,4 @@
   "devDependencies": {
     "concurrently": "^9.1.1"
   }
-  
 }
