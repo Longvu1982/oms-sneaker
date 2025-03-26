@@ -10,6 +10,7 @@ import shippingStoreRouter from './routes/shippingStore.router';
 import transferRouter from './routes/transfer.router';
 import transactionRouter from './routes/transaction.router';
 import transactionBalanceRouter from './routes/transactionBalance.router';
+import databaseRouter from './routes/database.router';
 import { notFoundHandler } from './middleware/not-found';
 import { errorHandler } from './middleware/error-handler';
 import cookieParser from 'cookie-parser';
