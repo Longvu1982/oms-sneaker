@@ -391,9 +391,6 @@ const ItemList = forwardRef<
         offset: -300,
       });
       setSelectedIndex(options.index);
-      setTimeout(() => {
-        setSelectedIndex(undefined);
-      }, 500);
     },
   }));
 
