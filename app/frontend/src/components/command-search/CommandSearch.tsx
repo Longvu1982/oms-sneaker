@@ -39,7 +39,29 @@ export function CommandSearch({
 
   const currentIndex = selected ? results.indexOf(selected) : -1;
 
-  React.useEffect(() => {
+  const onUpclick = () => {
+    if (currentIndex > 0) {
+      setSelected(results[currentIndex - 1]);
+      onChangeResult?.(results[currentIndex - 1], "prev");
+    }
+    else {
+      setSelected(results[results.length - 1]);
+      onChangeResult?.(results[results.length - 1], "prev");
+    }
+  };
+
+  const onDownclick = () => {
+    if (currentIndex < results.length - 1) {
+      setSelected(results[currentIndex + 1]);
+      onChangeResult?.(results[currentIndex + 1], "next");
+    }
+    else {
+      setSelected(results[0]);
+      onChangeResult?.(results[0], "next");
+    }
+  };
+
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "f" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -82,6 +104,15 @@ export function CommandSearch({
                 if (e.key === "Enter") {
                   e.preventDefault();
                   await onSearch?.(value);
+                  onDownclick()
+                }
+                else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  onUpclick();
+                }
+                else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  onDownclick();
                 }
               }}
             />
@@ -93,24 +124,14 @@ export function CommandSearch({
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => {
-                const nextIndex =
-                  currentIndex === 0 ? results.length - 1 : currentIndex - 1;
-                setSelected(results[nextIndex]);
-                onChangeResult?.(results[nextIndex], "prev");
-              }}
+              onClick={onUpclick}
             >
               <ChevronUp />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => {
-                const nextIndex =
-                  currentIndex === results.length - 1 ? 0 : currentIndex + 1;
-                setSelected(results[nextIndex]);
-                onChangeResult?.(results[nextIndex], "next");
-              }}
+              onClick={onDownclick}
             >
               <ChevronDown />
             </Button>
