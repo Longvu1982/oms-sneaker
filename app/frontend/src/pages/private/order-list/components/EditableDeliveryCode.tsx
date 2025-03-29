@@ -1,6 +1,6 @@
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
+import { renderBadge } from "@/lib/utils";
 import { OrderWithExtra, apiUpdateOrder } from "@/services/main/orderServices";
 import { DeliveryCodeStatus } from "@/types/enum/app-enum";
 import { useState } from "react";
@@ -74,19 +74,13 @@ export const EditableDeliveryCode = ({
   }
 
   const codeText = order.deliveryCode || "Chưa có MVĐ";
-  return (
-    <Badge
-      className="whitespace-nowrap py-1 cursor-pointer"
-      variant="outline"
-      style={{
-        background: deliveryCodeStatusObject[order.deliveryCodeStatus]?.color,
-      }}
-      onClick={() => setIsEditing(true)}
-    >
+  return renderBadge(
+    deliveryCodeStatusObject[order.deliveryCodeStatus]?.color,
+    <div className="whitespace-nowrap flex" onClick={() => setIsEditing(true)}>
       {codeText}
       <span className="hidden md:block">
         {` : ${deliveryCodeStatusObject[order.deliveryCodeStatus]?.text}`}
       </span>
-    </Badge>
+    </div>
   );
 };

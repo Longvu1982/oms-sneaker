@@ -56,7 +56,7 @@ export const BackToTop = ({
     <Button
       variant="outline"
       size="icon"
-      className={cn("rounded-full shadow-lg", className)}
+      className={cn("rounded-full shadow-lg dark:border-white", className)}
       onClick={scrollToTop}
     >
       <ArrowUp className="h-4 w-4" />

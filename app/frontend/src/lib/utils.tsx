@@ -1,20 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 import { clsx, type ClassValue } from "clsx";
+import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const renderBadge = (color: string, text: string) => (
+export const renderBadge = (color: string, text: ReactNode) => (
   <Badge
-    className="whitespace-nowrap py-1"
+    className="whitespace-nowrap py-1 dard:text-black"
     variant="outline"
     style={{
       background: color,
     }}
   >
-    {text}
+    <div className="dark:text-black">{text}</div>
   </Badge>
 );
 
@@ -32,17 +33,17 @@ export const formatAmount: (input: number | string) => string = (input) => {
 
 export const createURL = (
   baseUrl: string,
-  queryObj?: Record<string, string | number | undefined | null>,
+  queryObj?: Record<string, string | number | undefined | null>
 ) => {
-  let queryString = ''
+  let queryString = "";
   if (queryObj)
     queryString = Object.entries(queryObj)
       .filter(([, value]) => value != null)
       .map(
         ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value as A)}`,
+          `${encodeURIComponent(key)}=${encodeURIComponent(value as A)}`
       )
-      .join('&')
+      .join("&");
 
-  return queryString ? `${baseUrl}?${queryString}` : baseUrl
-}
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+};

@@ -3,22 +3,23 @@ import { BackToTop } from "@/components/back-to-top/BackToTop";
 import GlobalModal from "@/components/global-modal/GlobalModal";
 import MainSidebar from "@/components/main-sidebar/MainSidebar";
 import { Spinner } from "@/components/spinner/Spinner";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import {
   apiExportDatabase,
   apiGetLastBackupTime,
 } from "@/services/main/databaseServices";
 import useAuthStore from "@/store/auth";
 import useMainStore from "@/store/main";
+import { Role } from "@/types/enum/app-enum";
 import { format } from "date-fns";
+import { saveAs } from "file-saver";
 import { DatabaseBackup } from "lucide-react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Sticky from "react-sticky-el";
-import { saveAs } from "file-saver";
-import { useTriggerLoading } from "@/hooks/use-trigger-loading";
-import { Role } from "@/types/enum/app-enum";
 
 const ProtectedRoutes = () => {
   const [lastBackupTime, setLastBackupTime] = useState<string>("");
@@ -55,6 +56,7 @@ const ProtectedRoutes = () => {
             <div className="h-12 shadow-sm flex items-center justify-between p-2 bg-background">
               <SidebarTrigger />
               <div className="flex gap-2 items-center">
+                <ThemeToggle />
                 {user.account.role === Role.ADMIN && (
                   <>
                     <div className="flex flex-col items-center">

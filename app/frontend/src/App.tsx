@@ -7,6 +7,7 @@ import { Toaster } from "./components/ui/sonner";
 import { useTriggerLoading } from "./hooks/use-trigger-loading";
 import { useLoading } from "./store/loading";
 import { Spinner } from "./components/spinner/Spinner";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 
 function App() {
   const { router } = useRouter();
@@ -35,7 +36,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider defaultTheme="dark" storageKey="viet-deli-ui-theme">
       {isLoading && (
         <div className="fixed inset-0 z-[10000] bg-background">
           Authenticating...
@@ -44,7 +45,7 @@ function App() {
       <RouterProvider router={router} />
       <Toaster duration={2000} position="top-center" />
       {isGlobalLoading && <Spinner />}
-    </>
+    </ThemeProvider>
   );
 }
 

@@ -796,7 +796,7 @@ const OrderListPage = ({
             onChangeOrderCheckBox={onChangeOrderCheckBox}
           />
         </TabsContent>
-        <TabsContent value="selected">
+        <TabsContent value="selected" className="pt-4">
           <OrderTable
             viewportRef={viewportRef}
             onEditClick={onEditClick}

@@ -210,7 +210,7 @@ export function DataTable<TData extends DefaultData, TValue>({
                       <TableHead
                         key={header.id}
                         className={cn(
-                          "border-l-[1px] border-r-[1px]",
+                          "border-l-[1px] border-r-[1px] dark:border-gray-700",
                           fixed
                             ? "sticky right-0 bg-background shadow-md hover:bg-muted/50"
                             : ""
@@ -247,7 +247,7 @@ export function DataTable<TData extends DefaultData, TValue>({
                           <TableCell
                             key={cell.id}
                             className={cn(
-                              "border-l-[1px] border-r-[1px]",
+                              "border-l-[1px] border-r-[1px] dark:border-gray-700",
                               fixed
                                 ? "sticky right-0 bg-background shadow-md"
                                 : ""
@@ -326,7 +326,7 @@ export function DataTable<TData extends DefaultData, TValue>({
                 <Card
                   key={row.id}
                   className={cn(
-                    "shadow-md border-[1px] border-black",
+                    "shadow-md border-[2px] border-black dark:border-gray-400",
                     index === selectedIndex && "animate-blink"
                   )}
                 >
