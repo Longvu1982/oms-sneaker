@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthPicker } from "@/components/ui/month-picker";
 import {
   Popover,
@@ -11,14 +12,13 @@ import {
   apiAddTransactionBalance,
   apiGetTransactionBalanceByDate,
 } from "@/services/main/transactionBalanceServices";
+import { BalanceNatureType } from "@/types/enum/app-enum";
 import { TransactionBalanceItem } from "@/types/model/app-model";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import TransactionBalanceTable from "./TransactionBalanceTable";
-import { BalanceNatureType } from "@/types/enum/app-enum";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const defaultTransactionBalance = [
   { id: "1", name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
@@ -79,7 +79,7 @@ const TransactionBalancePage = () => {
   const getTransactionBalance = async (date: Date) => {
     return await triggerLoading(async () => {
       const { data } = await apiGetTransactionBalanceByDate({
-        dateTime: addDays(date, 1),
+        dateTime: date,
       });
       if (!data.success) return false;
       const balanceData = data.data;
