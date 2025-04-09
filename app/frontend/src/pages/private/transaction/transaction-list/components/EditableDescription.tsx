@@ -37,7 +37,7 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
 
   if (isEditing) {
     return (
-      <div className="max-w-[100px]">
+      <div className="w-full">
         <Textarea
           autoFocus
           value={description}
@@ -52,7 +52,7 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
               onCancel();
             }
           }}
-          className="min-h-[60px] w-[200px]"
+          className="min-h-[60px] w-full"
           placeholder="Nhập ghi chú..."
         />
       </div>

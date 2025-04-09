@@ -83,7 +83,9 @@ const columns: EnhancedColumnDef<TransactionWithExtra>[] = [
     cell: ({ row, table }) => {
       const onReload = table.options.meta?.onReload;
       return (
-        <EditableDescription transaction={row.original} onReload={onReload} />
+        <div className="min-w-[150px] w-full">
+          <EditableDescription transaction={row.original} onReload={onReload} />
+        </div>
       );
     },
   },
