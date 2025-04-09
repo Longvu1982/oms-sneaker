@@ -31,7 +31,7 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
         transfers.length > 0 ? "h-[300px]" : "h-[100px]"
       )}
     >
-      <div className="space-y-6">
+      <div className="">
         {transfers.length === 0 && "Chưa có dữ liệu"}
         {transfers.map((transfer, index) => (
           <div key={transfer.id} className="flex items-start">
@@ -48,7 +48,7 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
                 )}
               </div>
               {index !== transfers.length - 1 && (
-                <div className="h-full w-0.5 bg-gray-200 my-1" />
+                <div className="h-[20px] w-0.5 bg-gray-400 dark:bg-white opacity-35 my-1" />
               )}
             </div>
             <div>
