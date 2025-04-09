@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { getUserById, UserExtra } from "@/services/main/userServices";
@@ -9,8 +10,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
 import { TransfersTimeline } from "./TransferTimeline";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
@@ -29,10 +28,7 @@ const UserDetailsPage = () => {
       const current = transfers[i];
       const prev = transfers[i - 1];
 
-      if (
-        format(current.createdAt, "dd/MM/yyyy") ===
-        format(prev.createdAt, "dd/MM/yyyy")
-      ) {
+      if (current.createdAt.slice(0, 10) === prev.createdAt.slice(0, 10)) {
         temp.amount += current.amount;
       } else {
         result.push(temp);
