@@ -64,7 +64,7 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
       className="cursor-pointer truncate whitespace-pre-line"
       onClick={() => setIsEditing(true)}
     >
-      {transaction.description ?? (
+      {transaction.description || (
         <span className="italic opacity-50">Chưa có ghi chú</span>
       )}
     </div>
