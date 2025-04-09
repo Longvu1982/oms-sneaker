@@ -258,7 +258,14 @@ export const getUserByID = async (id: string): Promise<TloginRequest | null> => 
     where: {
       id: id,
     },
-    include: { transfers: true, orders: true, transactions: true, account: { omit: { password: true } } },
+    include: {
+      transfers: {
+        orderBy: { createdAt: 'desc' },
+      },
+      orders: true,
+      transactions: true,
+      account: { omit: { password: true } },
+    },
   });
 
   return userWithBalance(user);

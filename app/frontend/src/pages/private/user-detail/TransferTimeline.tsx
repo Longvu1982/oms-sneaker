@@ -12,25 +12,28 @@ interface Transfer {
 
 interface TransfersTimelineProps {
   transfers: Transfer[];
+  type: "full" | "group";
 }
 
 export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
   transfers,
+  type,
 }) => {
-  const sortedTransfers = [...transfers].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  const moneyTypeText = (amount: number) => {
+    if (type === "full") return amount > 0 ? "Nạp tiền" : "Rút tiền";
+    else if (type === "group") return amount > 0 ? "Dương" : "Âm";
+  };
 
   return (
     <ScrollArea
       className={cn(
         "h-[400px] pr-4",
-        sortedTransfers.length > 0 ? "h-[300px]" : "h-[100px]"
+        transfers.length > 0 ? "h-[300px]" : "h-[100px]"
       )}
     >
       <div className="space-y-6">
-        {sortedTransfers.length === 0 && "Chưa có dữ liệu"}
-        {sortedTransfers.map((transfer, index) => (
+        {transfers.length === 0 && "Chưa có dữ liệu"}
+        {transfers.map((transfer, index) => (
           <div key={transfer.id} className="flex items-start">
             <div className="flex flex-col items-center mr-4">
               <div
@@ -44,13 +47,13 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
                   <ArrowUpIcon className="h-4 w-4 text-white" />
                 )}
               </div>
-              {index !== sortedTransfers.length - 1 && (
+              {index !== transfers.length - 1 && (
                 <div className="h-full w-0.5 bg-gray-200 my-1" />
               )}
             </div>
             <div>
               <p className="font-semibold">
-                {transfer.amount >= 0 ? "Nạp tiền: " : "Rút tiền: "}
+                {moneyTypeText(transfer.amount)}:{" "}
                 {formatAmount(Math.abs(transfer.amount))}
               </p>
               <p className="text-sm text-gray-500">

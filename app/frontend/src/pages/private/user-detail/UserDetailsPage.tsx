@@ -5,16 +5,45 @@ import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { getUserById, UserExtra } from "@/services/main/userServices";
 import { ChevronLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
 import { TransfersTimeline } from "./TransferTimeline";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
   const [userData, setUserData] = useState<UserExtra>();
   const { triggerLoading } = useTriggerLoading();
   const navigate = useNavigate();
+
+  const groupTransfers = useMemo(() => {
+    const transfers = userData?.transfers;
+    if (!transfers?.length) return [];
+
+    const result = [];
+    let temp = { ...transfers[0] };
+
+    for (let i = 1; i < transfers.length; i++) {
+      const current = transfers[i];
+      const prev = transfers[i - 1];
+
+      if (
+        format(current.createdAt, "dd/MM/yyyy") ===
+        format(prev.createdAt, "dd/MM/yyyy")
+      ) {
+        temp.amount += current.amount;
+      } else {
+        result.push(temp);
+        temp = { ...current };
+      }
+    }
+
+    result.push(temp);
+
+    return result;
+  }, [userData?.transfers]);
 
   useEffect(() => {
     triggerLoading(async () => {
@@ -118,16 +147,30 @@ const UserDetailsPage = () => {
           </Card>
         </section>
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">
-                Lịch sử giao dịch
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TransfersTimeline transfers={userData.transfers} />
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="group">
+            <Card>
+              <CardHeader className="flex gap-2 lg:gap-4 lg:flex-row lg:items-center space-y-0">
+                <CardTitle className="text-lg font-semibold">
+                  Lịch sử giao dịch
+                </CardTitle>
+                <TabsList className="inline-block w-fit">
+                  <TabsTrigger value="group">Theo ngày</TabsTrigger>
+                  <TabsTrigger value="full">Tất cả</TabsTrigger>
+                </TabsList>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value="group">
+                  <TransfersTimeline transfers={groupTransfers} type="group" />
+                </TabsContent>
+                <TabsContent value="full">
+                  <TransfersTimeline
+                    transfers={userData.transfers ?? []}
+                    type="full"
+                  />
+                </TabsContent>
+              </CardContent>
+            </Card>
+          </Tabs>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">
