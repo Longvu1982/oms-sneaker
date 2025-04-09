@@ -42,9 +42,9 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
                 }`}
               >
                 {transfer.amount >= 0 ? (
-                  <ArrowDownIcon className="h-4 w-4 text-white" />
-                ) : (
                   <ArrowUpIcon className="h-4 w-4 text-white" />
+                ) : (
+                  <ArrowDownIcon className="h-4 w-4 text-white" />
                 )}
               </div>
               {index !== transfers.length - 1 && (
