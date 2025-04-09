@@ -72,16 +72,27 @@ const columns: EnhancedColumnDef<User>[] = [
       );
     },
   },
+  // {
+  //   accessorKey: "email",
+  //   header: "Email",
+  // },
+  // {
+  //   accessorKey: "phone",
+  //   header: "SĐT",
+  // },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "onGoingTotal",
+    header: "Tổng (Đang giao)",
+    cell: ({ getValue }) => {
+      return (
+        <span className="text-green-600">
+          {formatAmount(getValue() as number)}
+        </span>
+      );
+    },
   },
   {
-    accessorKey: "phone",
-    header: "SĐT",
-  },
-  {
-    accessorKey: "orderCount",
+    accessorKey: "onGoingOrderCount",
     header: "Đơn đang giao",
   },
   {

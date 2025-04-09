@@ -151,9 +151,12 @@ const userWithBalance = (u: any) => {
 
   const totalTransfered = transfereds.reduce((sum, item) => sum + item.amount, 0);
 
+  const onGoingOrders: Order[] = u.orders.filter((item: Order) => item.status === OrderStatus.ONGOING);
+
   return {
     ...u,
-    orderCount: u.orders.filter((item: Order) => item.status === OrderStatus.ONGOING).length,
+    onGoingOrderCount: onGoingOrders.length, // ongoing,
+    onGoingTotal: onGoingOrders.reduce((acc, cur) => acc + cur.totalPrice - cur.deposit + cur.shippingFee, 0),
     transfered: totalTransfered,
     balance: totalTransfered - totalPrice,
   };
