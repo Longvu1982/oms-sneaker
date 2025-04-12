@@ -78,7 +78,15 @@ export const listUsersDetail = async (
     where: {},
     orderBy: {},
     include: {
-      orders: true,
+      orders: {
+        where: {
+          status: {
+            not: {
+              equals: 'CANCELLED',
+            },
+          },
+        },
+      },
       transfers: true,
       account: {
         select: {
@@ -144,7 +152,7 @@ export const listUsersDetail = async (
 };
 
 const userWithBalance = (u: any) => {
-  const orderList = ((u.orders ?? []) as Order[]).filter((item) => item.status !== OrderStatus.CANCELLED);
+  const orderList = (u.orders ?? []) as Order[];
   const transfereds = (u.transfers ?? []) as Transfered[];
 
   const totalPrice = orderList.reduce((sum, item) => sum + item.totalPrice + item.shippingFee - item.deposit, 0);
