@@ -8,7 +8,7 @@ import { getUserById, UserExtra } from "@/services/main/userServices";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
+import DailyBalanceTable from "./DailyBalanceTable";
 import { TransfersTimeline } from "./TransferTimeline";
 
 const UserDetailsPage = () => {
@@ -40,6 +40,43 @@ const UserDetailsPage = () => {
 
     return result;
   }, [userData?.transfers]);
+
+  const dailyBalances = useMemo(() => {
+    if (!userData) return [];
+
+    const orders = userData.orders ?? [];
+    const transfers = userData.transfers ?? [];
+
+    // Group orders and transfers by date
+    const ordersByDate = orders.reduce((acc, order) => {
+      const date = new Date(order.orderDate);
+      const dateKey = date.toISOString().split("T")[0];
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(order);
+      return acc;
+    }, {} as Record<string, typeof orders>);
+
+    const transfersByDate = transfers.reduce((acc, transfer) => {
+      const date = new Date(transfer.createdAt);
+      const dateKey = date.toISOString().split("T")[0];
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(transfer);
+      return acc;
+    }, {} as Record<string, typeof transfers>);
+
+    // Combine and sort by date
+    return Object.keys({ ...ordersByDate, ...transfersByDate })
+      .map((dateKey) => ({
+        date: new Date(dateKey),
+        orders: ordersByDate[dateKey] || [],
+        transfers: transfersByDate[dateKey] || [],
+      }))
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [userData]);
 
   useEffect(() => {
     triggerLoading(async () => {
@@ -118,12 +155,19 @@ const UserDetailsPage = () => {
                 <div>
                   <p className="text-sm text-gray-500">Đơn hàng</p>
                   <p className="text-2xl font-semibold">
-                    {userData.orderCount}
+                    {userData.orders?.length}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Đã chuyển</p>
-                  <p className="text-2xl font-semibold">
+                  <p
+                    className={cn(
+                      "text-2xl font-semibold",
+                      userData.transfered > 0
+                        ? "text-green-600"
+                        : "text-red-500"
+                    )}
+                  >
                     {formatAmount(userData.transfered)}
                   </p>
                 </div>
@@ -142,7 +186,10 @@ const UserDetailsPage = () => {
             </CardContent>
           </Card>
         </section>
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <section className="space-y-4">
+          <DailyBalanceTable dailyBalances={dailyBalances} />
+
           <Tabs defaultValue="group">
             <Card>
               <CardHeader className="flex gap-2 lg:gap-4 lg:flex-row lg:items-center space-y-0">
@@ -167,7 +214,8 @@ const UserDetailsPage = () => {
               </CardContent>
             </Card>
           </Tabs>
-          <Card>
+
+          {/* <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">
                 Danh sách giao dịch
@@ -180,42 +228,8 @@ const UserDetailsPage = () => {
                 excludeColumns={["actions"]}
               />
             </CardContent>
-          </Card>
+          </Card> */}
         </section>
-        {/* <section className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Đơn hàng</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mã đơn hàng</TableHead>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Số tiền</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {userData.orderCount === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center">
-                        Không có đơn hàng nào
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center">
-                        Dữ liệu đơn hàng sẽ hiển thị ở đây
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </section> */}
       </div>
     </div>
   );
