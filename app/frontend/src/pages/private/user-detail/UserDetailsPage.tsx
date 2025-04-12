@@ -17,28 +17,32 @@ const UserDetailsPage = () => {
   const { triggerLoading } = useTriggerLoading();
   const navigate = useNavigate();
 
+  const groupByDate = <T extends Record<string, unknown>>(
+    items: T[],
+    dateField: keyof T
+  ): Record<string, T[]> => {
+    return items.reduce((acc, item) => {
+      const date = new Date(item[dateField] as string);
+      const dateKey = date.toISOString().split("T")[0];
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(item);
+      return acc;
+    }, {} as Record<string, T[]>);
+  };
+
   const groupTransfers = useMemo(() => {
     const transfers = userData?.transfers;
     if (!transfers?.length) return [];
 
-    const result = [];
-    let temp = { ...transfers[0] };
-
-    for (let i = 1; i < transfers.length; i++) {
-      const current = transfers[i];
-      const prev = transfers[i - 1];
-
-      if (current.createdAt.slice(0, 10) === prev.createdAt.slice(0, 10)) {
-        temp.amount += current.amount;
-      } else {
-        result.push(temp);
-        temp = { ...current };
-      }
-    }
-
-    result.push(temp);
-
-    return result;
+    const groupedTransfers = groupByDate(transfers, "createdAt");
+    return Object.entries(groupedTransfers).map(([dateStr, transfers]) => ({
+      id: dateStr,
+      createdAt: dateStr,
+      amount: transfers.reduce((sum, t) => sum + t.amount, 0),
+      transfers,
+    }));
   }, [userData?.transfers]);
 
   const dailyBalances = useMemo(() => {
@@ -47,28 +51,9 @@ const UserDetailsPage = () => {
     const orders = userData.orders ?? [];
     const transfers = userData.transfers ?? [];
 
-    // Group orders and transfers by date
-    const ordersByDate = orders.reduce((acc, order) => {
-      const date = new Date(order.orderDate);
-      const dateKey = date.toISOString().split("T")[0];
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(order);
-      return acc;
-    }, {} as Record<string, typeof orders>);
+    const ordersByDate = groupByDate(orders, "orderDate");
+    const transfersByDate = groupByDate(transfers, "createdAt");
 
-    const transfersByDate = transfers.reduce((acc, transfer) => {
-      const date = new Date(transfer.createdAt);
-      const dateKey = date.toISOString().split("T")[0];
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(transfer);
-      return acc;
-    }, {} as Record<string, typeof transfers>);
-
-    // Combine and sort by date
     return Object.keys({ ...ordersByDate, ...transfersByDate })
       .map((dateKey) => ({
         date: new Date(dateKey),
