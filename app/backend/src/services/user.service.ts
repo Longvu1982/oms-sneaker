@@ -270,7 +270,13 @@ export const getUserByID = async (id: string): Promise<TloginRequest | null> => 
       transfers: {
         orderBy: { createdAt: 'desc' },
       },
-      orders: true,
+      orders: {
+        where: {
+          status: {
+            not: { equals: 'CANCELLED' },
+          },
+        },
+      },
       transactions: true,
       account: { omit: { password: true } },
     },
