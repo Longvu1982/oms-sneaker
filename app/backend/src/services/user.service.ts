@@ -276,6 +276,7 @@ export const getUserByID = async (id: string): Promise<TloginRequest | null> => 
             not: { equals: 'CANCELLED' },
           },
         },
+        orderBy: { orderDate: 'desc' },
       },
       transactions: true,
       account: { omit: { password: true } },
