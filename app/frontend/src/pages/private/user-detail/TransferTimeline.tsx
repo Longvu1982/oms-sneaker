@@ -1,8 +1,7 @@
-import type React from "react";
-import { format } from "date-fns";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatAmount } from "@/lib/utils";
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import type React from "react";
 
 interface Transfer {
   id: string;
@@ -56,9 +55,7 @@ export const TransfersTimeline: React.FC<TransfersTimelineProps> = ({
                 {moneyTypeText(transfer.amount)}:{" "}
                 {formatAmount(Math.abs(transfer.amount))}
               </p>
-              <p className="text-sm text-gray-500">
-                {format(new Date(transfer.createdAt), "dd/MM/yyyy HH:mm")}
-              </p>
+              <p className="text-sm text-gray-500">{transfer.createdAt}</p>
             </div>
           </div>
         ))}

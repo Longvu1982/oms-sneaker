@@ -3,12 +3,11 @@ import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, formatAmount } from "@/lib/utils";
 import { Order, Transfered } from "@/types/model/app-model";
-import { format } from "date-fns";
 import { useMemo } from "react";
 
 interface DailyBalanceTableProps {
   dailyBalances: {
-    date: Date;
+    date: string;
     orders: Order[];
     transfers: Transfered[];
   }[];
@@ -16,7 +15,7 @@ interface DailyBalanceTableProps {
 
 interface TableData {
   id: string;
-  date: Date;
+  date: string;
   totalOrderAmount: number;
   totalTransferAmount: number;
   dailyBalance: number;
@@ -26,7 +25,6 @@ const columns: EnhancedColumnDef<TableData>[] = [
   {
     accessorKey: "date",
     header: "Ngày",
-    cell: ({ getValue }) => format(getValue() as Date, "dd/MM/yyyy"),
   },
   {
     accessorKey: "totalOrderAmount",
@@ -106,7 +104,7 @@ const DailyBalanceTable = ({ dailyBalances }: DailyBalanceTableProps) => {
         // last element
         const props = getDailyBalance(dailyBalances[i]);
         const data = {
-          id: dailyBalances[i].date.toISOString(),
+          id: dailyBalances[i].date,
           date: dailyBalances[i].date,
           totalOrderAmount: props.totalOrderAmount,
           totalTransferAmount: props.totalTransferAmount,
@@ -119,7 +117,7 @@ const DailyBalanceTable = ({ dailyBalances }: DailyBalanceTableProps) => {
 
       const props = getDailyBalance(dailyBalances[i]);
       const data: TableData = {
-        id: dailyBalances[i].date.toISOString(),
+        id: dailyBalances[i].date,
         date: dailyBalances[i].date,
         totalOrderAmount: props.totalOrderAmount,
         totalTransferAmount: props.totalTransferAmount,

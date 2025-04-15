@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { getUserById, UserExtra } from "@/services/main/userServices";
+import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,8 +23,7 @@ const UserDetailsPage = () => {
     dateField: keyof T
   ): Record<string, T[]> => {
     return items.reduce((acc, item) => {
-      const date = new Date(item[dateField] as string);
-      const dateKey = date.toISOString().split("T")[0];
+      const dateKey = format(item[dateField] as string, "dd/MM/yyyy");
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
@@ -56,11 +56,15 @@ const UserDetailsPage = () => {
 
     return Object.keys({ ...ordersByDate, ...transfersByDate })
       .map((dateKey) => ({
-        date: new Date(dateKey),
+        date: dateKey,
         orders: ordersByDate[dateKey] || [],
         transfers: transfersByDate[dateKey] || [],
       }))
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
+      .sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB.getTime() - dateA.getTime();
+      });
   }, [userData]);
 
   useEffect(() => {
@@ -192,7 +196,10 @@ const UserDetailsPage = () => {
                 </TabsContent>
                 <TabsContent value="full">
                   <TransfersTimeline
-                    transfers={userData.transfers ?? []}
+                    transfers={(userData.transfers ?? []).map((item) => ({
+                      ...item,
+                      createdAt: format(item.createdAt, "dd/MM/yyyy"),
+                    }))}
                     type="full"
                   />
                 </TabsContent>
