@@ -10,7 +10,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DailyBalanceTable from "./DailyBalanceTable";
 import { TransfersTimeline } from "./TransferTimeline";
-import { format, parseISO } from "date-fns";
 
 const UserDetailsPage = () => {
   const { userId } = useParams();
@@ -23,8 +22,8 @@ const UserDetailsPage = () => {
     dateField: keyof T
   ): Record<string, T[]> => {
     return items.reduce((acc, item) => {
-      const date = parseISO(item[dateField] as string);
-      const dateKey = format(date, "dd/MM/yyyy");
+      const date = new Date(item[dateField] as string);
+      const dateKey = date.toISOString().split("T")[0];
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
@@ -57,7 +56,7 @@ const UserDetailsPage = () => {
 
     return Object.keys({ ...ordersByDate, ...transfersByDate })
       .map((dateKey) => ({
-        date: parseISO(dateKey),
+        date: new Date(dateKey),
         orders: ordersByDate[dateKey] || [],
         transfers: transfersByDate[dateKey] || [],
       }))
