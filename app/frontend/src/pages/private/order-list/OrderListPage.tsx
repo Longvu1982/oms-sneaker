@@ -502,6 +502,7 @@ const OrderListPage = ({
       size: order.size,
       ["Giá"]: formatAmount(order.totalPrice),
       ["Trạng thái"]: orderStatusObject[order.status].text,
+      ["Mã vận đơn"]: order.deliveryCode,
     }));
 
     if (type === "excel") {
