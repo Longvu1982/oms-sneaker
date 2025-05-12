@@ -17,6 +17,16 @@ const buildOrderQuery = (model: QueryDataModel, requestUser?: RequestUser): Pris
     orderBy: [{ orderDate: 'desc' }, { totalPrice: 'desc' }],
   };
 
+  // Only get record associated with specific Admin
+  if (role === Role.ADMIN) {
+    query.where = {
+      ...query.where,
+      user: {
+        adminId: id,
+      },
+    };
+  }
+
   if (pageSize) {
     query.skip = pageIndex * pageSize;
     query.take = pageSize;
@@ -143,8 +153,16 @@ export const createOrder = async (order: TOrderWrite): Promise<Order> => {
   });
 };
 
-export const bulkCreateOrder = async (orders: TBulkOrderWrite[]): Promise<Prisma.BatchPayload> => {
-  const users = await db.user.findMany({ select: { id: true, fullName: true } });
+export const bulkCreateOrder = async (
+  orders: TBulkOrderWrite[],
+  requestUser: RequestUser
+): Promise<Prisma.BatchPayload> => {
+  const users = await db.user.findMany({
+    where: {
+      adminId: requestUser.id,
+    },
+    select: { id: true, fullName: true },
+  });
   const shippingStores = await db.shippingStore.findMany({ select: { id: true, name: true } });
   const sources = await db.source.findMany({ select: { id: true, name: true } });
 
@@ -193,9 +211,10 @@ export const deleteOrder = async (id: string): Promise<void> => {
   });
 };
 
-export const checkMissingUsersName = async (userNames: string[]): Promise<string[]> => {
+export const checkMissingUsersName = async (userNames: string[], requestUser: RequestUser): Promise<string[]> => {
   const exsitingUser = await db.user.findMany({
     where: {
+      adminId: requestUser.id,
       fullName: { in: userNames, mode: 'insensitive' },
     },
     select: { fullName: true },

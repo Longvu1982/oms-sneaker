@@ -120,8 +120,9 @@ export const validateOrderData = (request: Request, response: Response, next: Ne
 
 export const checkMissingUsersName = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const { names } = request.body;
-    const missingNames = await OrderSevice.checkMissingUsersName(names);
+    const missingNames = await OrderSevice.checkMissingUsersName(names, user!);
     return sendSuccessResponse(response, missingNames);
   } catch (error) {
     next(error);
@@ -130,8 +131,9 @@ export const checkMissingUsersName = async (request: Request, response: Response
 
 export const bulkCreateOrder = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const { orders } = request.body;
-    const createdOrders = await OrderSevice.bulkCreateOrder(orders);
+    const createdOrders = await OrderSevice.bulkCreateOrder(orders, user!);
     return sendSuccessResponse(response, createdOrders);
   } catch (e) {
     next({ override: true, message: 'Tạo đơn hàng không thành công, kiểm tra kiểu dữ liệu và chính tả' });

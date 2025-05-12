@@ -9,16 +9,20 @@ datasource db {
 }
 
 model User {
-  id           String        @id @unique
-  fullName     String
-  email        String?
-  phone        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  account      Account?
-  orders       Order[]
-  transfers    Transfered[]
-  transactions Transaction[]
+  id                 String               @id @unique
+  fullName           String
+  email              String?
+  phone              String?
+  adminId            String?
+  admin              User?                @relation("AdminToUsers", fields: [adminId], references: [id], onDelete: Cascade)
+  adminedUsers       User[]               @relation("AdminToUsers") // ← users managed by this user
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  account            Account?
+  orders             Order[]
+  transfers          Transfered[]
+  transactions       Transaction[]
+  TransactionBalance TransactionBalance[]
 }
 
 model Transfered {
@@ -75,6 +79,7 @@ model Transaction {
   description     String?
   userId          String?
   user            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminId         String?
   transactionDate DateTime        @default(now())
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -103,6 +108,8 @@ model TransactionBalance {
   id        String   @id @unique
   dateTime  DateTime @default(now())
   data      String
+  adminId   String?
+  admin     User?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -110,9 +117,11 @@ model TransactionBalance {
 model Backup {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
+  adminId   String?
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
   STAFF
   USER

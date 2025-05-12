@@ -5,8 +5,9 @@ import { sendSuccessResponse } from '../utils/responseHandler';
 
 export const createTransactionBalance = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const transfer = request.body;
-    const newTransfer = await TransactoionBalanceService.createTransactionBalance(transfer);
+    const newTransfer = await TransactoionBalanceService.createTransactionBalance(transfer, user!);
     return sendSuccessResponse(response, newTransfer, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);
@@ -16,7 +17,10 @@ export const createTransactionBalance = async (request: Request, response: Respo
 export const getTransactionBalanceByDate = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const payload = request.body as { dateTime: string };
-    const newTransfer = await TransactoionBalanceService.getTransactionBalanceByDate(payload);
+    const newTransfer = await TransactoionBalanceService.getTransactionBalanceByDate({
+      ...payload,
+      requestUser: request.user,
+    });
     return sendSuccessResponse(response, newTransfer, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);

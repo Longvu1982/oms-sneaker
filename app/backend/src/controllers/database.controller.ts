@@ -7,9 +7,10 @@ import { db } from '../utils/db.server';
 import { v4 } from 'uuid';
 import zlib from 'zlib';
 
-const BACKUP_DIR = process.env.NODE_ENV === 'production' 
-  ? path.join(process.cwd(), 'backups')  // Production backups in project directory
-  : path.join(__dirname, '../../backups'); // Local backups in project directory
+const BACKUP_DIR =
+  process.env.NODE_ENV === 'production'
+    ? path.join(process.cwd(), 'backups') // Production backups in project directory
+    : path.join(__dirname, '../../backups'); // Local backups in project directory
 
 // Ensure backup directory exists
 if (!fs.existsSync(BACKUP_DIR)) {
@@ -50,7 +51,7 @@ export const exportDatabase = async (request: Request, response: Response, next:
         }
         return response.status(500).json({ message: 'Có lỗi xảy ra khi backup database' });
       }
-      
+
       // Remove file after successful download
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -68,7 +69,8 @@ export const exportDatabase = async (request: Request, response: Response, next:
 
 export const getLastBackupTime = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const data = await DatabaseService.getLastBackupTime();
+    const user = request.user;
+    const data = await DatabaseService.getLastBackupTime(user!);
     sendSuccessResponse(response, data);
   } catch (error: any) {
     next(error);

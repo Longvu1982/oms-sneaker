@@ -145,7 +145,7 @@ export const orderStatusOptions = [
 
 export const roleStatusOptions = [
   { label: "User", value: Role.USER },
-  { label: "Staff", value: Role.STAFF },
+  // { label: "Staff", value: Role.STAFF },
   { label: "Admin", value: Role.ADMIN },
 ];
 

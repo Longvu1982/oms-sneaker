@@ -8,8 +8,9 @@ import { UUID } from 'node:crypto';
 
 export const listTransactions = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const query = request.body;
-    const transactions = await TransactionService.listTransactions(query);
+    const transactions = await TransactionService.listTransactions(query, user!);
     return sendSuccessResponse(response, transactions);
   } catch (error: any) {
     next(error);
@@ -18,8 +19,9 @@ export const listTransactions = async (request: Request, response: Response, nex
 
 export const createTransaction = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const transaction: TTransactionWrite = request.body;
-    const newTransaction = await TransactionService.createTransaction(transaction);
+    const newTransaction = await TransactionService.createTransaction(transaction, user!);
     return sendSuccessResponse(response, newTransaction, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);

@@ -22,7 +22,7 @@ const menus: TMenuItem[] = [
       { title: "Đơn đã giao", link: "/complete-order-list" },
       { title: "Đơn đã huỷ", link: "/cancel-order-list" },
     ],
-    role: [],
+    role: [Role.ADMIN, Role.USER],
   },
   {
     type: "collapsible",
@@ -55,7 +55,7 @@ const menus: TMenuItem[] = [
     type: "single",
     title: "Quản lý users",
     link: "/user-list",
-    role: [Role.ADMIN, Role.USER],
+    role: [Role.ADMIN, Role.USER, Role.SUPER_ADMIN],
   },
 ];
 

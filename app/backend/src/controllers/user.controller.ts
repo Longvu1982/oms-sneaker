@@ -5,8 +5,9 @@ import { UUID } from 'node:crypto';
 
 export const listUsers = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const query = request.body;
-    const orders = await UserService.listUsers(query);
+    const orders = await UserService.listUsers(query, user!);
     return sendSuccessResponse(response, orders);
   } catch (error: any) {
     next(error);
@@ -36,8 +37,9 @@ export const getUserByID = async (request: Request, response: Response, next: Ne
 
 export const createUser = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const query = request.body;
-    const created = await UserService.createUser(query);
+    const created = await UserService.createUser(query, user!);
     return sendSuccessResponse(response, created);
   } catch (error: any) {
     next(error);
@@ -60,8 +62,9 @@ export const updateUser = async (request: Request, response: Response, next: Nex
 
 export const bulkCreateUser = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    const user = request.user;
     const { names } = request.body;
-    const created = await UserService.bulkCreateUser(names as string[]);
+    const created = await UserService.bulkCreateUser(names as string[], user!);
     return sendSuccessResponse(response, created);
   } catch (error: any) {
     next(error);

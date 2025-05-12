@@ -10,6 +10,7 @@ async function getUser(): Promise<TUserRegisterWrite> {
     fullName: 'Phạm Quốc Việt',
     email: 'example@company.com',
     phone: '',
+    adminId: '',
   };
 }
 
@@ -67,52 +68,101 @@ function getOrders(userId: string, sources, shippingStores) {
 
 async function seed() {
   // Delete records
-  await db.user.deleteMany();
-  await db.shippingStore.deleteMany();
-  await db.source.deleteMany();
-  await db.order.deleteMany();
-  console.log('Deleted all records in related tables');
+  // await db.user.deleteMany();
+  // await db.shippingStore.deleteMany();
+  // await db.source.deleteMany();
+  // await db.order.deleteMany();
+  // console.log('Deleted all records in related tables');
 
-  // Seed new user
-  const user = await getUser();
-  console.log(`[*] Seeding Admin : ${JSON.stringify(user)}`);
-  console.log(`[*] password : pqvsneakeradmin `);
-  const password = 'pqvsneakeradmin';
-  const hashedPassword = await hashPassword(password);
+  // // Seed new user
+  // const user = await getUser();
+  // console.log(`[*] Seeding Admin : ${JSON.stringify(user)}`);
+  // console.log(`[*] password : pqvsneakeradmin `);
+  // const password = 'pqvsneakeradmin';
+  // const hashedPassword = await hashPassword(password);
+  // await db.user.create({
+  //   data: {
+  //     ...user,
+  //     account: {
+  //       create: {
+  //         username: 'pqviet',
+  //         password: hashedPassword,
+  //         role: Role.ADMIN,
+  //         id: v4(),
+  //       },
+  //     },
+  //   },
+  // });
+
+  // await Promise.all(
+  //   getShippingStores().map((store) => {
+  //     console.log(`[*] Seeding Shipping Store: ${JSON.stringify(store)}`);
+  //     return db.shippingStore.create({
+  //       data: { ...store, id: uuidv4() },
+  //     });
+  //   })
+  // );
+
+  // await Promise.all(
+  //   getSources().map((source) => {
+  //     console.log(`[*] Seeding Source: ${JSON.stringify(source)}`);
+  //     return db.source.create({
+  //       data: {
+  //         ...source,
+  //         id: uuidv4(),
+  //       },
+  //     });
+  //   })
+  // );
+
   await db.user.create({
     data: {
-      ...user,
+      id: v4(),
+      fullName: 'Phạm Quốc Việt SUPER ADMIN',
+      email: 'superAdmin@admin.com',
+      phone: '',
       account: {
         create: {
-          username: 'pqviet',
-          password: hashedPassword,
-          role: Role.ADMIN,
+          username: 'superAdminPQV',
+          password: await hashPassword('superAdminPQV'),
+          role: Role.SUPER_ADMIN,
           id: v4(),
         },
       },
     },
   });
 
-  await Promise.all(
-    getShippingStores().map((store) => {
-      console.log(`[*] Seeding Shipping Store: ${JSON.stringify(store)}`);
-      return db.shippingStore.create({
-        data: { ...store, id: uuidv4() },
-      });
-    })
-  );
+  const currentAdmin = await db.user.findFirst({
+    where: {
+      account: {
+        role: Role.ADMIN,
+      },
+    },
+  });
 
-  await Promise.all(
-    getSources().map((source) => {
-      console.log(`[*] Seeding Source: ${JSON.stringify(source)}`);
-      return db.source.create({
-        data: {
-          ...source,
-          id: uuidv4(),
-        },
-      });
-    })
-  );
+  await db.user.updateMany({
+    data: {
+      adminId: currentAdmin?.id,
+    },
+  });
+
+  await db.transaction.updateMany({
+    data: {
+      adminId: currentAdmin?.id,
+    },
+  });
+
+  await db.transactionBalance.updateMany({
+    data: {
+      adminId: currentAdmin?.id,
+    },
+  });
+
+  await db.backup.updateMany({
+    data: {
+      adminId: currentAdmin?.id,
+    },
+  });
 }
 
 seed();

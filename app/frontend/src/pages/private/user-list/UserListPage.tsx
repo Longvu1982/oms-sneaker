@@ -404,11 +404,11 @@ const UserListPage = () => {
     <>
       <div>
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
-          Danh sách user
+          Danh sách {currentUserRole === Role.SUPER_ADMIN ? "admin" : "user"}
         </h3>
       </div>
 
-      {[Role.ADMIN].includes(currentUserRole as Role) && (
+      {[Role.ADMIN, Role.SUPER_ADMIN].includes(currentUserRole as Role) && (
         <div className="flex items-center justify-between mb-6">
           <Button
             size="sm"
@@ -439,24 +439,26 @@ const UserListPage = () => {
         Số lượng: <strong>{queryParams.pagination.totalCount}</strong>
       </p>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Số dư</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span
-                className={cn(
-                  totalBalance < 0 ? "text-red-500" : "text-green-600"
-                )}
-              >
-                {formatAmount(totalBalance)}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {currentUserRole !== Role.SUPER_ADMIN && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Số dư</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <span
+                  className={cn(
+                    totalBalance < 0 ? "text-red-500" : "text-green-600"
+                  )}
+                >
+                  {formatAmount(totalBalance)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <DataTable

@@ -6,14 +6,18 @@ import { v4 } from 'uuid';
 import { hashPassword } from '../utils/bcryptHandler';
 import { RequestUser } from '../types/express';
 
-export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: number; users: User[] }> => {
+export const listUsers = async (
+  model: QueryDataModel,
+  requestUser: RequestUser
+): Promise<{ totalCount: number; users: User[] }> => {
   const { pagination, searchText, sort, filter } = model;
+  const { id } = requestUser ?? {};
+  const { role } = requestUser?.account ?? {};
 
   const { pageSize, pageIndex } = pagination;
-  // Infer query type from Prisma
   const query: Prisma.UserFindManyArgs = {
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+    where: {},
+    orderBy: {},
     include: {
       account: {
         select: {
@@ -25,12 +29,18 @@ export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: nu
     },
   };
 
-  if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+  if (role === role.Admin) {
+    query.where = {
+      ...query.where,
+      adminId: id,
+    };
   }
 
-  // Filtering
+  if (pageSize) {
+    query.skip = pageIndex * pageSize;
+    query.take = pageSize;
+  }
+
   if (filter?.length) {
     query.where = {
       ...query.where,
@@ -40,7 +50,6 @@ export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: nu
     };
   }
 
-  // Searching
   if (searchText) {
     query.where = {
       ...query.where,
@@ -51,7 +60,6 @@ export const listUsers = async (model: QueryDataModel): Promise<{ totalCount: nu
     };
   }
 
-  // Sorting
   if (sort?.column) {
     query.orderBy = {
       [sort.column]: sort.type,
@@ -97,6 +105,22 @@ export const listUsersDetail = async (
       },
     },
   };
+
+  if (role === Role.ADMIN) {
+    baseQuery.where = {
+      ...baseQuery.where,
+      adminId: id,
+    };
+  } else if (role === Role.SUPER_ADMIN) {
+    baseQuery.where = {
+      ...baseQuery.where,
+      account: {
+        role: {
+          equals: Role.ADMIN,
+        },
+      },
+    };
+  }
 
   const filterData = filter?.map((item) => {
     if (item.column === 'id') {
@@ -170,13 +194,17 @@ const userWithBalance = (u: any) => {
   };
 };
 
-export const createUser = async (model: any): Promise<User> => {
+export const createUser = async (model: any, requestUser: RequestUser): Promise<User> => {
+  const id = v4();
   const query: Prisma.UserCreateArgs = {
     data: {
+      // SUPER => CREATE ADMIN ONLY: use generated ID
+      // ADMIN => CREATE USER: use its own ADMIN ID
+      adminId: requestUser.account.role === Role.ADMIN ? requestUser.id : id,
       phone: model.phone,
       email: model.email,
       fullName: model.fullName,
-      id: v4(),
+      id,
     },
   };
 
@@ -241,9 +269,9 @@ export const updateUser = async (model: any): Promise<User> => {
   return db.user.update(query);
 };
 
-export const bulkCreateUser = async (names: string[]) => {
+export const bulkCreateUser = async (names: string[], requestUser: RequestUser) => {
   return db.user.createMany({
-    data: names.map((name) => ({ fullName: name, id: v4() })),
+    data: names.map((name) => ({ fullName: name, id: v4(), adminId: requestUser.id })),
   });
 };
 

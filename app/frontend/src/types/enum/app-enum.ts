@@ -2,6 +2,7 @@ export enum Role {
   ADMIN = "ADMIN",
   STAFF = "STAFF",
   USER = "USER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export enum OrderStatus {

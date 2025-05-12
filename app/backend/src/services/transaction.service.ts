@@ -3,25 +3,29 @@ import { UUID } from 'node:crypto';
 import { v4 } from 'uuid';
 import { QueryDataModel, TTransactionWrite } from '../types/general';
 import { db } from '../utils/db.server';
+import { RequestUser } from '../types/express';
 export const listTransactions = async (
-  model: QueryDataModel
+  model: QueryDataModel,
+  requestUser: RequestUser
 ): Promise<{ totalCount: number; transactions: Transaction[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
+  const { id } = requestUser ?? {};
+
   const { pageSize, pageIndex } = pagination;
-  // Infer query type from Prisma
   const query: Prisma.TransactionFindManyArgs = {
     include: { user: true },
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: [{ transactionDate: 'desc' }, { amount: 'desc' }], // Sorting conditions will be added dynamically
+    where: {
+      adminId: id,
+    },
+    orderBy: [{ transactionDate: 'desc' }, { amount: 'desc' }],
   };
 
   if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+    query.skip = pageIndex * pageSize;
+    query.take = pageSize;
   }
 
-  // Filtering
   if (filter?.length) {
     const filterArray: any = [];
     filter.forEach(({ column, value }) => {
@@ -31,9 +35,7 @@ export const listTransactions = async (
           const fromDate = new Date(value.from);
           const toDate = new Date(value.to);
 
-          // Check if dates are the same (same day query)
           if (fromDate.toDateString() === toDate.toDateString()) {
-            // Set range for the entire day
             dateFilter.gte = new Date(fromDate.setHours(0, 0, 0, 0));
             dateFilter.lte = new Date(toDate.setHours(23, 59, 59, 999));
           } else {
@@ -64,7 +66,6 @@ export const listTransactions = async (
     };
   }
 
-  // Searching
   if (searchText) {
     query.where = {
       ...query.where,
@@ -72,7 +73,6 @@ export const listTransactions = async (
     };
   }
 
-  // Sorting
   if (sort?.column) {
     query.orderBy = {
       [sort.column]: sort.type,
@@ -80,11 +80,10 @@ export const listTransactions = async (
   }
 
   const [totalCount, transactions] = await Promise.all([
-    db.transaction.count({ where: query.where }), // Count the total number of matching orders
-    db.transaction.findMany(query), // Fetch the orders with pagination, sorting, and filtering
+    db.transaction.count({ where: query.where }),
+    db.transaction.findMany(query),
   ]);
 
-  // Return the totalCount and orders
   return { totalCount, transactions };
 };
 
@@ -96,11 +95,15 @@ export const getTransaction = async (id: UUID): Promise<Transaction | null> => {
   });
 };
 
-export const createTransaction = async (transaction: TTransactionWrite): Promise<Transaction> => {
+export const createTransaction = async (
+  transaction: TTransactionWrite,
+  requestUser: RequestUser
+): Promise<Transaction> => {
   return db.transaction.create({
     data: {
       id: v4(),
       ...transaction,
+      adminId: requestUser?.id,
     },
   });
 };

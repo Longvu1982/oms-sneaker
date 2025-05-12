@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UserFormValues } from "@/services/main/userServices";
+import useAuthStore from "@/store/auth";
 import { Role } from "@/types/enum/app-enum";
 import { roleStatusOptions } from "@/types/model/app-model";
 import { AlertTriangle, CheckCircle } from "lucide-react";
@@ -39,6 +40,15 @@ const UserPanel: FC<UserPanelProps> = ({
   const [searchParams] = useSearchParams();
   const fullNameParam = searchParams.get("fullName");
   const isOpenParam = searchParams.get("openPanel");
+
+  const role = useAuthStore((s) => s.user?.account.role) as Role;
+
+  const getRoleDropdownOptions = () => {
+    if (role === Role.ADMIN) {
+      return roleStatusOptions.filter((o) => o.value === Role.USER);
+    }
+    return roleStatusOptions.filter((o) => o.value === Role.ADMIN);
+  };
 
   useEffect(() => {
     if (isOpenParam === "true" && fullNameParam) {
@@ -207,7 +217,7 @@ const UserPanel: FC<UserPanelProps> = ({
                 form={form}
                 searchable={false}
                 label="Loại tài khoản"
-                options={roleStatusOptions}
+                options={getRoleDropdownOptions()}
               />
             </>
           )}

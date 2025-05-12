@@ -1,3 +1,4 @@
+import { RequestUser } from '../types/express';
 import { db } from '../utils/db.server';
 
 export const exportDatabaseData = async () => {
@@ -27,6 +28,6 @@ export const exportDatabaseData = async () => {
   return data;
 };
 
-export const getLastBackupTime = async () => {
-  return db.backup.findFirst({ orderBy: { createdAt: 'desc' } });
+export const getLastBackupTime = async (requestUser: RequestUser) => {
+  return db.backup.findFirst({ where: { adminId: requestUser?.id }, orderBy: { createdAt: 'desc' } });
 };

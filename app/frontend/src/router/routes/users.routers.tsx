@@ -14,7 +14,7 @@ export const userRoutes = [
   {
     path: "/user-list",
     element: <UserListPage />,
-    roles: [Role.ADMIN, Role.USER],
+    roles: [Role.ADMIN, Role.USER, Role.SUPER_ADMIN],
   },
   {
     path: "/user-list/:userId",

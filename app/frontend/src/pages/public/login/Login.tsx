@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
 import logo from "@/assets/viet-sneaker-logo.png";
+import { Role } from "@/types/enum/app-enum";
 
 const loginSchema = z.object({
   username: z.string().nonempty("Username is required"),
@@ -48,6 +49,8 @@ export default function Login() {
   };
 
   if (user?.id) {
+    if (user.account.role === Role.SUPER_ADMIN)
+      return <Navigate to="/user-list" replace />;
     return <Navigate to="/order-list" replace />;
   }
 

@@ -6,6 +6,11 @@ import { Role } from '@prisma/client';
 const router = express.Router();
 
 router.post('/create', protectAuth, protectRoles([Role.ADMIN]), TransactionBalanceController.createTransactionBalance);
-router.post('/get-by-date', protectAuth, TransactionBalanceController.getTransactionBalanceByDate);
+router.post(
+  '/get-by-date',
+  protectAuth,
+  protectRoles([Role.ADMIN]),
+  TransactionBalanceController.getTransactionBalanceByDate
+);
 
 export default router;
