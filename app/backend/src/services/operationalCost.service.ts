@@ -16,7 +16,7 @@ export const createOperationalCost = async (
   const startOfTheMonth = startOfMonth(parsedDate);
   const endOfTheMonth = endOfMonth(parsedDate);
 
-  const existingCost = await db.transactionBalance.findFirst({
+  const existingCost = await db.operationalCost.findFirst({
     where: {
       dateTime: {
         gte: startOfTheMonth,
