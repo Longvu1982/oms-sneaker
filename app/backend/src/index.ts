@@ -1,21 +1,22 @@
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import * as dotenv from 'dotenv';
 import express from 'express';
-import cors from 'cors';
+import { pino } from 'pino';
+import { errorHandler } from './middleware/error-handler';
+import { notFoundHandler } from './middleware/not-found';
+import requestLogger from './middleware/requestLogger';
 import authRouter from './routes/auth.router';
-import profileRouter from './routes/profile.router';
+import databaseRouter from './routes/database.router';
 import orderRouter from './routes/order.router';
-import userRouter from './routes/user.router';
-import sourceRouter from './routes/source.router';
+import profileRouter from './routes/profile.router';
 import shippingStoreRouter from './routes/shippingStore.router';
-import transferRouter from './routes/transfer.router';
+import sourceRouter from './routes/source.router';
 import transactionRouter from './routes/transaction.router';
 import transactionBalanceRouter from './routes/transactionBalance.router';
-import databaseRouter from './routes/database.router';
-import { notFoundHandler } from './middleware/not-found';
-import { errorHandler } from './middleware/error-handler';
-import cookieParser from 'cookie-parser';
-import requestLogger from './middleware/requestLogger';
-import { pino } from 'pino';
+import operationalCostRouter from './routes/operationalCost.router';
+import transferRouter from './routes/transfer.router';
+import userRouter from './routes/user.router';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/shippingStores', shippingStoreRouter);
 app.use('/api/transfer', transferRouter);
 app.use('/api/transactions', transactionRouter);
 app.use('/api/transaction-balance', transactionBalanceRouter);
+app.use('/api/operational-cost', operationalCostRouter);
 app.use('/api/database', databaseRouter);
 
 // Not Found Middleware

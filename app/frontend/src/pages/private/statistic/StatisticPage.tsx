@@ -19,6 +19,7 @@ import {
 } from "@/types/enum/app-enum";
 import {
   initQueryParams,
+  OperationalCost,
   QueryDataModel,
   TransactionBalanceItem,
   TransactionWithExtra,
@@ -30,6 +31,7 @@ import { useEffect, useState } from "react";
 import OrderTable from "../order-list/table/OrderTable";
 import TransactionBalanceTable from "../transaction/transaction-balance/TransactionBalanceTable";
 import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
+import { apiGetOperationalCostByDate } from "@/services/main/operationalCostServices";
 
 type StatisticData = {
   revenue: number;
@@ -37,6 +39,7 @@ type StatisticData = {
   orderList: OrderWithExtra[];
   balanceTable: TransactionBalanceItem[];
   transactionList: TransactionWithExtra[];
+  operationalCost: OperationalCost;
 };
 
 const defaultStatistics: StatisticData = {
@@ -45,6 +48,7 @@ const defaultStatistics: StatisticData = {
   orderList: [],
   balanceTable: [],
   transactionList: [],
+  operationalCost: {} as OperationalCost,
 };
 
 const StatisticPage = () => {
@@ -95,11 +99,13 @@ const StatisticPage = () => {
     };
 
     return await triggerLoading(async () => {
-      const [odderData, transactionData, balanceTableData] = await Promise.all([
-        apiGetOrderList(orderQueryParams),
-        apiGetTransactionList(transactionQueryParams),
-        apiGetTransactionBalanceByDate({ dateTime: date }),
-      ]);
+      const [odderData, transactionData, balanceTableData, operationalCost] =
+        await Promise.all([
+          apiGetOrderList(orderQueryParams),
+          apiGetTransactionList(transactionQueryParams),
+          apiGetTransactionBalanceByDate({ dateTime: date }),
+          apiGetOperationalCostByDate({ dateTime: date }),
+        ]);
 
       const orderList = odderData.data.data.orders ?? [];
       const transactionList = transactionData.data.data.transactions ?? [];
@@ -110,13 +116,15 @@ const StatisticPage = () => {
       const { profit, revenue } = calculateBalance(
         orderList,
         transactionList,
-        balanceTable
+        balanceTable,
+        operationalCost.data.data
       );
 
       setStatisticData({
         orderList,
         transactionList,
         balanceTable,
+        operationalCost: operationalCost.data.data,
         profit,
         revenue,
       });
@@ -173,7 +181,12 @@ const StatisticPage = () => {
             <CardTitle className="text-sm font-medium">Lợi nhuận</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div
+              className={cn(
+                "text-2xl font-bold",
+                statisticData.profit > 0 ? "text-green-500" : "text-red-500"
+              )}
+            >
               {formatAmount(statisticData.profit)}
             </div>
           </CardContent>
@@ -185,6 +198,7 @@ const StatisticPage = () => {
           <TabsTrigger value="order">Đơn hàng</TabsTrigger>
           <TabsTrigger value="transaction">Ngoại tệ</TabsTrigger>
           <TabsTrigger value="balance">Balance</TabsTrigger>
+          <TabsTrigger value="cost">Phí Vận hành</TabsTrigger>
         </TabsList>
         <TabsContent value="order">
           <Card className="mt-4">
@@ -236,6 +250,20 @@ const StatisticPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="cost">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Chi phí tháng {date.getMonth() + 1}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <span className={cn("text-red-500")}>
+                  -{formatAmount(statisticData?.operationalCost?.amount ?? 0)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -246,7 +274,8 @@ export default StatisticPage;
 const calculateBalance = (
   orderList: OrderWithExtra[],
   transactionList: TransactionWithExtra[],
-  balanceTable: TransactionBalanceItem[]
+  balanceTable: TransactionBalanceItem[],
+  operationalCost: OperationalCost
 ) => {
   const balanceTableIn = balanceTable
     .filter(
@@ -273,7 +302,12 @@ const calculateBalance = (
   );
 
   return {
-    profit: balanceTableIn + transactionListIn + orderIn - orderOut,
+    profit:
+      balanceTableIn +
+      transactionListIn +
+      orderIn -
+      orderOut -
+      (operationalCost?.amount ?? 0),
     revenue: orderIn,
   };
 };

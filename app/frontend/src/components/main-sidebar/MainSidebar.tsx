@@ -30,6 +30,7 @@ const menus: TMenuItem[] = [
     items: [
       { title: "Danh sách GD", link: "/transaction-list" },
       { title: "Bảng balance", link: "/transaction-balance" },
+      { title: "Phí vận hành", link: "/operational-cost" },
     ],
     role: [Role.ADMIN],
   },

@@ -9,20 +9,21 @@ datasource db {
 }
 
 model User {
-  id                 String               @id @unique
-  fullName           String
-  email              String?
-  phone              String?
-  adminId            String?
-  admin              User?                @relation("AdminToUsers", fields: [adminId], references: [id], onDelete: Cascade)
-  adminedUsers       User[]               @relation("AdminToUsers") // ← users managed by this user
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  account            Account?
-  orders             Order[]
-  transfers          Transfered[]
-  transactions       Transaction[]
-  TransactionBalance TransactionBalance[]
+  id                  String               @id @unique
+  fullName            String
+  email               String?
+  phone               String?
+  adminId             String?
+  admin               User?                @relation("AdminToUsers", fields: [adminId], references: [id], onDelete: Cascade)
+  adminedUsers        User[]               @relation("AdminToUsers") // ← users managed by this user
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  account             Account?
+  orders              Order[]
+  transfers           Transfered[]
+  transactions        Transaction[]
+  transactionBalances TransactionBalance[]
+  operationalCosts    OperationalCost[]
 }
 
 model Transfered {
@@ -110,6 +111,16 @@ model TransactionBalance {
   id        String   @id @unique
   dateTime  DateTime @default(now())
   data      String
+  adminId   String?
+  admin     User?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OperationalCost {
+  id        String   @id @unique
+  dateTime  DateTime @default(now())
+  amount    Int
   adminId   String?
   admin     User?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

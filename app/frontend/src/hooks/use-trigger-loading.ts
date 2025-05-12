@@ -23,6 +23,7 @@ export const useTriggerLoading = () => {
       showLoading(loadingKey);
       return await callback();
     } catch (e: A) {
+      console.error(e);
       catchError(e);
     } finally {
       closeLoading({ key: loadingKey, isAll });

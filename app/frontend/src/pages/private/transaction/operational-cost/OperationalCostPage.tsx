@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { MonthPicker } from "@/components/ui/month-picker";
 import {
   Popover,
@@ -9,117 +11,66 @@ import {
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import {
-  apiAddTransactionBalance,
-  apiGetTransactionBalanceByDate,
-} from "@/services/main/transactionBalanceServices";
-import { BalanceNatureType } from "@/types/enum/app-enum";
-import { TransactionBalanceItem } from "@/types/model/app-model";
+  apiAddOperationalCost,
+  apiGetOperationalCostByDate,
+} from "@/services/main/operationalCostServices";
+import { OperationalCost } from "@/types/model/app-model";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import TransactionBalanceTable from "./TransactionBalanceTable";
+import { useEffect, useState } from "react";
 
-const defaultTransactionBalance = [
-  { id: "1", name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
-  { id: "2", name: "PPUS", amount: 0, rate: 0, nature: BalanceNatureType.IN },
-  {
-    id: "3",
-    name: "ALI-156",
-    amount: 0,
-    rate: 0,
-    nature: BalanceNatureType.IN,
-  },
-  {
-    id: "4",
-    name: "ALI-836",
-    amount: 0,
-    rate: 0,
-    nature: BalanceNatureType.IN,
-  },
-  {
-    id: "5",
-    name: "Pending",
-    amount: 0,
-    rate: 0,
-    nature: BalanceNatureType.IN,
-  },
-];
-
-const TransactionBalancePage = () => {
-  const [date, setDate] = React.useState<Date>(new Date());
+const OperationalCostPage = () => {
+  const [date, setDate] = useState<Date>(new Date());
 
   const { triggerLoading } = useTriggerLoading();
 
   const [isEdit, setIsEdit] = useState(false);
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<TransactionBalanceItem[]>(
-    defaultTransactionBalance
-  );
-
-  const totalSelectedValues = useMemo(() => {
-    return data
-      .filter((item) => item.nature !== BalanceNatureType.PENDING)
-      .reduce((acc, item) => {
-        return acc + (item.amount ?? 0) * (item.rate ?? 0);
-      }, 0);
-  }, [data]);
+  const [data, setData] = useState<OperationalCost>({} as OperationalCost);
 
   const onApply = () => {
     triggerLoading(async () => {
-      await apiAddTransactionBalance({
+      await apiAddOperationalCost({
         dateTime: date,
-        data: JSON.stringify(data),
+        amount: data?.amount ?? 0,
       });
 
       setIsEdit(false);
     });
   };
 
-  const getTransactionBalance = async (date: Date) => {
+  const getCost = async (date: Date) => {
     return await triggerLoading(async () => {
-      const { data } = await apiGetTransactionBalanceByDate({
-        dateTime: date,
-      });
-      if (!data.success) return false;
-      const balanceData = data.data;
-
-      if (!balanceData.data) {
-        setData(defaultTransactionBalance);
+      const { data } = await apiGetOperationalCostByDate({ dateTime: date });
+      console.log(data);
+      if (!data.success || !data.data) {
+        setData({} as OperationalCost);
+        return false;
       }
-      const tableData: TransactionBalanceItem[] = JSON.parse(
-        balanceData.data ?? "[]"
-      );
 
-      setData((prev) =>
-        prev.map((item) => ({
-          ...item,
-          amount: tableData.find((t) => t.name === item.name)?.amount ?? 0,
-          rate: tableData.find((t) => t.name === item.name)?.rate ?? 0,
-        }))
-      );
-
+      setData(data.data);
       return true;
     });
   };
 
-  useEffect(() => {
-    getTransactionBalance(date);
-  }, []);
-
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getTransactionBalance(date);
+    const isSuccess = await getCost(date);
     if (isSuccess) {
       setDate(date);
       setOpen(false);
     }
   };
 
+  useEffect(() => {
+    getCost(date);
+  }, []);
+
   return (
     <div>
       <div>
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
-          Bảng Balance
+          Chi phí vận hành
         </h3>
       </div>
 
@@ -148,23 +99,42 @@ const TransactionBalancePage = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Số dư</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Chi phí tháng {date.getMonth() + 1}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span
-                className={cn(
-                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600"
-                )}
-              >
-                {formatAmount(totalSelectedValues)}
+              <span className={cn("text-red-500")}>
+                -{formatAmount(data.amount ?? 0)}
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <TransactionBalanceTable data={data} setData={setData} isEdit={isEdit} />
+      {isEdit && (
+        <>
+          <Label className="mb-4 block">
+            Chi phí vận hành trong tháng {date.getMonth() + 1}
+          </Label>
+          <Input
+            type="number"
+            wrapperClassname="w-[400px] mb-6"
+            placeholder="Nhập tiền cọc"
+            renderExtra={formatAmount}
+            value={data?.amount ?? 0}
+            readOnly={!isEdit}
+            onChange={(value) => {
+              setData({
+                ...data,
+                amount: Number(value as unknown as number),
+              });
+            }}
+          />
+        </>
+      )}
+
       {!isEdit ? (
         <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>
       ) : (
@@ -172,7 +142,7 @@ const TransactionBalancePage = () => {
           <Button
             variant="outline"
             onClick={async () => {
-              await getTransactionBalance(date);
+              await getCost(date);
               setIsEdit(false);
             }}
           >
@@ -185,4 +155,4 @@ const TransactionBalancePage = () => {
   );
 };
 
-export default TransactionBalancePage;
+export default OperationalCostPage;

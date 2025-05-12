@@ -14,6 +14,11 @@ const TransactionBalancePage = lazy(
     )
 );
 
+const OperationalCostPage = lazy(
+  () =>
+    import("@/pages/private/transaction/operational-cost/OperationalCostPage")
+);
+
 export const transactionRoutes = [
   {
     path: "/transaction-list",
@@ -23,6 +28,11 @@ export const transactionRoutes = [
   {
     path: "/transaction-balance",
     element: <TransactionBalancePage />,
+    roles: [Role.ADMIN],
+  },
+  {
+    path: "/operational-cost",
+    element: <OperationalCostPage />,
     roles: [Role.ADMIN],
   },
 ];
