@@ -8,7 +8,7 @@ import { UUID } from 'node:crypto';
 export const listShippingStores = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
-    const orders = await ShippingStoreService.listShippingStores(query);
+    const orders = await ShippingStoreService.listShippingStores(query, request.user!);
     return sendSuccessResponse(response, orders);
   } catch (error: any) {
     next(error);
@@ -18,7 +18,7 @@ export const listShippingStores = async (request: Request, response: Response, n
 export const createShippingStore = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const store: TShippingStoreRequest = request.body;
-    const newStore = await ShippingStoreService.createStore(store);
+    const newStore = await ShippingStoreService.createStore(store, request.user!);
     return sendSuccessResponse(response, newStore, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);

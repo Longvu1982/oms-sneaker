@@ -7,7 +7,7 @@ import { UUID } from 'node:crypto';
 export const listSources = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const query = request.body;
-    const orders = await SourceService.listSources(query);
+    const orders = await SourceService.listSources(query, request.user!);
     return sendSuccessResponse(response, orders);
   } catch (error: any) {
     next(error);
@@ -17,7 +17,7 @@ export const listSources = async (request: Request, response: Response, next: Ne
 export const createSource = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const source: { name: string } = request.body;
-    const newOrder = await SourceService.createSource(source);
+    const newOrder = await SourceService.createSource(source, request.user!);
     return sendSuccessResponse(response, newOrder, HttpStatusCode.CREATED);
   } catch (error: any) {
     next(error);

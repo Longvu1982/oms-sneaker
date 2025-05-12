@@ -2,25 +2,25 @@ import { Prisma, ShippingStore } from '@prisma/client';
 import { QueryDataModel, TShippingStoreRequest } from '../types/general';
 import { db } from '../utils/db.server';
 import { v4 } from 'uuid';
+import { RequestUser } from '../types/express';
 
 export const listShippingStores = async (
-  model: QueryDataModel
+  model: QueryDataModel,
+  requestUser: RequestUser
 ): Promise<{ totalCount: number; shippingStores: ShippingStore[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
   const { pageSize, pageIndex } = pagination;
-  // Infer query type from Prisma
   const query: Prisma.ShippingStoreFindManyArgs = {
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+    where: { adminId: requestUser.id },
+    orderBy: {},
   };
 
   if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+    query.skip = pageIndex * pageSize;
+    query.take = pageSize;
   }
 
-  // Filtering
   if (filter?.length) {
     query.where = {
       ...query.where,
@@ -30,7 +30,6 @@ export const listShippingStores = async (
     };
   }
 
-  // Searching
   if (searchText) {
     query.where = {
       ...query.where,
@@ -38,7 +37,6 @@ export const listShippingStores = async (
     };
   }
 
-  // Sorting
   if (sort?.column) {
     query.orderBy = {
       [sort.column]: sort.type,
@@ -53,11 +51,12 @@ export const listShippingStores = async (
   return { totalCount, shippingStores };
 };
 
-export const createStore = async (store: TShippingStoreRequest): Promise<ShippingStore> => {
+export const createStore = async (store: TShippingStoreRequest, requestUser: RequestUser): Promise<ShippingStore> => {
   return db.shippingStore.create({
     data: {
       ...store,
       id: v4(),
+      adminId: requestUser.id,
     },
   });
 };

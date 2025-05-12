@@ -89,6 +89,7 @@ model Source {
   id        String   @id @unique
   name      String
   color     String   @default("#FFFFFF") // Adding a color field with a default value
+  adminId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
@@ -99,6 +100,7 @@ model ShippingStore {
   name      String
   address   String?
   phone     String?
+  adminId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]

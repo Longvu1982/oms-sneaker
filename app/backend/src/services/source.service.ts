@@ -2,23 +2,25 @@ import { Prisma, Source } from '@prisma/client';
 import { QueryDataModel } from '../types/general';
 import { db } from '../utils/db.server';
 import { v4 } from 'uuid';
+import { RequestUser } from '../types/express';
 
-export const listSources = async (model: QueryDataModel): Promise<{ totalCount: number; sources: Source[] }> => {
+export const listSources = async (
+  model: QueryDataModel,
+  requestUser: RequestUser
+): Promise<{ totalCount: number; sources: Source[] }> => {
   const { pagination, searchText, sort, filter } = model;
 
   const { pageSize, pageIndex } = pagination;
-  // Infer query type from Prisma
   const query: Prisma.SourceFindManyArgs = {
-    where: {}, // Filtering conditions will be added dynamically
-    orderBy: {}, // Sorting conditions will be added dynamically
+    where: { adminId: requestUser.id },
+    orderBy: {},
   };
 
   if (pageSize) {
-    query.skip = pageIndex * pageSize; // Paging: Calculate the offset
-    query.take = pageSize; // Paging: Limit to the page size
+    query.skip = pageIndex * pageSize;
+    query.take = pageSize;
   }
 
-  // Filtering
   if (filter?.length) {
     query.where = {
       ...query.where,
@@ -28,7 +30,6 @@ export const listSources = async (model: QueryDataModel): Promise<{ totalCount: 
     };
   }
 
-  // Searching
   if (searchText) {
     query.where = {
       ...query.where,
@@ -36,7 +37,6 @@ export const listSources = async (model: QueryDataModel): Promise<{ totalCount: 
     };
   }
 
-  // Sorting
   if (sort?.column) {
     query.orderBy = {
       [sort.column]: sort.type,
@@ -48,11 +48,12 @@ export const listSources = async (model: QueryDataModel): Promise<{ totalCount: 
   return { totalCount, sources };
 };
 
-export const createSource = async (source: { name: string }): Promise<Source> => {
+export const createSource = async (source: { name: string }, requestUser: RequestUser): Promise<Source> => {
   return db.source.create({
     data: {
       id: v4(),
       ...source,
+      adminId: requestUser.id,
     },
   });
 };

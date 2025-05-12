@@ -115,50 +115,22 @@ async function seed() {
   //   })
   // );
 
-  await db.user.create({
-    data: {
-      id: v4(),
-      fullName: 'Phạm Quốc Việt SUPER ADMIN',
-      email: 'superAdmin@admin.com',
-      phone: '',
-      account: {
-        create: {
-          username: 'superAdminPQV',
-          password: await hashPassword('superAdminPQV'),
-          role: Role.SUPER_ADMIN,
-          id: v4(),
-        },
-      },
-    },
-  });
-
   const currentAdmin = await db.user.findFirst({
     where: {
       account: {
         role: Role.ADMIN,
+        username: 'pqviet',
       },
     },
   });
 
-  await db.user.updateMany({
+  await db.source.updateMany({
     data: {
       adminId: currentAdmin?.id,
     },
   });
 
-  await db.transaction.updateMany({
-    data: {
-      adminId: currentAdmin?.id,
-    },
-  });
-
-  await db.transactionBalance.updateMany({
-    data: {
-      adminId: currentAdmin?.id,
-    },
-  });
-
-  await db.backup.updateMany({
+  await db.shippingStore.updateMany({
     data: {
       adminId: currentAdmin?.id,
     },
