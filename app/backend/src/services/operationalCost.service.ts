@@ -22,6 +22,7 @@ export const createOperationalCost = async (
         gte: startOfTheMonth,
         lte: endOfTheMonth,
       },
+      adminId: requestUser.id,
     },
   });
 

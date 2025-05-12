@@ -10,6 +10,7 @@ export const createOperationalCost = async (request: Request, response: Response
     const newCost = await OperationalCostService.createOperationalCost(cost, user!);
     return sendSuccessResponse(response, newCost, HttpStatusCode.CREATED);
   } catch (error: any) {
+    console.log(error);
     next(error);
   }
 };
