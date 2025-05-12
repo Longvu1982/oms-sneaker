@@ -23,7 +23,7 @@ export const exportDatabase = async (request: Request, response: Response, next:
   const filePath = path.join(BACKUP_DIR, fileName);
 
   try {
-    const databaseExport = await DatabaseService.exportDatabaseData();
+    const databaseExport = await DatabaseService.exportDatabaseData(request.user!);
     const jsonData = JSON.stringify(databaseExport, null, 2);
 
     if (process.env.NODE_ENV === 'production') {
@@ -40,7 +40,7 @@ export const exportDatabase = async (request: Request, response: Response, next:
       fs.writeFileSync(filePath, jsonData);
     }
 
-    await db.backup.create({ data: { id: v4() } });
+    await db.backup.create({ data: { id: v4(), adminId: request.user?.id } });
 
     response.download(filePath, fileName, async (err) => {
       if (err) {
