@@ -29,7 +29,7 @@ export const listUsers = async (
     },
   };
 
-  if (role === role.Admin) {
+  if (role === Role.ADMIN) {
     query.where = {
       ...query.where,
       adminId: id,

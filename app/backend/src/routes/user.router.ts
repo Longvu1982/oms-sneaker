@@ -8,10 +8,10 @@ const router = express.Router();
 router.post('/list', protectAuth, UserController.listUsers);
 router.post('/list-detail', protectAuth, UserController.listUsersDetail);
 
-router.post('/create', protectAuth, protectRoles([Role.ADMIN]), UserController.createUser);
+router.post('/create', protectAuth, protectRoles([Role.ADMIN, Role.SUPER_ADMIN]), UserController.createUser);
 router.post('/create/bulk', protectAuth, protectRoles([Role.ADMIN]), UserController.bulkCreateUser);
 
-router.post('/:id/update', protectAuth, protectRoles([Role.ADMIN]), UserController.updateUser);
+router.post('/:id/update', protectAuth, protectRoles([Role.ADMIN, Role.SUPER_ADMIN]), UserController.updateUser);
 
 router.get('/:userId', protectAuth, UserController.getUserByID);
 
