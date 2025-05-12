@@ -198,7 +198,7 @@ const StatisticPage = () => {
           <TabsTrigger value="order">Đơn hàng</TabsTrigger>
           <TabsTrigger value="transaction">Ngoại tệ</TabsTrigger>
           <TabsTrigger value="balance">Balance</TabsTrigger>
-          <TabsTrigger value="cost">Phí Vận hành</TabsTrigger>
+          <TabsTrigger value="cost">Phí vận hành</TabsTrigger>
         </TabsList>
         <TabsContent value="order">
           <Card className="mt-4">
