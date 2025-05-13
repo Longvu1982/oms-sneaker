@@ -3,21 +3,21 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
 import { Input } from "@/components/ui/input";
 import { formatAmount, renderBadge } from "@/lib/utils";
-import { BalanceNatureType } from "@/types/enum/app-enum";
+import { NatureType } from "@/types/enum/app-enum";
 import {
-  balancenNtureTypeOptions,
-  TransactionBalanceItem,
+  natureTypeOptions,
+  OperationalCostItem,
 } from "@/types/model/app-model";
 import React, { FC, useMemo } from "react";
-import { balanceNatureObject } from "../transaction-list/transaction-utils";
+import { natureObject } from "../transaction-list/transaction-utils";
 
-interface TransactionBalanceTableProps {
-  data: TransactionBalanceItem[];
+interface OperationalCostTableProps {
+  data: OperationalCostItem[];
   isEdit: boolean;
-  setData?: React.Dispatch<React.SetStateAction<TransactionBalanceItem[]>>;
+  setData?: React.Dispatch<React.SetStateAction<OperationalCostItem[]>>;
 }
 
-const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
+const OperationalCostTable: FC<OperationalCostTableProps> = ({
   isEdit,
   setData,
   data,
@@ -56,34 +56,9 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
         },
         {
           accessorKey: "amount",
-          header: "Số lượng",
+          header: "Chi phí",
           cell: ({ row, getValue }) => {
-            const name = row.original.name;
-            return isEdit ? (
-              <Input
-                type="number"
-                className="min-w-[100px]"
-                value={getValue() as number}
-                onChange={(value) => {
-                  setData?.((prevData) =>
-                    prevData.map((item) =>
-                      item.name === name
-                        ? { ...item, amount: Number(value) }
-                        : item
-                    )
-                  );
-                }}
-              />
-            ) : (
-              (getValue() as number)
-            );
-          },
-        },
-        {
-          accessorKey: "rate",
-          header: "Tỉ giá",
-          cell: ({ row, getValue }) => {
-            const name = row.original.name;
+            const id = row.original.id;
             return isEdit ? (
               <Input
                 type="number"
@@ -93,9 +68,7 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
                 onChange={(value) => {
                   setData?.((prevData) =>
                     prevData.map((item) =>
-                      item.name === name
-                        ? { ...item, rate: Number(value) }
-                        : item
+                      item.id === id ? { ...item, amount: Number(value) } : item
                     )
                   );
                 }}
@@ -110,13 +83,12 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
           accessorKey: "nature",
           header: "Tính chất",
           cell: ({ getValue, row }) => {
-            const props =
-              balanceNatureObject[getValue() as BalanceNatureType] ?? {};
+            const props = natureObject[getValue() as NatureType] ?? {};
             const id = row.original.id;
 
             return isEdit ? (
               <ComboBox
-                value={getValue() as BalanceNatureType}
+                value={getValue() as NatureType}
                 label="tính chất"
                 searchable={false}
                 onValueChange={(value) =>
@@ -125,18 +97,18 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
                       if (item.id === id) {
                         return {
                           ...item,
-                          nature: value as BalanceNatureType,
+                          nature: value as NatureType,
                         };
                       }
                       return item;
                     })
                   )
                 }
-                options={balancenNtureTypeOptions}
+                options={natureTypeOptions.filter(
+                  (item) => item.value === NatureType.OUT
+                )}
                 renderOption={(option) => {
-                  const props =
-                    balanceNatureObject[option.value as BalanceNatureType] ??
-                    {};
+                  const props = natureObject[option.value as NatureType] ?? {};
                   return renderBadge(props.color, option.label);
                 }}
               />
@@ -145,7 +117,7 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
             );
           },
         },
-      ] as EnhancedColumnDef<TransactionBalanceItem>[],
+      ] as EnhancedColumnDef<OperationalCostItem>[],
     [isEdit, setData]
   );
 
@@ -159,4 +131,4 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
   );
 };
 
-export default TransactionBalanceTable;
+export default OperationalCostTable;

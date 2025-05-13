@@ -6,7 +6,7 @@ import { db } from '../utils/db.server';
 
 export const createOperationalCost = async (
   balanceData: {
-    amount: number;
+    data: string;
     dateTime: string;
   },
   requestUser: RequestUser
@@ -32,7 +32,7 @@ export const createOperationalCost = async (
         id: existingCost.id,
       },
       data: {
-        amount: balanceData.amount,
+        data: balanceData.data,
         updatedAt: new Date(),
       },
     });
@@ -42,7 +42,7 @@ export const createOperationalCost = async (
         id: v4(),
         adminId: requestUser.id,
         dateTime: parsedDate,
-        amount: balanceData.amount,
+        data: balanceData.data,
       },
     });
   }

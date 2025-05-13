@@ -108,13 +108,20 @@ export type TransactionBalanceItem = {
   nature: BalanceNatureType;
 };
 
+export type OperationalCostItem = {
+  id: string;
+  name: string;
+  amount: number;
+  nature: NatureType;
+};
+
 export type OperationalCost = {
   id: string;
-  amount: number;
+  data: string;
   adminId: string;
   dateTime: string;
-  createdAt: string; // Date as ISO string
-  updatedAt: string; // Date as ISO string
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type QueryDataModel = {

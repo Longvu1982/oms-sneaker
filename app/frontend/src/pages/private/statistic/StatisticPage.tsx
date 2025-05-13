@@ -9,6 +9,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
+import { apiGetOperationalCostByDate } from "@/services/main/operationalCostServices";
 import { apiGetOrderList, OrderWithExtra } from "@/services/main/orderServices";
 import { apiGetTransactionBalanceByDate } from "@/services/main/transactionBalanceServices";
 import { apiGetTransactionList } from "@/services/main/transactionServices";
@@ -19,7 +20,7 @@ import {
 } from "@/types/enum/app-enum";
 import {
   initQueryParams,
-  OperationalCost,
+  OperationalCostItem,
   QueryDataModel,
   TransactionBalanceItem,
   TransactionWithExtra,
@@ -29,9 +30,9 @@ import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import OrderTable from "../order-list/table/OrderTable";
+import OperationalCostTable from "../transaction/operational-cost/OperationalCostTable";
 import TransactionBalanceTable from "../transaction/transaction-balance/TransactionBalanceTable";
 import TransactionTable from "../transaction/transaction-list/table/TransactionTable";
-import { apiGetOperationalCostByDate } from "@/services/main/operationalCostServices";
 
 type StatisticData = {
   revenue: number;
@@ -39,7 +40,7 @@ type StatisticData = {
   orderList: OrderWithExtra[];
   balanceTable: TransactionBalanceItem[];
   transactionList: TransactionWithExtra[];
-  operationalCost: OperationalCost;
+  operationalCostData: OperationalCostItem[];
 };
 
 const defaultStatistics: StatisticData = {
@@ -48,7 +49,7 @@ const defaultStatistics: StatisticData = {
   orderList: [],
   balanceTable: [],
   transactionList: [],
-  operationalCost: {} as OperationalCost,
+  operationalCostData: [],
 };
 
 const StatisticPage = () => {
@@ -113,18 +114,22 @@ const StatisticPage = () => {
         balanceTableData.data.data.data ?? "[]"
       ) as TransactionBalanceItem[];
 
+      const operationalCostData = JSON.parse(
+        operationalCost.data.data.data ?? "[]"
+      ) as OperationalCostItem[];
+
       const { profit, revenue } = calculateBalance(
         orderList,
         transactionList,
         balanceTable,
-        operationalCost.data.data
+        operationalCostData
       );
 
       setStatisticData({
         orderList,
         transactionList,
         balanceTable,
-        operationalCost: operationalCost.data.data,
+        operationalCostData,
         profit,
         revenue,
       });
@@ -256,11 +261,10 @@ const StatisticPage = () => {
               <CardTitle>Chi phí tháng {date.getMonth() + 1}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                <span className={cn("text-red-500")}>
-                  -{formatAmount(statisticData?.operationalCost?.amount ?? 0)}
-                </span>
-              </div>
+              <OperationalCostTable
+                data={statisticData.operationalCostData}
+                isEdit={false}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -275,7 +279,7 @@ const calculateBalance = (
   orderList: OrderWithExtra[],
   transactionList: TransactionWithExtra[],
   balanceTable: TransactionBalanceItem[],
-  operationalCost: OperationalCost
+  operationalCostData: OperationalCostItem[]
 ) => {
   const balanceTableIn = balanceTable
     .filter(
@@ -286,6 +290,10 @@ const calculateBalance = (
       (acc, cur) => acc + (cur.amount as number) * (cur.rate as number),
       0
     );
+
+  const operationalCostOut = operationalCostData
+    .filter((item) => item.amount && item.nature === NatureType.OUT)
+    .reduce((acc, cur) => acc + cur.amount, 0);
 
   const transactionListIn = transactionList
     .filter((item) => item.amount && item.rate)
@@ -307,7 +315,7 @@ const calculateBalance = (
       transactionListIn +
       orderIn -
       orderOut -
-      (operationalCost?.amount ?? 0),
+      operationalCostOut,
     revenue: orderIn,
   };
 };

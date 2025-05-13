@@ -19,26 +19,27 @@ import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import TransactionBalanceTable from "./TransactionBalanceTable";
+import { v4 } from "uuid";
 
 const defaultTransactionBalance = [
-  { id: "1", name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
-  { id: "2", name: "PPUS", amount: 0, rate: 0, nature: BalanceNatureType.IN },
+  { id: v4(), name: "PPVN", amount: 0, rate: 0, nature: BalanceNatureType.IN },
+  { id: v4(), name: "PPUS", amount: 0, rate: 0, nature: BalanceNatureType.IN },
   {
-    id: "3",
+    id: v4(),
     name: "ALI-156",
     amount: 0,
     rate: 0,
     nature: BalanceNatureType.IN,
   },
   {
-    id: "4",
+    id: v4(),
     name: "ALI-836",
     amount: 0,
     rate: 0,
     nature: BalanceNatureType.IN,
   },
   {
-    id: "5",
+    id: v4(),
     name: "Pending",
     amount: 0,
     rate: 0,
@@ -74,6 +75,19 @@ const TransactionBalancePage = () => {
 
       setIsEdit(false);
     });
+  };
+
+  const onAdd = () => {
+    setData((prev) => [
+      ...prev,
+      {
+        id: v4(),
+        name: "",
+        amount: 0,
+        rate: 0,
+        nature: BalanceNatureType.IN,
+      },
+    ]);
   };
 
   const getTransactionBalance = async (date: Date) => {
@@ -163,7 +177,11 @@ const TransactionBalancePage = () => {
           </CardContent>
         </Card>
       </div>
-
+      {isEdit && (
+        <Button className="mb-4" onClick={onAdd}>
+          Thêm mục
+        </Button>
+      )}
       <TransactionBalanceTable data={data} setData={setData} isEdit={isEdit} />
       {!isEdit ? (
         <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>

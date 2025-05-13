@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { MonthPicker } from "@/components/ui/month-picker";
 import {
   Popover,
@@ -14,11 +12,14 @@ import {
   apiAddOperationalCost,
   apiGetOperationalCostByDate,
 } from "@/services/main/operationalCostServices";
-import { OperationalCost } from "@/types/model/app-model";
+import { NatureType } from "@/types/enum/app-enum";
+import { OperationalCostItem } from "@/types/model/app-model";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
+import OperationalCostTable from "./OperationalCostTable";
 
 const OperationalCostPage = () => {
   const [date, setDate] = useState<Date>(new Date());
@@ -27,29 +28,55 @@ const OperationalCostPage = () => {
 
   const [isEdit, setIsEdit] = useState(false);
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<OperationalCost>({} as OperationalCost);
+  const [data, setData] = useState<OperationalCostItem[]>([]);
+
+  const totalSelectedValues = useMemo(() => {
+    return data
+      .filter((item) => item.nature === NatureType.OUT)
+      .reduce((acc, item) => {
+        return acc + (item.amount ?? 0);
+      }, 0);
+  }, [data]);
 
   const onApply = () => {
     triggerLoading(async () => {
       await apiAddOperationalCost({
         dateTime: date,
-        amount: data?.amount ?? 0,
+        data: JSON.stringify(data),
       });
 
       setIsEdit(false);
     });
   };
 
+  const onAdd = () => {
+    setData((prev) => [
+      ...prev,
+      {
+        id: v4(),
+        name: "",
+        amount: 0,
+        nature: NatureType.OUT,
+      },
+    ]);
+  };
+
   const getCost = async (date: Date) => {
     return await triggerLoading(async () => {
       const { data } = await apiGetOperationalCostByDate({ dateTime: date });
       console.log(data);
-      if (!data.success || !data.data) {
-        setData({} as OperationalCost);
+      if (!data.success || !data?.data) {
+        setData([]);
         return false;
       }
 
-      setData(data.data);
+      const costData = data.data;
+
+      const newData = JSON.parse(
+        costData.data ?? "[]"
+      ) as OperationalCostItem[];
+
+      setData(newData);
       return true;
     });
   };
@@ -106,7 +133,7 @@ const OperationalCostPage = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               <span className={cn("text-red-500")}>
-                -{formatAmount(data.amount ?? 0)}
+                -{formatAmount(totalSelectedValues ?? 0)}
               </span>
             </div>
           </CardContent>
@@ -114,26 +141,12 @@ const OperationalCostPage = () => {
       </div>
 
       {isEdit && (
-        <>
-          <Label className="mb-4 block">
-            Chi phí vận hành trong tháng {date.getMonth() + 1}
-          </Label>
-          <Input
-            type="number"
-            wrapperClassname="w-[400px] mb-6"
-            placeholder="Nhập tiền cọc"
-            renderExtra={formatAmount}
-            value={data?.amount ?? 0}
-            readOnly={!isEdit}
-            onChange={(value) => {
-              setData({
-                ...data,
-                amount: Number(value as unknown as number),
-              });
-            }}
-          />
-        </>
+        <Button className="mb-4" onClick={onAdd}>
+          Thêm mục
+        </Button>
       )}
+
+      <OperationalCostTable data={data} setData={setData} isEdit={isEdit} />
 
       {!isEdit ? (
         <Button onClick={() => setIsEdit(true)}>Chỉnh sửa</Button>

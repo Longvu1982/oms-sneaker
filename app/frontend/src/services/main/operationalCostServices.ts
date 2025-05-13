@@ -2,7 +2,7 @@ import { OperationalCost } from "@/types/model/app-model";
 import ApiService from "../APIService";
 
 export async function apiAddOperationalCost(data: {
-  amount: number;
+  data: string;
   dateTime: Date | null;
 }) {
   return ApiService.fetchData<{

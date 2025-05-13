@@ -187,7 +187,7 @@ export function DataTable<TData extends DefaultData, TValue>({
   const table = useReactTable(tableSettings);
 
   if (!table.getRowModel().rows?.length)
-    return <p className="text-left">Không có dữ liệu</p>;
+    return <p className="text-left mb-4">Không có dữ liệu</p>;
 
   return (
     <div>

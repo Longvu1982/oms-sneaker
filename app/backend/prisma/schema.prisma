@@ -120,7 +120,7 @@ model TransactionBalance {
 model OperationalCost {
   id        String   @id @unique
   dateTime  DateTime @default(now())
-  amount    Int
+  data      String   @default("")
   adminId   String?
   admin     User?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
