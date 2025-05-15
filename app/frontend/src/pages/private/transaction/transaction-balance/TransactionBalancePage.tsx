@@ -105,13 +105,9 @@ const TransactionBalancePage = () => {
         balanceData.data ?? "[]"
       );
 
-      setData((prev) =>
-        prev.map((item) => ({
-          ...item,
-          amount: tableData.find((t) => t.name === item.name)?.amount ?? 0,
-          rate: tableData.find((t) => t.name === item.name)?.rate ?? 0,
-        }))
-      );
+      if (tableData.length === 0) {
+        setData(defaultTransactionBalance);
+      } else setData(tableData);
 
       return true;
     });
