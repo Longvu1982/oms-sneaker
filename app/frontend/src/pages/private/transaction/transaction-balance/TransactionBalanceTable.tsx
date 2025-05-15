@@ -1,6 +1,7 @@
 import ComboBox from "@/components/combo-box/ComboBox";
 import { DataTable } from "@/components/data-table/DataTable";
 import { EnhancedColumnDef } from "@/components/data-table/dataTable.utils";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatAmount, renderBadge } from "@/lib/utils";
 import { BalanceNatureType } from "@/types/enum/app-enum";
@@ -8,6 +9,7 @@ import {
   balancenNtureTypeOptions,
   TransactionBalanceItem,
 } from "@/types/model/app-model";
+import { Trash } from "lucide-react";
 import React, { FC, useMemo } from "react";
 import { balanceNatureObject } from "../transaction-list/transaction-utils";
 
@@ -145,6 +147,25 @@ const TransactionBalanceTable: FC<TransactionBalanceTableProps> = ({
             );
           },
         },
+        ...(isEdit
+          ? [
+              {
+                id: "actions",
+                cell: ({ row }: A) => {
+                  const id = row.original.id;
+
+                  const onDelete = () =>
+                    setData?.((prev) => prev.filter((item) => item.id !== id));
+
+                  return (
+                    <Button variant="outline" size="icon" onClick={onDelete}>
+                      <Trash className="text-red-500" />
+                    </Button>
+                  );
+                },
+              },
+            ]
+          : []),
       ] as EnhancedColumnDef<TransactionBalanceItem>[],
     [isEdit, setData]
   );

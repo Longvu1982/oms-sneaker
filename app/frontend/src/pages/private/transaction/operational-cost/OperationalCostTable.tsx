@@ -10,6 +10,8 @@ import {
 } from "@/types/model/app-model";
 import React, { FC, useMemo } from "react";
 import { natureObject } from "../transaction-list/transaction-utils";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 
 interface OperationalCostTableProps {
   data: OperationalCostItem[];
@@ -117,6 +119,25 @@ const OperationalCostTable: FC<OperationalCostTableProps> = ({
             );
           },
         },
+        ...(isEdit
+          ? [
+              {
+                id: "actions",
+                cell: ({ row }: A) => {
+                  const id = row.original.id;
+
+                  const onDelete = () =>
+                    setData?.((prev) => prev.filter((item) => item.id !== id));
+
+                  return (
+                    <Button variant="outline" size="icon" onClick={onDelete}>
+                      <Trash className="text-red-500" />
+                    </Button>
+                  );
+                },
+              },
+            ]
+          : []),
       ] as EnhancedColumnDef<OperationalCostItem>[],
     [isEdit, setData]
   );
