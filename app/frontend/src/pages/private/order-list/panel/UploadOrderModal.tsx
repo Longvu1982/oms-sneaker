@@ -76,12 +76,18 @@ export const UploadOrderModal: FC<AddTransferModalProps> = ({
       const userNameList = fileData.map((item) => item.userName) as string[];
       const uniqueList = Array.from(new Set(userNameList));
 
-      const emptyIndex = uniqueList.findIndex((item) => item?.trim() === "");
-      if (emptyIndex !== -1) {
+      const emptyListIndex = userNameList.reduce((acc, item, index) => {
+        if (!item?.trim()) {
+          acc.push(index + 2);
+        }
+        return acc;
+      }, [] as number[]);
+
+      if (emptyListIndex.length > 0) {
         toast.error(
           <div>
             <p>Tên người dùng không được để trống</p>
-            <p>Kiểm tra dòng {emptyIndex + 1}</p>
+            <p>Kiểm tra dòng {emptyListIndex.join(", ")}</p>
           </div>
         );
         return;
