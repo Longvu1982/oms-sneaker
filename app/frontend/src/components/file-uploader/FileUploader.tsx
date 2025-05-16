@@ -95,7 +95,7 @@ const UploadExcelOrders = <TData,>(props: UploadExcelOrderProps<TData>) => {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between border p-3 rounded-lg bg-gray-100">
+        <div className="flex items-center justify-between border p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
           <span>{file.name}</span>
           <Button variant="destructive" size="icon" onClick={handleRemoveFile}>
             <Trash className="w-4 h-4" />
