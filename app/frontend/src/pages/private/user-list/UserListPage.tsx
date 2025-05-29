@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { apiAddTransfer } from "@/services/main/transferServices";
@@ -34,6 +35,7 @@ import {
   PlusCircle,
   Trash,
   TriangleAlert,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -220,6 +222,7 @@ const UserListPage = () => {
   const [queryParams, setQueryParams] =
     useState<QueryDataModel>(initQueryParams);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
+  const [searchText, setSearchText] = useState("");
 
   const currentUser = useAuthStore((s) => s.user);
   const currentUserId = currentUser?.id;
@@ -389,6 +392,21 @@ const UserListPage = () => {
     });
   };
 
+  const onFilter = async (searchText: string) => {
+    const newData = {
+      ...queryParams,
+      pagination: {
+        ...queryParams.pagination,
+        pageIndex: 0,
+      },
+      searchText,
+    };
+
+    triggerLoading(async () => {
+      await getUserList(newData as QueryDataModel);
+    });
+  };
+
   useEffect(() => {
     triggerLoading(async () => {
       const params = structuredClone(initQueryParams);
@@ -410,19 +428,49 @@ const UserListPage = () => {
 
       {[Role.ADMIN, Role.SUPER_ADMIN].includes(currentUserRole as Role) && (
         <div className="flex items-center justify-between mb-6">
-          <Button
-            size="sm"
-            onClick={() => {
-              setUserPanel((prev) => ({
-                ...prev,
-                type: "create",
-                isOpen: true,
-              }));
-              userForm.reset({ ...initFormValues });
-            }}
-          >
-            <PlusCircle /> Thêm user
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => {
+                setUserPanel((prev) => ({
+                  ...prev,
+                  type: "create",
+                  isOpen: true,
+                }));
+                userForm.reset({ ...initFormValues });
+              }}
+            >
+              <PlusCircle /> Thêm user
+            </Button>
+            <div>
+              <Input
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Tìm kiếm user"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    onFilter(searchText);
+                  }
+                }}
+                renderExtra={() => {
+                  return searchText ? (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        onFilter("");
+                        setSearchText("");
+                      }}
+                    >
+                      <X size={10} />
+                    </Button>
+                  ) : (
+                    <></>
+                  );
+                }}
+              />
+            </div>
+          </div>
           <Button
             variant="outline"
             size="icon"

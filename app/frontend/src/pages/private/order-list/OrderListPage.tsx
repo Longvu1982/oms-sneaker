@@ -263,6 +263,7 @@ const OrderListPage = ({
         },
       ],
     };
+
     triggerLoading(async () => {
       await getOrderList(newData as QueryDataModel);
       setIsOpenFilter(false);
