@@ -136,7 +136,11 @@ export const bulkCreateOrder = async (request: Request, response: Response, next
     const createdOrders = await OrderSevice.bulkCreateOrder(orders, user!);
     return sendSuccessResponse(response, createdOrders);
   } catch (e) {
-    next({ override: true, message: 'Tạo đơn hàng không thành công, kiểm tra kiểu dữ liệu và chính tả' });
+    next({
+      ...(e as any),
+      override: true,
+      message: 'Tạo đơn hàng không thành công, kiểm tra kiểu dữ liệu và chính tả',
+    });
   }
 };
 
@@ -146,6 +150,6 @@ export const bulkDeleteOrder = async (request: Request, response: Response, next
     const deletedOrders = await OrderSevice.bulkDeleteOrder(ids);
     return sendSuccessResponse(response, deletedOrders);
   } catch (e) {
-    next({ override: true, message: 'Xoá đơn hàng không thành công' });
+    next({ ...(e as any), override: true, message: 'Xoá đơn hàng không thành công' });
   }
 };

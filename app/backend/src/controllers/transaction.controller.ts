@@ -57,7 +57,7 @@ export const bulkDeleteTransaction = async (request: Request, response: Response
     const deletedTransactions = await TransactionService.bulkDeleteTransaction(ids);
     return sendSuccessResponse(response, deletedTransactions);
   } catch (e) {
-    next({ override: true, message: 'Xoá giao dịch không thành công' });
+    next({ ...(e as any), override: true, message: 'Xoá giao dịch không thành công' });
   }
 };
 

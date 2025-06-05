@@ -87,6 +87,6 @@ export const bulkDeleteUser = async (request: Request, response: Response, next:
     const deletedUsers = await UserService.bulkDeleteUser(ids);
     return sendSuccessResponse(response, deletedUsers);
   } catch (e) {
-    next({ override: true, message: 'Xoá user không thành công' });
+    next({ ...(e as any), override: true, message: 'Xoá user không thành công' });
   }
 };
