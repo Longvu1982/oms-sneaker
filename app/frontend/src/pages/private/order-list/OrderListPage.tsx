@@ -516,7 +516,7 @@ const OrderListPage = ({
         { width: 25 },
         { width: 10 },
         { width: 20 },
-        { width: 20 },
+        { width: 35 },
       ]; //set col. widths
 
       const workbook = XLSX.utils.book_new();
