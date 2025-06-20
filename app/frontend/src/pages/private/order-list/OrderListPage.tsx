@@ -496,14 +496,15 @@ const OrderListPage = ({
       ["Ngày order"]: order.orderDate
         ? format(order.orderDate, "dd/MM/yyyy")
         : "",
-      ["Ngày chuyển TT"]: order.statusChangeDate
-        ? format(order.statusChangeDate, "dd/MM/yyyy")
-        : "",
+      // ["Ngày chuyển TT"]: order.statusChangeDate
+      //   ? format(order.statusChangeDate, "dd/MM/yyyy")
+      //   : "",
       SKU: order.SKU,
       size: order.size,
-      ["Giá"]: formatAmount(order.totalPrice),
-      ["Trạng thái"]: orderStatusObject[order.status].text,
+      // ["Giá"]: formatAmount(order.totalPrice),
+      // ["Trạng thái"]: orderStatusObject[order.status].text,
       ["Mã vận đơn"]: order.deliveryCode,
+      ["Order number"]: order.orderNumber,
     }));
 
     if (type === "excel") {
@@ -512,11 +513,10 @@ const OrderListPage = ({
 
       worksheet["!cols"] = [
         { width: 15 },
-        { width: 15 },
         { width: 25 },
         { width: 10 },
-        { width: 15 },
-        { width: 15 },
+        { width: 20 },
+        { width: 20 },
       ]; //set col. widths
 
       const workbook = XLSX.utils.book_new();
