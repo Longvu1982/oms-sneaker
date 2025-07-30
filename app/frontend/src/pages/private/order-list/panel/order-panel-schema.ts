@@ -42,6 +42,7 @@ export const schema = z.object({
       OrderStatus.LANDED,
       OrderStatus.SHIPPED,
       OrderStatus.CANCELLED,
+      OrderStatus.LANDED_IN_CHINA,
     ],
     {
       errorMap: () => ({ message: "Trạng thái không hợp lệ." }),

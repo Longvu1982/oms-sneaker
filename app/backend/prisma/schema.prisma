@@ -143,6 +143,7 @@ enum Role {
 enum OrderStatus {
   ONGOING
   LANDED
+  LANDED_IN_CHINA
   SHIPPED
   CANCELLED
 }

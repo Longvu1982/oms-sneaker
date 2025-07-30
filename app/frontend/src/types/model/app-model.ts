@@ -154,7 +154,8 @@ export const deliveryCodeStatusOptions = [
 
 export const orderStatusOptions = [
   { label: "Đang giao", value: OrderStatus.ONGOING },
-  { label: "Đã đến kho", value: OrderStatus.LANDED },
+  { label: "Đã đến kho VN", value: OrderStatus.LANDED },
+  { label: "Đã đến kho TQ", value: OrderStatus.LANDED_IN_CHINA },
   { label: "Đã giao", value: OrderStatus.SHIPPED },
   { label: "Đã huỷ", value: OrderStatus.CANCELLED },
 ];

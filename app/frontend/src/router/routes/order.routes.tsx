@@ -23,7 +23,7 @@ export const orderRoutes = [
     path: "/landed-order-list",
     element: (
       <OrderListPage
-        orderStatuses={[OrderStatus.LANDED]}
+        orderStatuses={[OrderStatus.LANDED, OrderStatus.LANDED_IN_CHINA]}
         key="landed"
         type="landed"
         title="Danh sách đến kho"

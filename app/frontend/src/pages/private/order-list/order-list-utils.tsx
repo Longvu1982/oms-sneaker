@@ -21,8 +21,12 @@ export const orderStatusObject = {
     color: "#ffcc00",
   },
   [OrderStatus.LANDED]: {
-    text: "Đã đến kho",
+    text: "Đã đến kho VN",
     color: "#ADD8E6",
+  },
+  [OrderStatus.LANDED_IN_CHINA]: {
+    text: "Đã đến kho TQ",
+    color: "violet",
   },
   [OrderStatus.SHIPPED]: {
     text: "Đã giao",

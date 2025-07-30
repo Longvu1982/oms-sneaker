@@ -10,6 +10,7 @@ export enum OrderStatus {
   LANDED = "LANDED",
   SHIPPED = "SHIPPED",
   CANCELLED = "CANCELLED",
+  LANDED_IN_CHINA = "LANDED_IN_CHINA",
 }
 
 export enum DeliveryCodeStatus {
