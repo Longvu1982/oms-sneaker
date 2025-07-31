@@ -16,21 +16,67 @@ const menus: TMenuItem[] = [
   {
     type: "collapsible",
     title: "Quản lý đơn hàng",
+    level: 1,
     items: [
-      { title: "Đơn đang giao", link: "/order-list" },
-      { title: "Đơn đến kho", link: "/landed-order-list" },
-      { title: "Đơn đã giao", link: "/complete-order-list" },
-      { title: "Đơn đã huỷ", link: "/cancel-order-list" },
+      {
+        type: "collapsible",
+        title: "Đơn đang giao",
+        link: "/order-list",
+        level: 2,
+        items: [
+          { title: "Đang giao", link: "/order-list", type: "single", level: 3 },
+          {
+            title: "Đến kho TQ",
+            link: "/landed-in-china",
+            type: "single",
+            level: 3,
+          },
+        ],
+      },
+      {
+        title: "Đơn đến kho",
+        link: "/landed-order-list",
+        type: "single",
+        level: 2,
+      },
+      {
+        title: "Đơn đã giao",
+        link: "/complete-order-list",
+        type: "single",
+        level: 2,
+      },
+      {
+        title: "Đơn đã huỷ",
+        link: "/cancel-order-list",
+        type: "single",
+        level: 2,
+      },
     ],
     role: [Role.ADMIN, Role.USER],
   },
   {
     type: "collapsible",
     title: "Quản lý ngoại tệ",
+    level: 1,
     items: [
-      { title: "Danh sách GD", link: "/transaction-list" },
-      { title: "Bảng balance", link: "/transaction-balance" },
-      { title: "Phí vận hành", link: "/operational-cost" },
+      {
+        title: "Danh sách GD",
+        link: "/transaction-list",
+        type: "single",
+        level: 2,
+      },
+      {
+        title: "Bảng balance",
+        link: "/transaction-balance",
+        type: "single",
+        level: 2,
+      },
+      {
+        title: "Phí vận hành",
+        link: "/operational-cost",
+        type: "single",
+        level: 2,
+      },
     ],
     role: [Role.ADMIN],
   },
@@ -39,24 +85,28 @@ const menus: TMenuItem[] = [
     title: "Quản lý doanh thu",
     role: [Role.ADMIN],
     link: "/statistics",
+    level: 1,
   },
   {
     type: "single",
     title: "Quản lý nguồn",
     link: "/source-list",
     role: [Role.ADMIN],
+    level: 1,
   },
   {
     type: "single",
     title: "Quản lý kho",
     link: "/shipping-store-list",
     role: [Role.ADMIN],
+    level: 1,
   },
   {
     type: "single",
     title: "Quản lý users",
     link: "/user-list",
     role: [Role.ADMIN, Role.USER, Role.SUPER_ADMIN],
+    level: 1,
   },
 ];
 
@@ -76,7 +126,7 @@ const MainSidebar = () => {
         <SidebarGroup className="space-y-1">
           {menus
             .filter(
-              (item) => !item.role.length || item.role.includes(role as Role)
+              (item) => !item.role?.length || item.role.includes(role as Role)
             )
             .map((menu) => (
               <MenuItem {...menu} key={menu.title} />

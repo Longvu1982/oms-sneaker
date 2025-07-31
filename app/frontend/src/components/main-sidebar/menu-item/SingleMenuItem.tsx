@@ -3,22 +3,17 @@ import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isActive } from "./menuItems.utils";
+import { TMenuItem } from "./menuItems.type";
 
-interface SingleMenuItemProps {
-  title: string;
-  link: string;
-  onClick?: () => void;
-}
-
-const SingleMenuItem: FC<SingleMenuItemProps> = ({ title, onClick, link }) => {
+const SingleMenuItem: FC<TMenuItem> = ({ title, onClick, link }) => {
   const navigate = useNavigate();
-  const onClickItem = onClick ?? (() => navigate(link));
+  const onClickItem = onClick ?? (() => navigate(link ?? ""));
   const { pathname } = useLocation();
   const { setOpenMobile } = useSidebar();
 
   return (
     <SidebarMenuButton
-      isActive={isActive(link, pathname)}
+      isActive={isActive(link ?? "", pathname)}
       className="w-full justify-start"
       asChild
     >

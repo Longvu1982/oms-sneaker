@@ -3,17 +3,16 @@ import CollapsibleMenuItem from "./CollapsibleMenuItem";
 import SingleMenuItem from "./SingleMenuItem";
 import { TMenuItem } from "./menuItems.type";
 
-const MenuItem: FC<TMenuItem> = ({
-  title,
-  type,
-  link = "",
-  items = [],
-  onClick,
-}) => {
-  if (type === "single")
-    return <SingleMenuItem title={title} link={link} onClick={onClick} />;
+const MenuItem: FC<TMenuItem> = (props) => {
+  if (props.type === "single") return <SingleMenuItem {...props} />;
 
-  return <CollapsibleMenuItem items={items} title={title} />;
+  return (
+    <CollapsibleMenuItem
+      items={props.items ?? []}
+      title={props.title}
+      level={props.level}
+    />
+  );
 };
 
 export default MenuItem;

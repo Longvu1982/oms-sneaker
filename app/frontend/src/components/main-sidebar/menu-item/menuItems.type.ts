@@ -10,7 +10,8 @@ export type TMenuItem = {
   type: "single" | "collapsible";
   title: string;
   link?: string;
-  items?: { title: string; link: string; onClick?: () => void }[];
+  items?: TMenuItem[];
   onClick?: () => void;
-  role: Role[];
+  role?: Role[];
+  level: number;
 };

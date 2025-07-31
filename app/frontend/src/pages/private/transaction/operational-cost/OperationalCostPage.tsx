@@ -64,7 +64,6 @@ const OperationalCostPage = () => {
   const getCost = async (date: Date) => {
     return await triggerLoading(async () => {
       const { data } = await apiGetOperationalCostByDate({ dateTime: date });
-      console.log(data);
       if (!data.success || !data?.data) {
         setData([]);
         return false;

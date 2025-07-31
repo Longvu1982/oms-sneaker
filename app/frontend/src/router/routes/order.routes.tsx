@@ -20,6 +20,18 @@ export const orderRoutes = [
     roles: [Role.ADMIN, Role.USER],
   },
   {
+    path: "/landed-in-china",
+    element: (
+      <OrderListPage
+        orderStatuses={[OrderStatus.LANDED_IN_CHINA]}
+        key="landed-in-china"
+        type="landed-in-china"
+        title="Đã đến kho TQ"
+      />
+    ),
+    roles: [Role.ADMIN, Role.USER],
+  },
+  {
     path: "/landed-order-list",
     element: (
       <OrderListPage
