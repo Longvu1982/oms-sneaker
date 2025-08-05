@@ -183,7 +183,9 @@ const userWithBalance = (u: any) => {
 
   const totalTransfered = transfereds.reduce((sum, item) => sum + item.amount, 0);
 
-  const onGoingOrders: Order[] = u.orders.filter((item: Order) => item.status === OrderStatus.ONGOING);
+  const onGoingOrders: Order[] = u.orders.filter((item: Order) =>
+    ([OrderStatus.ONGOING, OrderStatus.LANDED_IN_CHINA] as OrderStatus[]).includes(item.status)
+  );
 
   return {
     ...u,
