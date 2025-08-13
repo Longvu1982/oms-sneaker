@@ -79,7 +79,12 @@ const StatisticPage = () => {
       filter: [
         {
           column: "status",
-          value: [OrderStatus.SHIPPED, OrderStatus.ONGOING, OrderStatus.LANDED],
+          value: [
+            OrderStatus.SHIPPED,
+            OrderStatus.ONGOING,
+            OrderStatus.LANDED,
+            OrderStatus.LANDED_IN_CHINA,
+          ],
         },
         {
           column: "orderDate",
