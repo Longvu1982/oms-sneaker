@@ -19,4 +19,9 @@ export default defineConfig({
   preview: {
     port: 5173,
   },
+  build: {
+    rollupOptions: {
+      external: ["uuid"],
+    },
+  },
 });
