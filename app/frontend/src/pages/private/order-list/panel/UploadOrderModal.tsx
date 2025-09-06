@@ -40,7 +40,7 @@ const dataMapper = (rowData: A[]) => {
   return rowData.slice(1)?.map((row) => ({
     orderDate: addHours(row[0], 1),
     SKU: row[1] ?? "", // SKU
-    size: row[2] ?? "", // Size
+    size: row[2] != null ? String(row[2]) : "", // Size
     deposit: parseFloat(row[3]) ?? 0, // Cọc
     totalPrice: parseFloat(row[4]) ?? 0, // Giá
     userName: row[5], // Tên khách (we will convert to userId)

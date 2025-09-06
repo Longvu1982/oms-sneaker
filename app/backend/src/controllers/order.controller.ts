@@ -136,6 +136,7 @@ export const bulkCreateOrder = async (request: Request, response: Response, next
     const createdOrders = await OrderSevice.bulkCreateOrder(orders, user!);
     return sendSuccessResponse(response, createdOrders);
   } catch (e) {
+    console.log(e);
     next({
       ...(e as any),
       override: true,
