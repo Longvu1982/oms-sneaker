@@ -10,6 +10,8 @@
     "frontend": "npm run dev -w app/frontend",
     "start": "concurrently \"npm run backend\" \"npm run frontend\"",
     "build": "npm run build -w app/backend && npm run build -w app/frontend",
+    "build:be": "npm run build -w app/backend",
+    "build:fe": "npm run build -w app/frontend",
     "start:prod": "concurrently \"npm run start:be\" \"npm run start:fe\"",
     "start:be": "npm run start -w app/backend",
     "start:fe": "npm run preview -w app/frontend",
