@@ -18,7 +18,7 @@ import {
   Source,
 } from "@/types/model/app-model";
 import { format } from "date-fns/format";
-import { Edit, Trash } from "lucide-react";
+import { Copy, Edit, Trash } from "lucide-react";
 import { useMemo } from "react";
 import { EditableDeliveryCode } from "./components/EditableDeliveryCode";
 import { orderStatusObject } from "./order-list-utils";
@@ -158,7 +158,25 @@ export const useGetOrderColumns: (
         {
           id: "deliveryCode",
           accessorKey: "deliveryCode",
-          header: "MVĐ",
+          header: ({ table }) => {
+            const copyToClipBoard = table.options.meta?.copyToClipBoard;
+            const deliveryData = table.options.data
+              ?.map((item) => item.deliveryCode)
+              .filter((x) => x)
+              .join("\n");
+            return (
+              <div className="flex items-center gap-1">
+                <span>MVĐ</span>
+                <Copy
+                  className="active:opacity-50 cursor-pointer"
+                  size={16}
+                  onClick={() =>
+                    copyToClipBoard?.(deliveryData, "Copy cột MVĐ thành công")
+                  }
+                />
+              </div>
+            );
+          },
           cell: ({ row }) => {
             const order = row.original;
             return <EditableDeliveryCode order={order} onReload={onReload} />;
