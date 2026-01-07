@@ -71,7 +71,7 @@ export const listUsers = async (
   return { totalCount, users };
 };
 
-export const listUsersDetail = async (
+export const listUsersDetail_old = async (
   model: QueryDataModel,
   requestUser?: RequestUser
 ): Promise<{ totalCount: number; users: User[]; totalBalance: number }> => {
@@ -173,6 +173,173 @@ export const listUsersDetail = async (
   const userResponse = users.map(userWithBalance).sort((a, b) => a.balance - b.balance);
 
   return { totalBalance, totalCount, users: userResponse };
+};
+
+export const listUsersDetail = async (
+  model: QueryDataModel,
+  requestUser?: RequestUser
+): Promise<{ totalCount: number; users: any[]; totalBalance: number }> => {
+  const { pagination, searchText, sort, filter } = model;
+  const { pageSize, pageIndex } = pagination;
+  const { id } = requestUser ?? {};
+  const { role } = requestUser?.account ?? {};
+
+  /* ----------------------------------
+   * 1. Build base WHERE clause
+   * ---------------------------------- */
+  const where: Prisma.UserWhereInput = {};
+
+  if (role === Role.ADMIN) {
+    where.adminId = id;
+  } else if (role === Role.SUPER_ADMIN) {
+    where.account = { role: Role.ADMIN };
+  }
+
+  if (filter?.length) {
+    where.AND = filter.map(({ column, value }) => ({
+      [column]: Array.isArray(value) ? { in: value } : value,
+    }));
+  }
+
+  if (searchText) {
+    where.OR = [
+      { fullName: { contains: searchText, mode: 'insensitive' } },
+      { account: { username: { contains: searchText, mode: 'insensitive' } } },
+    ];
+  }
+
+  /* ----------------------------------
+   * 2. Fetch users (NO orders, NO transfers)
+   * ---------------------------------- */
+  const [totalCount, users] = await Promise.all([
+    db.user.count({ where }),
+    db.user.findMany({
+      where,
+      skip: pageSize ? pageIndex * pageSize : undefined,
+      take: pageSize,
+      orderBy: sort?.column ? { [sort.column]: sort.type } : undefined,
+      select: {
+        id: true,
+        fullName: true,
+        adminId: true,
+        account: {
+          select: { id: true, username: true, role: true },
+        },
+      },
+    }),
+  ]);
+
+  if (!users.length) {
+    return { totalCount, users: [], totalBalance: 0 };
+  }
+
+  const userIds = users.map((u) => u.id);
+
+  /* ----------------------------------
+   * 3. Aggregate ORDERS
+   * ---------------------------------- */
+  const [orderAgg, ongoingAgg] = await Promise.all([
+    db.order.groupBy({
+      by: ['userId'],
+      where: {
+        userId: { in: userIds },
+        status: { not: OrderStatus.CANCELLED },
+      },
+      _sum: {
+        totalPrice: true,
+        shippingFee: true,
+        deposit: true,
+      },
+    }),
+    db.order.groupBy({
+      by: ['userId'],
+      where: {
+        userId: { in: userIds },
+        status: { in: [OrderStatus.ONGOING, OrderStatus.LANDED_IN_CHINA] },
+      },
+      _count: { _all: true },
+      _sum: {
+        totalPrice: true,
+        shippingFee: true,
+        deposit: true,
+      },
+    }),
+  ]);
+
+  /* ----------------------------------
+   * 4. Aggregate TRANSFERS
+   * ---------------------------------- */
+  const transferAgg = await db.transfered.groupBy({
+    by: ['userId'],
+    where: { userId: { in: userIds } },
+    _sum: { amount: true },
+  });
+
+  /* ----------------------------------
+   * 5. Build lookup maps
+   * ---------------------------------- */
+  const orderMap = new Map(orderAgg.map((o) => [o.userId, o]));
+  const ongoingMap = new Map(ongoingAgg.map((o) => [o.userId, o]));
+  const transferMap = new Map(transferAgg.map((t) => [t.userId, t]));
+
+  /* ----------------------------------
+   * 6. Merge + compute balance
+   * ---------------------------------- */
+  const usersWithBalance = users.map((u) => {
+    const o = orderMap.get(u.id);
+    const og = ongoingMap.get(u.id);
+    const t = transferMap.get(u.id);
+
+    const totalOrder = (o?._sum.totalPrice ?? 0) + (o?._sum.shippingFee ?? 0) - (o?._sum.deposit ?? 0);
+
+    const totalTransfer = t?._sum.amount ?? 0;
+
+    return {
+      ...u,
+      onGoingOrderCount: og?._count._all ?? 0,
+      onGoingTotal: (og?._sum.totalPrice ?? 0) + (og?._sum.shippingFee ?? 0) - (og?._sum.deposit ?? 0),
+      transfered: totalTransfer,
+      balance: totalTransfer - totalOrder,
+    };
+  });
+
+  /* ----------------------------------
+   * 7. Compute TOTAL BALANCE (DB-level)
+   * ---------------------------------- */
+  const [orderTotalAgg, transferTotalAgg] = await Promise.all([
+    db.order.aggregate({
+      where: {
+        status: { not: OrderStatus.CANCELLED },
+        user: where,
+      },
+      _sum: {
+        totalPrice: true,
+        shippingFee: true,
+        deposit: true,
+      },
+    }),
+    db.transfered.aggregate({
+      where: {
+        user: where,
+      },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const totalBalance =
+    (transferTotalAgg._sum.amount ?? 0) -
+    ((orderTotalAgg._sum.totalPrice ?? 0) + (orderTotalAgg._sum.shippingFee ?? 0) - (orderTotalAgg._sum.deposit ?? 0));
+
+  /* ----------------------------------
+   * 8. Optional sort by balance
+   * ---------------------------------- */
+  usersWithBalance.sort((a, b) => a.balance - b.balance);
+
+  return {
+    totalCount,
+    users: usersWithBalance,
+    totalBalance,
+  };
 };
 
 const userWithBalance = (u: any) => {
