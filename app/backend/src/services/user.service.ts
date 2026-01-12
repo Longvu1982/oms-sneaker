@@ -181,6 +181,7 @@ export const listUsersDetail = async (
 ): Promise<{ totalCount: number; users: any[]; totalBalance: number }> => {
   const { pagination, searchText, sort, filter } = model;
   const { pageSize, pageIndex } = pagination;
+
   const { id } = requestUser ?? {};
   const { role } = requestUser?.account ?? {};
 
@@ -215,8 +216,8 @@ export const listUsersDetail = async (
     db.user.count({ where }),
     db.user.findMany({
       where,
-      skip: pageSize ? pageIndex * pageSize : undefined,
-      take: pageSize,
+      // skip: pageSize ? pageIndex * pageSize : undefined,
+      // take: pageSize,
       orderBy: sort?.column ? { [sort.column]: sort.type } : undefined,
       select: {
         id: true,
@@ -337,7 +338,7 @@ export const listUsersDetail = async (
 
   return {
     totalCount,
-    users: usersWithBalance,
+    users: pageSize ? usersWithBalance.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) : usersWithBalance,
     totalBalance,
   };
 };
