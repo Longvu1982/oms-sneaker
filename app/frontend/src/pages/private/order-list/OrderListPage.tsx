@@ -1,6 +1,15 @@
 import ComboBox from "@/components/combo-box/ComboBox";
 import { CommandSearch } from "@/components/command-search/CommandSearch";
 import { Option } from "@/components/multi-select/MutipleSelect";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +24,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import useDebounce from "@/hooks/use-debounce-value";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
@@ -40,6 +50,7 @@ import {
 } from "@/types/model/app-model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckedState } from "@radix-ui/react-checkbox";
+import { SelectIcon } from "@radix-ui/react-select";
 import { RowSelectionState } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { saveAs } from "file-saver";
@@ -47,6 +58,7 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
+  CopyIcon,
   Download,
   FileSpreadsheet,
   FileText,
@@ -70,7 +82,6 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
-import { SelectIcon } from "@radix-ui/react-select";
 
 const initOrderFormValues = {
   SKU: "",
@@ -120,6 +131,10 @@ const OrderListPage = ({
       data: OrderWithExtra[];
     }[]
   >([]);
+  const [unMatchedCodes, setUnMatchedCodes] = useState<string[]>([]);
+  const [isOpenDeliveryCodeModal, setOpenDeliveryCodeModal] =
+    useState<boolean>(false);
+  const [, handleCopyToClipboard] = useCopyToClipboard();
 
   const viewportRef = useRef<ViewportListRef>(null);
 
@@ -501,16 +516,23 @@ const OrderListPage = ({
       .filter(Boolean)
       .map((item) => item.toLowerCase().trim());
 
+    const codeSet = new Set<string>(deliveryCodeArray);
+
     const selectableOrders = orderList.filter((order) =>
       deliveryCodeArray.some((code) => {
         const orderDeliveryCode = order.deliveryCode
           ?.toLocaleLowerCase()
           ?.trim();
 
-        return (
+        const match =
           (orderDeliveryCode && code.includes(orderDeliveryCode)) ||
-          orderDeliveryCode?.includes(code)
-        );
+          orderDeliveryCode?.includes(code);
+
+        if (match) {
+          codeSet.delete(code);
+          return true;
+        }
+        return false;
       }),
     );
 
@@ -521,55 +543,8 @@ const OrderListPage = ({
       },
       {} as Record<string, boolean>,
     );
-
+    setUnMatchedCodes(Array.from(codeSet));
     setSelectedRows(selectableRowMap);
-  };
-
-  const onSelectDeliveryCodeBtnClick = () => {
-    openConfirmModal({
-      title: "Nhập danh sách MVĐ (theo dòng)",
-      content: (
-        <div>
-          <ScrollArea className="max-h-[400px]">
-            <Form {...deliveryCodeForm}>
-              <form id="selectDeliveryCodeList" className="p-1">
-                <FormField
-                  control={deliveryCodeForm.control}
-                  name="deliveryCodeInputList"
-                  render={({ field }) => (
-                    <>
-                      <p className="mb-4">
-                        <span>Số mã đã nhập: </span>
-                        <span className="font-bold text-red-400">
-                          {field.value.split("\n").filter(Boolean).length}
-                        </span>
-                      </p>
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            minLength={10}
-                            className="min-h-[300px] resize-none"
-                            autoFocus
-                          />
-                        </FormControl>
-                      </FormItem>
-                    </>
-                  )}
-                />
-              </form>
-            </Form>
-          </ScrollArea>
-        </div>
-      ),
-      confirmType: "normal",
-      confirmText: "Chọn",
-      onConfirm: (closeModal: () => void) => {
-        const value = deliveryCodeForm.getValues()?.deliveryCodeInputList ?? "";
-        onSubmitDeliveryCodeInput(value);
-        closeModal();
-      },
-    });
   };
 
   const getCardColor = (length: number) => {
@@ -702,7 +677,7 @@ const OrderListPage = ({
             </DropdownMenuContent>
           </DropdownMenu>
           {role === Role.ADMIN && (
-            <Button size="sm" onClick={onSelectDeliveryCodeBtnClick}>
+            <Button size="sm" onClick={() => setOpenDeliveryCodeModal(true)}>
               <SelectIcon />
               Chọn MVĐ
             </Button>
@@ -952,6 +927,91 @@ const OrderListPage = ({
           }
         }}
       />
+
+      <AlertDialog open={isOpenDeliveryCodeModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Nhập danh sách MVĐ (theo dòng)</AlertDialogTitle>
+            {/* <AlertDialogDescription>{meta.content}</AlertDialogDescription> */}
+          </AlertDialogHeader>
+          <div className="text-gray-500">
+            <div>
+              <ScrollArea className="h-[400px]">
+                <Form {...deliveryCodeForm}>
+                  <form id="selectDeliveryCodeList" className="p-1">
+                    <FormField
+                      control={deliveryCodeForm.control}
+                      name="deliveryCodeInputList"
+                      render={({ field }) => (
+                        <>
+                          <p className="mb-4">
+                            <span>Số mã đã nhập: </span>
+                            <span className="font-bold text-red-400">
+                              {field.value.split("\n").filter(Boolean).length}
+                            </span>
+                          </p>
+
+                          {unMatchedCodes.length > 0 && (
+                            <p className="mb-4">
+                              <span>Số mã chưa khớp: </span>
+                              <span className="font-bold text-red-400">
+                                {unMatchedCodes.map((code) => (
+                                  <p
+                                    key={code}
+                                    className="flex items-center gap-2"
+                                  >
+                                    {code}
+                                    <CopyIcon
+                                      className="hover:opacity-80 active:opacity-70 cursor-pointer"
+                                      size={14}
+                                      onClick={() =>
+                                        handleCopyToClipboard(
+                                          code,
+                                          "Copy mã thành công",
+                                        )
+                                      }
+                                    />
+                                  </p>
+                                ))}
+                              </span>
+                            </p>
+                          )}
+
+                          <FormItem>
+                            <FormControl>
+                              <Textarea
+                                {...field}
+                                minLength={10}
+                                className="min-h-[300px] resize-none"
+                                autoFocus
+                              />
+                            </FormControl>
+                          </FormItem>
+                        </>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </ScrollArea>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOpenDeliveryCodeModal(false)}>
+              Đóng
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={() => {
+                const value =
+                  deliveryCodeForm.getValues()?.deliveryCodeInputList ?? "";
+                onSubmitDeliveryCodeInput(value);
+              }}
+            >
+              Chọn
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
