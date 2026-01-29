@@ -108,11 +108,7 @@ const columns: EnhancedColumnDef<User>[] = [
 
       const value = -balance - onGoingTotal;
 
-      return (
-        <span className={cn(value < 0 ? "text-red-500" : "text-green-600")}>
-          {formatAmount(value)}
-        </span>
-      );
+      return <span className="text-red-500">{formatAmount(value)}</span>;
     },
   },
   {
