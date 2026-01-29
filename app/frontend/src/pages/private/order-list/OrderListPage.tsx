@@ -11,7 +11,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import useDebounce from "@/hooks/use-debounce-value";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount, renderBadge } from "@/lib/utils";
@@ -67,6 +70,7 @@ import { schema } from "./panel/order-panel-schema";
 import OrderPanel, { OrderFormValues } from "./panel/OrderPanel";
 import { UploadOrderModal } from "./panel/UploadOrderModal";
 import OrderTable from "./table/OrderTable";
+import { SelectIcon } from "@radix-ui/react-select";
 
 const initOrderFormValues = {
   SKU: "",
@@ -103,7 +107,7 @@ const OrderListPage = ({
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [targetStatus, setTargetStatus] = useState<OrderStatus | "">("");
   const [appliedFilters, setAppliedFilters] = useState<FilterFormValues | null>(
-    null
+    null,
   );
   const [showGroupUser, setShowGroupUser] = useState<CheckedState>(true);
   const [expandedUsers, setExpandedUsers] = useState<string[]>([]);
@@ -123,7 +127,7 @@ const OrderListPage = ({
     setExpandedUsers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
@@ -132,12 +136,12 @@ const OrderListPage = ({
       Object.entries(selectedRows)
         .filter(([, value]) => value)
         .map(([key]) => key),
-    [selectedRows]
+    [selectedRows],
   );
 
   const selectedOrders = useMemo(
     () => orderList.filter((order) => selectedRowsId.includes(order.id)),
-    [orderList, selectedRowsId]
+    [orderList, selectedRowsId],
   );
 
   const finalOrderList = useMemo(() => {
@@ -147,7 +151,7 @@ const OrderListPage = ({
 
   const totalSelectedValues = useMemo(() => {
     const selectedList = orderList.filter((item) =>
-      selectedRowsId.includes(item.id)
+      selectedRowsId.includes(item.id),
     );
 
     return selectedList.reduce((acc, item) => {
@@ -173,6 +177,7 @@ const OrderListPage = ({
   }>({ isOpen: false, type: "create" });
 
   const { triggerLoading } = useTriggerLoading();
+  const { openConfirmModal } = useGlobalModal();
 
   const filterForm = useForm<FilterFormValues>({
     defaultValues: {
@@ -204,7 +209,7 @@ const OrderListPage = ({
           order.user.fullName.toLowerCase().includes(searchText)
         );
       }),
-    [deferredSearchText, finalOrderList]
+    [deferredSearchText, finalOrderList],
   );
 
   const excludeColumns = useMemo(() => {
@@ -223,7 +228,7 @@ const OrderListPage = ({
         await getOrderList(queryParams);
       });
     },
-    [triggerLoading, queryParams]
+    [triggerLoading, queryParams],
   );
 
   const onChangeOrderCheckBox = useCallback(
@@ -233,7 +238,7 @@ const OrderListPage = ({
         await getOrderList(queryParams);
       });
     },
-    [triggerLoading, queryParams]
+    [triggerLoading, queryParams],
   );
 
   const onFilter = async (data: FilterFormValues) => {
@@ -279,7 +284,7 @@ const OrderListPage = ({
       toast.success(
         orderPanel.type === "create"
           ? "Tạo đơn hàng thành công"
-          : "Chỉnh sửa thành công"
+          : "Chỉnh sửa thành công",
       );
 
       if (orderPanel.type === "edit")
@@ -398,10 +403,9 @@ const OrderListPage = ({
       orderForm.reset({ ...data, orderDate: new Date(data.orderDate) });
       setOrderPanel((prev) => ({ ...prev, isOpen: true, type: "edit" }));
     },
-    [orderForm]
+    [orderForm],
   );
 
-  const { openConfirmModal } = useGlobalModal();
   const onDeleteClick = async (data: OrderWithExtra) => {
     openConfirmModal({
       title: (
@@ -484,6 +488,90 @@ const OrderListPage = ({
         }),
     });
   };
+
+  const deliveryCodeForm = useForm<{ deliveryCodeInputList: string }>({
+    defaultValues: {
+      deliveryCodeInputList: "",
+    },
+  });
+
+  const onSubmitDeliveryCodeInput = (deliveryCodeInputList: string) => {
+    const deliveryCodeArray = deliveryCodeInputList
+      .split("\n")
+      .filter(Boolean)
+      .map((item) => item.toLowerCase().trim());
+
+    const selectableOrders = orderList.filter((order) =>
+      deliveryCodeArray.some((code) => {
+        const orderDeliveryCode = order.deliveryCode
+          ?.toLocaleLowerCase()
+          ?.trim();
+
+        return (
+          (orderDeliveryCode && code.includes(orderDeliveryCode)) ||
+          orderDeliveryCode?.includes(code)
+        );
+      }),
+    );
+
+    const selectableRowMap = selectableOrders.reduce(
+      (acc, cur) => {
+        acc[cur.id] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
+
+    setSelectedRows(selectableRowMap);
+  };
+
+  const onSelectDeliveryCodeBtnClick = () => {
+    openConfirmModal({
+      title: "Nhập danh sách MVĐ (theo dòng)",
+      content: (
+        <div>
+          <ScrollArea className="max-h-[400px]">
+            <Form {...deliveryCodeForm}>
+              <form id="selectDeliveryCodeList" className="p-1">
+                <FormField
+                  control={deliveryCodeForm.control}
+                  name="deliveryCodeInputList"
+                  render={({ field }) => (
+                    <>
+                      <p className="mb-4">
+                        <span>Số mã đã nhập: </span>
+                        <span className="font-bold text-red-400">
+                          {field.value.split("\n").filter(Boolean).length}
+                        </span>
+                      </p>
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            minLength={10}
+                            className="min-h-[300px] resize-none"
+                            autoFocus
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </>
+                  )}
+                />
+              </form>
+            </Form>
+          </ScrollArea>
+        </div>
+      ),
+      confirmType: "normal",
+      confirmText: "Chọn",
+      onConfirm: (closeModal: () => void) => {
+        const value = deliveryCodeForm.getValues()?.deliveryCodeInputList ?? "";
+        onSubmitDeliveryCodeInput(value);
+        closeModal();
+      },
+    });
+  };
+
   const getCardColor = (length: number) => {
     if (length <= 2) return "bg-green-100/40";
     if (length <= 10 && length > 2) return "bg-orange-100/40";
@@ -613,6 +701,12 @@ const OrderListPage = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          {role === Role.ADMIN && (
+            <Button size="sm" onClick={onSelectDeliveryCodeBtnClick}>
+              <SelectIcon />
+              Chọn MVĐ
+            </Button>
+          )}
         </div>
         {role === Role.ADMIN && (
           <div className="flex items-center gap-2">
@@ -661,7 +755,7 @@ const OrderListPage = ({
             <div className="text-2xl font-bold">
               <span
                 className={cn(
-                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600"
+                  totalSelectedValues < 0 ? "text-red-500" : "text-green-600",
                 )}
               >
                 {formatAmount(totalSelectedValues)}
@@ -693,15 +787,15 @@ const OrderListPage = ({
                     setExpandedUsers([]);
                   } else {
                     setExpandedUsers(
-                      groupedOrders.map((group) => group.userId)
+                      groupedOrders.map((group) => group.userId),
                     );
                   }
                 }}
               >
                 <ChevronsUpDown className="h-4 w-4" />
-                {expandedUsers.length !== groupedOrders.length
-                  ? "Mở tất cả"
-                  : "Đóng tất cả"}
+                {expandedUsers.length === groupedOrders.length
+                  ? "Đóng tất cả"
+                  : "Mở tất cả"}
               </Button>
             </div>
 
@@ -712,7 +806,7 @@ const OrderListPage = ({
                     <CardHeader
                       className={cn(
                         "cursor-pointer hover:opacity-65 transition-opacity",
-                        getCardColor(group.data.length)
+                        getCardColor(group.data.length),
                       )}
                       onClick={() => toggleUserExpanded(group.userId)}
                     >
@@ -811,7 +905,7 @@ const OrderListPage = ({
             selectedRows={selectedRows}
             onRowSelectionChange={setSelectedRows}
             orderList={orderList.filter((item) =>
-              selectedRowsId.includes(item.id)
+              selectedRowsId.includes(item.id),
             )}
             onReload={() => getOrderList(queryParams)}
             onChangeOrderCheckBox={onChangeOrderCheckBox}
@@ -851,7 +945,7 @@ const OrderListPage = ({
         results={clientSearchOrderResult.map((order) => order.id)}
         onChangeResult={(result) => {
           const recordIndex = finalOrderList.findIndex(
-            (order) => order.id === result
+            (order) => order.id === result,
           );
           if (recordIndex > -1) {
             viewportRef?.current?.scrollToIndex({ index: recordIndex });

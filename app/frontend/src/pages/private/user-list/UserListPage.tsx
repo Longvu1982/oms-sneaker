@@ -99,16 +99,21 @@ const columns: EnhancedColumnDef<User>[] = [
   },
   {
     accessorKey: "transfered",
-    header: "Tiền đã chuyển",
-    cell: ({ getValue }) => (
-      <span
-        className={cn(
-          (getValue() as number) < 0 ? "text-red-500" : "text-green-600"
-        )}
-      >
-        {formatAmount(getValue() as number)}
-      </span>
-    ),
+    header: "Công nợ về chưa TT",
+    cell: ({ row }) => {
+      const { balance = 0, onGoingTotal = 0 } = row.original as unknown as {
+        balance: number;
+        onGoingTotal: number;
+      };
+
+      const value = -balance - onGoingTotal;
+
+      return (
+        <span className={cn(value < 0 ? "text-red-500" : "text-green-600")}>
+          {formatAmount(value)}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "balance",
@@ -116,7 +121,7 @@ const columns: EnhancedColumnDef<User>[] = [
     cell: ({ getValue }) => (
       <span
         className={cn(
-          (getValue() as number) < 0 ? "text-red-500" : "text-green-600"
+          (getValue() as number) < 0 ? "text-red-500" : "text-green-600",
         )}
       >
         {formatAmount(getValue() as number)}
@@ -303,7 +308,7 @@ const UserListPage = () => {
       toast.success(
         userPanel.type === "create"
           ? "Tạo user thành công"
-          : "Chỉnh sửa thành công"
+          : "Chỉnh sửa thành công",
       );
 
       if (userPanel.type === "edit")
@@ -318,11 +323,11 @@ const UserListPage = () => {
       setSeconds(
         setMinutes(
           setHours(data.createdAt as Date, currentTime.getHours()),
-          currentTime.getMinutes()
+          currentTime.getMinutes(),
         ),
-        currentTime.getSeconds()
+        currentTime.getSeconds(),
       ),
-      currentTime.getMilliseconds()
+      currentTime.getMilliseconds(),
     );
 
     const req = {
@@ -497,7 +502,7 @@ const UserListPage = () => {
               <div className="text-2xl font-bold">
                 <span
                   className={cn(
-                    totalBalance < 0 ? "text-red-500" : "text-green-600"
+                    totalBalance < 0 ? "text-red-500" : "text-green-600",
                   )}
                 >
                   {formatAmount(totalBalance)}
@@ -511,7 +516,7 @@ const UserListPage = () => {
       <div className="overflow-x-auto">
         <DataTable
           columns={columns.filter((col) =>
-            currentUserRole === Role.USER ? col.id !== "actions" : true
+            currentUserRole === Role.USER ? col.id !== "actions" : true,
           )}
           data={userList}
           manualPagination
