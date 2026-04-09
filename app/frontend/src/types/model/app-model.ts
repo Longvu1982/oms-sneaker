@@ -133,10 +133,12 @@ export type QueryDataModel = {
   searchText?: string;
   sort?: { column: string; type: "asc" | "desc" };
   filter?: { column: string; value: A | A[] }[];
+  hideZeroUsers?: boolean;
 };
 
 export const initQueryParams: QueryDataModel = {
   searchText: "",
+  hideZeroUsers: false,
   pagination: {
     pageSize: 200,
     pageIndex: 0,

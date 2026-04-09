@@ -29,4 +29,5 @@ export type QueryDataModel = {
   searchText?: string;
   sort?: { column: string; type: 'asc' | 'desc' };
   filter?: [{ column: string; value: any | any[] }];
+  hideZeroUsers?: boolean;
 };

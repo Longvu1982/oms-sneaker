@@ -179,7 +179,7 @@ export const listUsersDetail = async (
   model: QueryDataModel,
   requestUser?: RequestUser
 ): Promise<{ totalCount: number; users: any[]; totalBalance: number }> => {
-  const { pagination, searchText, sort, filter } = model;
+  const { pagination, searchText, sort, filter, hideZeroUsers } = model;
   const { pageSize, pageIndex } = pagination;
 
   const { id } = requestUser ?? {};
@@ -336,9 +336,17 @@ export const listUsersDetail = async (
    * ---------------------------------- */
   usersWithBalance.sort((a, b) => a.balance - b.balance);
 
+  const results = hideZeroUsers
+    ? usersWithBalance.filter(
+        (u) => !(!u.onGoingOrderCount && !u.onGoingTotal && !u.transfered && !u.balance)
+      )
+    : usersWithBalance;
+
+  const resultTotalCount = hideZeroUsers ? results.length : totalCount;
+
   return {
-    totalCount,
-    users: pageSize ? usersWithBalance.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) : usersWithBalance,
+    totalCount: resultTotalCount,
+    users: pageSize ? results.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) : results,
     totalBalance,
   };
 };

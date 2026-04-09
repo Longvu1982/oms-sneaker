@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
 import { apiAddTransfer } from "@/services/main/transferServices";
@@ -224,6 +225,7 @@ const UserListPage = () => {
     useState<QueryDataModel>(initQueryParams);
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [searchText, setSearchText] = useState("");
+  const [hideZeroUsers, setHideZeroUsers] = useState(false);
 
   const currentUser = useAuthStore((s) => s.user);
   const currentUserId = currentUser?.id;
@@ -408,6 +410,22 @@ const UserListPage = () => {
     });
   };
 
+  const onToggleHideZeroUsers = (value: boolean) => {
+    const newData = {
+      ...queryParams,
+      hideZeroUsers: value,
+      pagination: {
+        ...queryParams.pagination,
+        pageIndex: 0,
+      },
+    };
+
+    setHideZeroUsers(value);
+    triggerLoading(async () => {
+      await getUserList(newData as QueryDataModel);
+    });
+  };
+
   useEffect(() => {
     triggerLoading(async () => {
       const params = structuredClone(initQueryParams);
@@ -470,6 +488,13 @@ const UserListPage = () => {
                   );
                 }}
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={hideZeroUsers}
+                onCheckedChange={(checked) => onToggleHideZeroUsers(checked === true)}
+              />
+              <span className="text-sm">Ẩn user có tất cả giá trị bằng 0</span>
             </div>
           </div>
           <Button
