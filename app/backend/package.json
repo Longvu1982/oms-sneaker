@@ -13,7 +13,8 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --files ./src/index.ts | pino-pretty",
-    "generate": "npx prisma generate"
+    "generate": "npx prisma generate",
+    "test:list-users-detail": "node --require esbuild-register ./src/scripts/listUsersDetail.smoke.ts"
   },
   "keywords": [],
   "author": "",

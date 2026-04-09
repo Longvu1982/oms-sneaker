@@ -185,169 +185,178 @@ export const listUsersDetail = async (
   const { id } = requestUser ?? {};
   const { role } = requestUser?.account ?? {};
 
-  /* ----------------------------------
-   * 1. Build base WHERE clause
-   * ---------------------------------- */
-  const where: Prisma.UserWhereInput = {};
+  const whereConditions: Prisma.Sql[] = [Prisma.sql`1=1`];
 
-  if (role === Role.ADMIN) {
-    where.adminId = id;
+  if (role === Role.ADMIN && id) {
+    whereConditions.push(Prisma.sql`u."adminId" = ${id}`);
   } else if (role === Role.SUPER_ADMIN) {
-    where.account = { role: Role.ADMIN };
+    whereConditions.push(Prisma.sql`a."role" = ${Role.ADMIN}::"Role"`);
   }
 
   if (filter?.length) {
-    where.AND = filter.map(({ column, value }) => ({
-      [column]: Array.isArray(value) ? { in: value } : value,
-    }));
+    filter.forEach(({ column, value }) => {
+      if (!['id', 'adminId', 'fullName'].includes(column)) return;
+      let dbColumn = Prisma.sql`u."fullName"`;
+      if (column === 'id') dbColumn = Prisma.sql`u."id"`;
+      if (column === 'adminId') dbColumn = Prisma.sql`u."adminId"`;
+
+      if (Array.isArray(value) && value.length) {
+        whereConditions.push(Prisma.sql`${dbColumn} IN (${Prisma.join(value)})`);
+      } else if (!Array.isArray(value)) {
+        whereConditions.push(Prisma.sql`${dbColumn} = ${value}`);
+      }
+    });
   }
 
   if (searchText) {
-    where.OR = [
-      { fullName: { contains: searchText, mode: 'insensitive' } },
-      { account: { username: { contains: searchText, mode: 'insensitive' } } },
-    ];
+    const searchLike = `%${searchText}%`;
+    whereConditions.push(
+      Prisma.sql`(u."fullName" ILIKE ${searchLike} OR COALESCE(a."username", '') ILIKE ${searchLike})`
+    );
   }
 
-  /* ----------------------------------
-   * 2. Fetch users (NO orders, NO transfers)
-   * ---------------------------------- */
-  const [totalCount, users] = await Promise.all([
-    db.user.count({ where }),
-    db.user.findMany({
-      where,
-      // skip: pageSize ? pageIndex * pageSize : undefined,
-      // take: pageSize,
-      orderBy: sort?.column ? { [sort.column]: sort.type } : undefined,
-      select: {
-        id: true,
-        fullName: true,
-        adminId: true,
-        account: {
-          select: { id: true, username: true, role: true },
-        },
-      },
-    }),
+  const whereClause = Prisma.join(whereConditions, ' AND ');
+  const hideZeroClause = hideZeroUsers
+    ? Prisma.sql`WHERE NOT ("onGoingOrderCount" = 0 AND "onGoingTotal" = 0 AND "transfered" = 0 AND "balance" = 0)`
+    : Prisma.empty;
+
+  const sortColumnMap: Record<string, Prisma.Sql> = {
+    fullName: Prisma.sql`"fullName"`,
+    onGoingOrderCount: Prisma.sql`"onGoingOrderCount"`,
+    onGoingTotal: Prisma.sql`"onGoingTotal"`,
+    transfered: Prisma.sql`"transfered"`,
+    balance: Prisma.sql`"balance"`,
+  };
+  const orderByColumn = sort?.column && sortColumnMap[sort.column] ? sortColumnMap[sort.column] : Prisma.sql`"balance"`;
+  const orderByDirection = sort?.type === 'desc' ? Prisma.sql`DESC` : Prisma.sql`ASC`;
+  const paginationClause = pageSize
+    ? Prisma.sql`LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
+    : Prisma.empty;
+
+  const baseCte = Prisma.sql`
+    WITH "user_base" AS (
+      SELECT
+        u."id",
+        u."fullName",
+        u."adminId",
+        a."id" AS "accountId",
+        a."username" AS "accountUsername",
+        a."role" AS "accountRole"
+      FROM "User" u
+      LEFT JOIN "Account" a ON a."userId" = u."id"
+      WHERE ${whereClause}
+    ),
+    "order_agg" AS (
+      SELECT
+        o."userId",
+        COALESCE(SUM(o."totalPrice"), 0)::double precision AS "sumTotalPrice",
+        COALESCE(SUM(o."shippingFee"), 0)::double precision AS "sumShippingFee",
+        COALESCE(SUM(o."deposit"), 0)::double precision AS "sumDeposit"
+      FROM "Order" o
+      INNER JOIN "user_base" ub ON ub."id" = o."userId"
+      WHERE o."status" <> ${OrderStatus.CANCELLED}::"OrderStatus"
+      GROUP BY o."userId"
+    ),
+    "ongoing_agg" AS (
+      SELECT
+        o."userId",
+        COUNT(*)::int AS "ongoingCount",
+        COALESCE(SUM(o."totalPrice"), 0)::double precision AS "sumTotalPrice",
+        COALESCE(SUM(o."shippingFee"), 0)::double precision AS "sumShippingFee",
+        COALESCE(SUM(o."deposit"), 0)::double precision AS "sumDeposit"
+      FROM "Order" o
+      INNER JOIN "user_base" ub ON ub."id" = o."userId"
+      WHERE o."status" IN (${OrderStatus.ONGOING}::"OrderStatus", ${OrderStatus.LANDED_IN_CHINA}::"OrderStatus")
+      GROUP BY o."userId"
+    ),
+    "transfer_agg" AS (
+      SELECT
+        t."userId",
+        COALESCE(SUM(t."amount"), 0)::double precision AS "sumAmount"
+      FROM "Transfered" t
+      INNER JOIN "user_base" ub ON ub."id" = t."userId"
+      GROUP BY t."userId"
+    ),
+    "scored" AS (
+      SELECT
+        ub."id",
+        ub."fullName",
+        ub."adminId",
+        ub."accountId",
+        ub."accountUsername",
+        ub."accountRole",
+        COALESCE(og."ongoingCount", 0) AS "onGoingOrderCount",
+        (COALESCE(og."sumTotalPrice", 0) + COALESCE(og."sumShippingFee", 0) - COALESCE(og."sumDeposit", 0)) AS "onGoingTotal",
+        COALESCE(t."sumAmount", 0) AS "transfered",
+        (
+          COALESCE(t."sumAmount", 0) -
+          (COALESCE(o."sumTotalPrice", 0) + COALESCE(o."sumShippingFee", 0) - COALESCE(o."sumDeposit", 0))
+        ) AS "balance"
+      FROM "user_base" ub
+      LEFT JOIN "order_agg" o ON o."userId" = ub."id"
+      LEFT JOIN "ongoing_agg" og ON og."userId" = ub."id"
+      LEFT JOIN "transfer_agg" t ON t."userId" = ub."id"
+    ),
+    "filtered" AS (
+      SELECT * FROM "scored"
+      ${hideZeroClause}
+    )
+  `;
+
+  const [rows, countRows, totalBalanceRows] = await Promise.all([
+    db.$queryRaw<
+      {
+        id: string;
+        fullName: string;
+        adminId: string | null;
+        accountId: string | null;
+        accountUsername: string | null;
+        accountRole: Role | null;
+        onGoingOrderCount: number;
+        onGoingTotal: number;
+        transfered: number;
+        balance: number;
+      }[]
+    >(Prisma.sql`
+      ${baseCte}
+      SELECT *
+      FROM "filtered"
+      ORDER BY ${orderByColumn} ${orderByDirection}
+      ${paginationClause}
+    `),
+    db.$queryRaw<{ totalCount: number }[]>(Prisma.sql`
+      ${baseCte}
+      SELECT COUNT(*)::int AS "totalCount"
+      FROM "filtered"
+    `),
+    db.$queryRaw<{ totalBalance: number }[]>(Prisma.sql`
+      ${baseCte}
+      SELECT COALESCE(SUM("balance"), 0)::double precision AS "totalBalance"
+      FROM "scored"
+    `),
   ]);
 
-  if (!users.length) {
-    return { totalCount, users: [], totalBalance: 0 };
-  }
-
-  const userIds = users.map((u) => u.id);
-
-  /* ----------------------------------
-   * 3. Aggregate ORDERS
-   * ---------------------------------- */
-  const [orderAgg, ongoingAgg] = await Promise.all([
-    db.order.groupBy({
-      by: ['userId'],
-      where: {
-        userId: { in: userIds },
-        status: { not: OrderStatus.CANCELLED },
-      },
-      _sum: {
-        totalPrice: true,
-        shippingFee: true,
-        deposit: true,
-      },
-    }),
-    db.order.groupBy({
-      by: ['userId'],
-      where: {
-        userId: { in: userIds },
-        status: { in: [OrderStatus.ONGOING, OrderStatus.LANDED_IN_CHINA] },
-      },
-      _count: { _all: true },
-      _sum: {
-        totalPrice: true,
-        shippingFee: true,
-        deposit: true,
-      },
-    }),
-  ]);
-
-  /* ----------------------------------
-   * 4. Aggregate TRANSFERS
-   * ---------------------------------- */
-  const transferAgg = await db.transfered.groupBy({
-    by: ['userId'],
-    where: { userId: { in: userIds } },
-    _sum: { amount: true },
-  });
-
-  /* ----------------------------------
-   * 5. Build lookup maps
-   * ---------------------------------- */
-  const orderMap = new Map(orderAgg.map((o) => [o.userId, o]));
-  const ongoingMap = new Map(ongoingAgg.map((o) => [o.userId, o]));
-  const transferMap = new Map(transferAgg.map((t) => [t.userId, t]));
-
-  /* ----------------------------------
-   * 6. Merge + compute balance
-   * ---------------------------------- */
-  const usersWithBalance = users.map((u) => {
-    const o = orderMap.get(u.id);
-    const og = ongoingMap.get(u.id);
-    const t = transferMap.get(u.id);
-
-    const totalOrder = (o?._sum.totalPrice ?? 0) + (o?._sum.shippingFee ?? 0) - (o?._sum.deposit ?? 0);
-
-    const totalTransfer = t?._sum.amount ?? 0;
-
-    return {
-      ...u,
-      onGoingOrderCount: og?._count._all ?? 0,
-      onGoingTotal: (og?._sum.totalPrice ?? 0) + (og?._sum.shippingFee ?? 0) - (og?._sum.deposit ?? 0),
-      transfered: totalTransfer,
-      balance: totalTransfer - totalOrder,
-    };
-  });
-
-  /* ----------------------------------
-   * 7. Compute TOTAL BALANCE (DB-level)
-   * ---------------------------------- */
-  const [orderTotalAgg, transferTotalAgg] = await Promise.all([
-    db.order.aggregate({
-      where: {
-        status: { not: OrderStatus.CANCELLED },
-        user: where,
-      },
-      _sum: {
-        totalPrice: true,
-        shippingFee: true,
-        deposit: true,
-      },
-    }),
-    db.transfered.aggregate({
-      where: {
-        user: where,
-      },
-      _sum: { amount: true },
-    }),
-  ]);
-
-  const totalBalance =
-    (transferTotalAgg._sum.amount ?? 0) -
-    ((orderTotalAgg._sum.totalPrice ?? 0) + (orderTotalAgg._sum.shippingFee ?? 0) - (orderTotalAgg._sum.deposit ?? 0));
-
-  /* ----------------------------------
-   * 8. Optional sort by balance
-   * ---------------------------------- */
-  usersWithBalance.sort((a, b) => a.balance - b.balance);
-
-  const results = hideZeroUsers
-    ? usersWithBalance.filter(
-        (u) => !(!u.onGoingOrderCount && !u.onGoingTotal && !u.transfered && !u.balance)
-      )
-    : usersWithBalance;
-
-  const resultTotalCount = hideZeroUsers ? results.length : totalCount;
+  const users = rows.map((r) => ({
+    id: r.id,
+    fullName: r.fullName,
+    adminId: r.adminId,
+    account: r.accountId
+      ? {
+          id: r.accountId,
+          username: r.accountUsername,
+          role: r.accountRole,
+        }
+      : null,
+    onGoingOrderCount: Number(r.onGoingOrderCount ?? 0),
+    onGoingTotal: Number(r.onGoingTotal ?? 0),
+    transfered: Number(r.transfered ?? 0),
+    balance: Number(r.balance ?? 0),
+  }));
 
   return {
-    totalCount: resultTotalCount,
-    users: pageSize ? results.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) : results,
-    totalBalance,
+    totalCount: Number(countRows[0]?.totalCount ?? 0),
+    users,
+    totalBalance: Number(totalBalanceRows[0]?.totalBalance ?? 0),
   };
 };
 
