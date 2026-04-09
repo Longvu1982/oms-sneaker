@@ -217,7 +217,7 @@ export const listUsersDetail = async (
 
   const whereClause = Prisma.join(whereConditions, ' AND ');
   const hideZeroClause = hideZeroUsers
-    ? Prisma.sql`WHERE NOT ("onGoingOrderCount" = 0 AND "onGoingTotal" = 0 AND "transfered" = 0 AND "balance" = 0)`
+    ? Prisma.sql`WHERE NOT ("onGoingOrderCount" = 0 AND "onGoingTotal" = 0 AND "balance" = 0)`
     : Prisma.empty;
 
   const sortColumnMap: Record<string, Prisma.Sql> = {
@@ -229,9 +229,7 @@ export const listUsersDetail = async (
   };
   const orderByColumn = sort?.column && sortColumnMap[sort.column] ? sortColumnMap[sort.column] : Prisma.sql`"balance"`;
   const orderByDirection = sort?.type === 'desc' ? Prisma.sql`DESC` : Prisma.sql`ASC`;
-  const paginationClause = pageSize
-    ? Prisma.sql`LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
-    : Prisma.empty;
+  const paginationClause = pageSize ? Prisma.sql`LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}` : Prisma.empty;
 
   const baseCte = Prisma.sql`
     WITH "user_base" AS (

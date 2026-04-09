@@ -26,6 +26,12 @@ const run = async () => {
 
   const case2 = await listUsersDetail({ ...base, hideZeroUsers: true }, superAdminUser);
   assert(case2.totalCount >= case2.users.length, 'case2 invalid totalCount/users');
+  assert(
+    case2.users.every(
+      (u) => !(Number(u.onGoingOrderCount) === 0 && Number(u.onGoingTotal) === 0 && Number(u.balance) === 0)
+    ),
+    'case2 hideZero rule mismatch'
+  );
 
   const case3 = await listUsersDetail({ ...base, searchText: 'a' }, superAdminUser);
   assert(case3.totalCount >= case3.users.length, 'case3 invalid totalCount/users');
