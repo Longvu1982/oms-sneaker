@@ -27,8 +27,8 @@ const app = express();
 
 // CORS Middleware
 const corsOptions = {
-  origin: process.env.APP_ENV == 'developement' ? '*' : process.env.ORIGIN,
-  // origin: [process.env.ORIGIN!],
+  //origin: process.env.APP_ENV == 'developement' ? '*' : process.env.ORIGIN,
+  origin: ["http://103.190.107.34:5173", "https://viet-deli.vercel.app"],
   credentials: true,
   optionsSuccessStatus: 204,
 };
