@@ -1,21 +1,20 @@
-FROM node:20-alpine3.18
-
-# RUN addgroup app && adduser -S -G app app
-
-# USER app
+FROM node:22-slim
 
 WORKDIR /app
 
 COPY package*.json ./
+COPY app/frontend/package.json ./app/frontend/
+COPY app/backend/package.json ./app/backend/
 
-RUN npm install
+RUN npm ci --include=optional
 
-COPY . .
+# source only — node_modules come from npm ci above, not from host
+COPY app ./app
 
-EXPOSE 5173
-
-RUN npm run build
+RUN npm run build -w app/frontend
 
 RUN npm install -g serve
 
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 5173
+
+CMD ["serve", "-s", "app/frontend/dist", "-l", "5173"]

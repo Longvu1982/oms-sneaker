@@ -16,7 +16,7 @@
     "start:be": "npm run start -w app/backend",
     "start:fe": "npm run preview -w app/frontend",
     "generate": "npm run generate -w app/backend",
-    "restore-postgres-docker": "docker exec -i postgres-container psql -U user -d mydb <",
+    "restore-postgres-docker": "docker exec -i postgres-container psql -U postgres -d mydb <",
     "restore-postgres": "psql -U postgres -d mydb <"
   },
   "author": "Kris",
