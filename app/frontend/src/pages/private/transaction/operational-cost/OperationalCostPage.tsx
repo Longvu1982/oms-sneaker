@@ -14,7 +14,7 @@ import {
 } from "@/services/main/operationalCostServices";
 import { NatureType } from "@/types/enum/app-enum";
 import { OperationalCostItem } from "@/types/model/app-model";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -63,7 +63,7 @@ const OperationalCostPage = () => {
 
   const getCost = async (date: Date) => {
     return await triggerLoading(async () => {
-      const { data } = await apiGetOperationalCostByDate({ dateTime: date });
+      const { data } = await apiGetOperationalCostByDate({ dateTime: addDays(date, 1) });
       if (!data.success || !data?.data) {
         setData([]);
         return false;
