@@ -9,7 +9,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
-import { toVietnamMonthDate } from "@/lib/date.utils";
 import { apiGetOperationalCostByDate } from "@/services/main/operationalCostServices";
 import { apiGetOrderList, OrderWithExtra } from "@/services/main/orderServices";
 import { apiGetTransactionBalanceByDate } from "@/services/main/transactionBalanceServices";
@@ -26,7 +25,7 @@ import {
   TransactionBalanceItem,
   TransactionWithExtra,
 } from "@/types/model/app-model";
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -61,7 +60,7 @@ const StatisticPage = () => {
   const [open, setOpen] = useState(false);
 
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getStatisticData(date);
+    const isSuccess = await getStatisticData(addDays(date, 1));
     if (isSuccess) {
       setDate(date);
       setOpen(false);
@@ -110,8 +109,8 @@ const StatisticPage = () => {
         await Promise.all([
           apiGetOrderList(orderQueryParams),
           apiGetTransactionList(transactionQueryParams),
-          apiGetTransactionBalanceByDate({ dateTime: toVietnamMonthDate(date) }),
-          apiGetOperationalCostByDate({ dateTime: toVietnamMonthDate(date) }),
+          apiGetTransactionBalanceByDate({ dateTime: date }),
+          apiGetOperationalCostByDate({ dateTime: date }),
         ]);
 
       const orderList = odderData.data.data.orders ?? [];

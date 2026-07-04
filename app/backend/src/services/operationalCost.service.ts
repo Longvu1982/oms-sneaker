@@ -1,7 +1,7 @@
 import { OperationalCost } from '@prisma/client';
+import { endOfMonth, parseISO, startOfMonth } from 'date-fns';
 import { v4 } from 'uuid';
 import { RequestUser } from '../types/express';
-import { getVietnamMonthRange } from '../utils/date.utils';
 import { db } from '../utils/db.server';
 
 export const createOperationalCost = async (
@@ -11,7 +11,10 @@ export const createOperationalCost = async (
   },
   requestUser: RequestUser
 ): Promise<OperationalCost> => {
-  const { startOfTheMonth, endOfTheMonth } = getVietnamMonthRange(balanceData.dateTime);
+  const parsedDate = parseISO(balanceData.dateTime);
+
+  const startOfTheMonth = startOfMonth(parsedDate);
+  const endOfTheMonth = endOfMonth(parsedDate);
 
   const existingCost = await db.operationalCost.findFirst({
     where: {
@@ -38,7 +41,7 @@ export const createOperationalCost = async (
       data: {
         id: v4(),
         adminId: requestUser.id,
-        dateTime: startOfTheMonth,
+        dateTime: parsedDate,
         data: balanceData.data,
       },
     });
@@ -52,7 +55,10 @@ export const getOperationalCostByDate = async ({
   dateTime: string;
   requestUser?: RequestUser;
 }): Promise<OperationalCost | null> => {
-  const { startOfTheMonth, endOfTheMonth } = getVietnamMonthRange(dateTime);
+  const parsedDate = parseISO(dateTime);
+
+  const startOfTheMonth = startOfMonth(parsedDate);
+  const endOfTheMonth = endOfMonth(parsedDate);
 
   const cost =
     (await db.operationalCost.findFirst({
