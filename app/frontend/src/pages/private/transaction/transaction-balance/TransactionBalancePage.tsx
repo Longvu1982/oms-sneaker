@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
+import { toVietnamMonthDate } from "@/lib/date.utils";
 import {
   apiAddTransactionBalance,
   apiGetTransactionBalanceByDate,
@@ -69,7 +70,7 @@ const TransactionBalancePage = () => {
   const onApply = () => {
     triggerLoading(async () => {
       await apiAddTransactionBalance({
-        dateTime: date,
+        dateTime: toVietnamMonthDate(date),
         data: JSON.stringify(data),
       });
 
@@ -93,7 +94,7 @@ const TransactionBalancePage = () => {
   const getTransactionBalance = async (date: Date) => {
     return await triggerLoading(async () => {
       const { data } = await apiGetTransactionBalanceByDate({
-        dateTime: date,
+        dateTime: toVietnamMonthDate(date),
       });
       if (!data.success) return false;
       const balanceData = data.data;

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { useTriggerLoading } from "@/hooks/use-trigger-loading";
 import { cn, formatAmount } from "@/lib/utils";
+import { toVietnamMonthDate } from "@/lib/date.utils";
 import {
   apiAddOperationalCost,
   apiGetOperationalCostByDate,
@@ -41,7 +42,7 @@ const OperationalCostPage = () => {
   const onApply = () => {
     triggerLoading(async () => {
       await apiAddOperationalCost({
-        dateTime: date,
+        dateTime: toVietnamMonthDate(date),
         data: JSON.stringify(data),
       });
 
@@ -63,7 +64,9 @@ const OperationalCostPage = () => {
 
   const getCost = async (date: Date) => {
     return await triggerLoading(async () => {
-      const { data } = await apiGetOperationalCostByDate({ dateTime: date });
+      const { data } = await apiGetOperationalCostByDate({
+        dateTime: toVietnamMonthDate(date),
+      });
       if (!data.success || !data?.data) {
         setData([]);
         return false;

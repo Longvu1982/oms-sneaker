@@ -1,8 +1,7 @@
 import { TransactionBalance } from '@prisma/client';
-import { v4 } from 'uuid';
+import { v4 } from 'uuid';import { RequestUser } from '../types/express';
+import { getVietnamMonthRange } from '../utils/date.utils';
 import { db } from '../utils/db.server';
-import { endOfMonth, parseISO, startOfMonth } from 'date-fns';
-import { RequestUser } from '../types/express';
 
 export const createTransactionBalance = async (
   balanceData: {
@@ -11,10 +10,7 @@ export const createTransactionBalance = async (
   },
   requestUser: RequestUser
 ): Promise<TransactionBalance> => {
-  const parsedDate = parseISO(balanceData.dateTime);
-
-  const startOfTheMonth = startOfMonth(parsedDate);
-  const endOfTheMonth = endOfMonth(parsedDate);
+  const { startOfTheMonth, endOfTheMonth } = getVietnamMonthRange(balanceData.dateTime);
 
   const existingTransaction = await db.transactionBalance.findFirst({
     where: {
@@ -41,7 +37,7 @@ export const createTransactionBalance = async (
       data: {
         id: v4(),
         adminId: requestUser.id,
-        dateTime: parsedDate,
+        dateTime: startOfTheMonth,
         data: balanceData.data,
       },
     });
@@ -55,10 +51,7 @@ export const getTransactionBalanceByDate = async ({
   dateTime: string;
   requestUser?: RequestUser;
 }): Promise<TransactionBalance | null> => {
-  const parsedDate = parseISO(dateTime);
-
-  const startOfTheMonth = startOfMonth(parsedDate);
-  const endOfTheMonth = endOfMonth(parsedDate);
+  const { startOfTheMonth, endOfTheMonth } = getVietnamMonthRange(dateTime);
 
   const transactionBalance =
     (await db.transactionBalance.findFirst({
