@@ -26,7 +26,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
       response.cookie('jwt', token, {
         httpOnly: true,
         // secure: process.env.APP_ENV !== 'developement',
-        secure: false,
+        secure: true,
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
