@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, isValidElement } from "react";
 import { Button } from "../ui/button";
 import {
   Drawer,
@@ -31,27 +31,32 @@ const Panel: FC<PanelProps> = ({
   description,
 }) => {
   return (
-    <Drawer direction="right" open={open} onOpenChange={onOpenChange}>
-      {trigger && <DrawerTrigger>{trigger}</DrawerTrigger>}
-      <DrawerContent
-        onInteractOutside={(e) => e.preventDefault()}
-        className="h-full w-[400px] right-0 rounded-t-none"
-      >
-        <DrawerHeader className="flex items-start justify-between">
+    <Drawer
+      swipeDirection="right"
+      open={open}
+      onOpenChange={onOpenChange}
+      disablePointerDismissal
+    >
+      {trigger &&
+        (isValidElement(trigger) ? (
+          <DrawerTrigger render={trigger} />
+        ) : (
+          <DrawerTrigger>{trigger}</DrawerTrigger>
+        ))}
+      <DrawerContent className="w-[400px] rounded-none">
+        <DrawerHeader className="flex flex-row items-start justify-between">
           <div className="space-y-2">
             <DrawerTitle>{title}</DrawerTitle>
             <DrawerDescription>{description}</DrawerDescription>
           </div>
-          <DrawerClose asChild>
-            <Button variant="outline" size="icon">
-              <X />
-            </Button>
+          <DrawerClose render={<Button variant="outline" size="icon" />}>
+            <X />
           </DrawerClose>
         </DrawerHeader>
         <div className="overflow-y-auto flex-1">{children}</div>
         <DrawerFooter className="flex items-center flex-row justify-end">
-          <DrawerClose asChild>
-            <Button variant="outline">Quay lại</Button>
+          <DrawerClose render={<Button variant="outline" />}>
+            Quay lại
           </DrawerClose>
           <Button form={formId} type="submit">
             Áp dụng
