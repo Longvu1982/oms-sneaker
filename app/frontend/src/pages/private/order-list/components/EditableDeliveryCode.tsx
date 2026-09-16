@@ -48,9 +48,17 @@ export const EditableDeliveryCode = ({
     });
   };
 
+  const restoreScroll = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    window.scrollTo(0, 0);
+  }
+
   const handleCancel = () => {
     setValue(order.deliveryCode || "");
     setIsEditing(false);
+    restoreScroll()
   };
 
   if (isEditing) {
@@ -60,18 +68,12 @@ export const EditableDeliveryCode = ({
         onChange={(e) => setValue(e.target.value)}
         className="w-[150px]"
         autoFocus
-        onBlur={() => {
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          window.scrollTo(0, 0);
-          handleCancel()
-        }
-      }
+        onBlur={handleCancel}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             handleSave();
+            restoreScroll();
           } else if (e.key === "Escape") {
             handleCancel();
           }
