@@ -86,5 +86,5 @@
 }
 
 body {
-  @apply relative h-screen overflow-y-hidden;
+  @apply relative h-dvh overflow-y-hidden;
 }

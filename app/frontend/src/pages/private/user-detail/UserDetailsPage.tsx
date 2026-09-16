@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import DailyBalanceTable from "./DailyBalanceTable";
 import { TransfersTimeline } from "./TransferTimeline";
 
 const UserDetailsPage = () => {
@@ -45,27 +44,27 @@ const UserDetailsPage = () => {
     }));
   }, [userData?.transfers]);
 
-  const dailyBalances = useMemo(() => {
-    if (!userData) return [];
+  // const dailyBalances = useMemo(() => {
+  //   if (!userData) return [];
 
-    const orders = userData.orders ?? [];
-    const transfers = userData.transfers ?? [];
+  //   const orders = userData.orders ?? [];
+  //   const transfers = userData.transfers ?? [];
 
-    const ordersByDate = groupByDate(orders, "orderDate");
-    const transfersByDate = groupByDate(transfers, "createdAt");
+  //   const ordersByDate = groupByDate(orders, "orderDate");
+  //   const transfersByDate = groupByDate(transfers, "createdAt");
 
-    return Object.keys({ ...ordersByDate, ...transfersByDate })
-      .map((dateKey) => ({
-        date: dateKey,
-        orders: ordersByDate[dateKey] || [],
-        transfers: transfersByDate[dateKey] || [],
-      }))
-      .sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB.getTime() - dateA.getTime();
-      });
-  }, [userData]);
+  //   return Object.keys({ ...ordersByDate, ...transfersByDate })
+  //     .map((dateKey) => ({
+  //       date: dateKey,
+  //       orders: ordersByDate[dateKey] || [],
+  //       transfers: transfersByDate[dateKey] || [],
+  //     }))
+  //     .sort((a, b) => {
+  //       const dateA = new Date(a.date);
+  //       const dateB = new Date(b.date);
+  //       return dateB.getTime() - dateA.getTime();
+  //     });
+  // }, [userData]);
 
   useEffect(() => {
     triggerLoading(async () => {
@@ -177,7 +176,7 @@ const UserDetailsPage = () => {
         </section>
 
         <section className="space-y-4">
-          <DailyBalanceTable dailyBalances={dailyBalances} />
+          {/* <DailyBalanceTable dailyBalances={dailyBalances} /> */}
 
           <Tabs defaultValue="group">
             <Card>

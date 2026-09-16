@@ -34,7 +34,15 @@ const Panel: FC<PanelProps> = ({
     <Drawer
       swipeDirection="right"
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          window.scrollTo(0, 0);
+        }
+        onOpenChange?.(isOpen);
+      }}
       disablePointerDismissal
     >
       {trigger &&

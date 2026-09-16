@@ -96,7 +96,7 @@ const ProtectedRoutes = () => {
           <main
             ref={ref}
             id="main-app"
-            className="p-4 overflow-y-auto h-[calc(100vh-48px)]"
+            className="p-4 overflow-y-auto h-[calc(100dvh-48px)]"
           >
             <Suspense fallback={<Spinner />} key={location.key}>
               <Outlet />
