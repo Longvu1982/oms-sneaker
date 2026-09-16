@@ -62,7 +62,19 @@ export const AddTransferModal: FC<AddTransferModalProps> = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4 p-4"
       >
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open}
+        
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+            window.scrollTo(0, 0);
+          }
+          onOpenChange?.(isOpen);
+        }}
+        
+        >
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
