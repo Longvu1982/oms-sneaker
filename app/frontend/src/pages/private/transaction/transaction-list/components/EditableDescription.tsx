@@ -42,7 +42,14 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
           autoFocus
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          onBlur={onCancel}
+          onBlur={() => {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+            window.scrollTo(0, 0);
+            onCancel()
+          }
+        }
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

@@ -60,7 +60,14 @@ export const EditableDeliveryCode = ({
         onChange={(e) => setValue(e.target.value)}
         className="w-[150px]"
         autoFocus
-        onBlur={handleCancel}
+        onBlur={() => {
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          window.scrollTo(0, 0);
+          handleCancel()
+        }
+      }
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();

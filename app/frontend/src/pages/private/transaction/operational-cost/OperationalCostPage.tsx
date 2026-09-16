@@ -14,7 +14,7 @@ import {
 } from "@/services/main/operationalCostServices";
 import { NatureType } from "@/types/enum/app-enum";
 import { OperationalCostItem } from "@/types/model/app-model";
-import { format } from "date-fns";
+import { format, setDate as setFnsDate } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -22,7 +22,7 @@ import { v4 } from "uuid";
 import OperationalCostTable from "./OperationalCostTable";
 
 const OperationalCostPage = () => {
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(() => setFnsDate(new Date(), 15));
 
   const { triggerLoading } = useTriggerLoading();
 
@@ -81,15 +81,16 @@ const OperationalCostPage = () => {
   };
 
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getCost(date);
+    const payloadDate = setFnsDate(date, 15)
+    const isSuccess = await getCost(payloadDate);
     if (isSuccess) {
-      setDate(date);
+      setDate(payloadDate);
       setOpen(false);
     }
   };
 
   useEffect(() => {
-    getCost(date);
+    getCost(setFnsDate(new Date(), 15));
   }, []);
 
   return (

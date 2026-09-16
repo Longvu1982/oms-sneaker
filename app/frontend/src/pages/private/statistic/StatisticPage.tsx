@@ -25,7 +25,7 @@ import {
   TransactionBalanceItem,
   TransactionWithExtra,
 } from "@/types/model/app-model";
-import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
+import { endOfMonth, format, setDate as setFnsDate, startOfMonth } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -53,16 +53,17 @@ const defaultStatistics: StatisticData = {
 };
 
 const StatisticPage = () => {
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(() => setFnsDate(new Date(), 15));
   const [statisticData, setStatisticData] =
     useState<StatisticData>(defaultStatistics);
   const { triggerLoading } = useTriggerLoading();
   const [open, setOpen] = useState(false);
 
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getStatisticData(addDays(date, 1));
+    const payloadDate = setFnsDate(date, 15)
+    const isSuccess = await getStatisticData(payloadDate);
     if (isSuccess) {
-      setDate(date);
+      setDate(payloadDate);
       setOpen(false);
     }
   };
@@ -144,7 +145,7 @@ const StatisticPage = () => {
   };
 
   useEffect(() => {
-    getStatisticData(new Date());
+    getStatisticData(setFnsDate(new Date(), 15));
   }, []);
 
   return (
