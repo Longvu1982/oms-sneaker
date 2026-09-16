@@ -55,7 +55,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-dvh bg-background">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

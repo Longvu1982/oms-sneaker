@@ -447,7 +447,7 @@ const UserListPage = () => {
 
       {[Role.ADMIN, Role.SUPER_ADMIN].includes(currentUserRole as Role) && (
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2">
             <Button
               size="sm"
               onClick={() => {
