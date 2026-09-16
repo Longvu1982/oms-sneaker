@@ -14,7 +14,7 @@ import {
 } from "@/services/main/transactionBalanceServices";
 import { BalanceNatureType } from "@/types/enum/app-enum";
 import { TransactionBalanceItem } from "@/types/model/app-model";
-import { format } from "date-fns";
+import { format, setDate as setFnsDate } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -48,7 +48,7 @@ const defaultTransactionBalance = [
 ];
 
 const TransactionBalancePage = () => {
-  const [date, setDate] = React.useState<Date>(new Date());
+  const [date, setDate] = React.useState<Date>(setFnsDate(new Date(), 15));
 
   const { triggerLoading } = useTriggerLoading();
 
@@ -114,13 +114,14 @@ const TransactionBalancePage = () => {
   };
 
   useEffect(() => {
-    getTransactionBalance(date);
+    getTransactionBalance(setFnsDate(new Date(), 15));
   }, []);
 
   const onMonthSelect = async (date: Date) => {
-    const isSuccess = await getTransactionBalance(date);
+    const payloadDate = setFnsDate(date,15)
+    const isSuccess = await getTransactionBalance(payloadDate);
     if (isSuccess) {
-      setDate(date);
+      setDate(payloadDate);
       setOpen(false);
     }
   };
