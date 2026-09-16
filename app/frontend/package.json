@@ -10,7 +10,6 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
-    "@base-ui/react": "^1.8.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -49,7 +48,8 @@
     "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5",
     "zod": "^3.24.1",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
