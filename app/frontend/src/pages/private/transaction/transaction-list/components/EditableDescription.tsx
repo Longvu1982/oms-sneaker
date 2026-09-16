@@ -30,9 +30,17 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
     });
   };
 
+  const restoreScroll = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    window.scrollTo(0, 0);
+  }
+
   const onCancel = () => {
     setDescription(transaction.description ?? "");
     setIsEditing(false);
+    restoreScroll()
   };
 
   if (isEditing) {
@@ -42,18 +50,12 @@ export const EditableDescription: FC<EditableDescriptionProps> = ({
           autoFocus
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          onBlur={() => {
-            if (document.activeElement instanceof HTMLElement) {
-              document.activeElement.blur();
-            }
-            window.scrollTo(0, 0);
-            onCancel()
-          }
-        }
+          onBlur={onCancel}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               onSave();
+              restoreScroll()
             }
             if (e.key === "Escape") {
               onCancel();
