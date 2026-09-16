@@ -37,6 +37,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import { DataTablePagination } from "./DataTablePagination";
+import { useKeyboardStatus } from "@/hooks/use-keyboard-open";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -91,11 +92,11 @@ export function DataTable<TData extends DefaultData, TValue>({
   useEffect(() => {
     const availableRowIds = data.map((row) => row.id);
     const filteredSelection = Object.keys(rowSelection).filter((id) =>
-      availableRowIds.includes(id)
+      availableRowIds.includes(id),
     );
     const selectionState = filteredSelection.reduce(
       (acc, id) => ({ ...acc, [id]: true }),
-      {}
+      {},
     );
 
     // Only update if the selection actually changed
@@ -163,11 +164,11 @@ export function DataTable<TData extends DefaultData, TValue>({
       const newSelection =
         typeof updater === "function" ? updater(rowSelection) : updater;
       const filteredSelection = Object.keys(newSelection).filter((id) =>
-        availableRowIds.includes(id)
+        availableRowIds.includes(id),
       );
       const selectionState = filteredSelection.reduce(
         (acc, id) => ({ ...acc, [id]: true }),
-        {}
+        {},
       );
       setRowSelection(selectionState);
     },
@@ -185,6 +186,16 @@ export function DataTable<TData extends DefaultData, TValue>({
   };
 
   const table = useReactTable(tableSettings);
+  const isKeyboardOpen = useKeyboardStatus();
+
+  useEffect(() => {
+    if (!isKeyboardOpen) {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      window.scrollTo(0, 0);
+    }
+  }, [isKeyboardOpen]);
 
   if (!table.getRowModel().rows?.length)
     return <p className="text-left mb-4">Không có dữ liệu</p>;
@@ -213,14 +224,14 @@ export function DataTable<TData extends DefaultData, TValue>({
                           "border-l-[1px] border-r-[1px] dark:border-gray-700",
                           fixed
                             ? "sticky right-0 bg-background shadow-md hover:bg-muted/50"
-                            : ""
+                            : "",
                         )}
                       >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -250,12 +261,12 @@ export function DataTable<TData extends DefaultData, TValue>({
                               "border-l-[1px] border-r-[1px] dark:border-gray-700",
                               fixed
                                 ? "sticky right-0 bg-background shadow-md"
-                                : ""
+                                : "",
                             )}
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         );
@@ -327,14 +338,14 @@ export function DataTable<TData extends DefaultData, TValue>({
                   key={row.id}
                   className={cn(
                     "shadow-md border-[2px] border-black dark:border-gray-400",
-                    index === selectedIndex && "animate-blink"
+                    index === selectedIndex && "animate-blink",
                   )}
                 >
                   <CardContent className="p-4">
                     <div className="grid grid-cols-2 gap-4">
                       {row.getVisibleCells().map((cell) => {
                         const header = headers.find(
-                          (item) => item.id === cell.column.id
+                          (item) => item.id === cell.column.id,
                         );
                         return (
                           <div key={cell.id} className="space-y-1">
@@ -343,13 +354,13 @@ export function DataTable<TData extends DefaultData, TValue>({
                                 ? null
                                 : flexRender(
                                     header?.column.columnDef.header,
-                                    header?.getContext?.() as A
+                                    header?.getContext?.() as A,
                                   )}
                             </p>
                             <div className="text-sm">
                               {flexRender(
                                 cell.column.columnDef.cell,
-                                cell.getContext()
+                                cell.getContext(),
                               )}
                             </div>
                           </div>
